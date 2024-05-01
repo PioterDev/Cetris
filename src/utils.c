@@ -3,12 +3,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-typedef enum status_t {
-    SUCCESS,
-    FAILURE,
-    BASEOUTOFRANGE,
-    BUFFERTOOSMALL
-} status_t;
+#include "structs_unions.h"
 
 status_t itos(int in, int base, char* buf, size_t bufsize) {
     static char* digits = "0123456789ABCDEF";
@@ -51,6 +46,22 @@ SDL_Texture* loadTexture(const char* path, SDL_Renderer* renderer) {
     tex = SDL_CreateTextureFromSurface(renderer, surface);
     if(tex == NULL)return NULL;
 
+    SDL_FreeSurface(surface);
+
+    return tex;
+}
+
+SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect* rect) {
+    SDL_Texture* tex;
+    SDL_Surface* surface = IMG_Load(path);
+    if(surface == NULL) return NULL;
+    
+    tex = SDL_CreateTextureFromSurface(renderer, surface);
+    if(tex == NULL)return NULL;
+
+    rect->w = surface->w;
+    rect->h = surface->h;
+    
     SDL_FreeSurface(surface);
 
     return tex;

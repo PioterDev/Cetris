@@ -2,20 +2,10 @@
 #define UTILS_H
 
 
+#include <windows.h>
 #include <SDL.h>
 
-typedef unsigned long long size_t;
-
-/**
- * @brief Simple enum for a status of an operation. Used in otherwise 'void' functions.
- * Defined in utils.h.
- */
-typedef enum status_t {
-    SUCCESS,
-    FAILURE,
-    BASEOUTOFRANGE,
-    BUFFERTOOSMALL
-} status_t;
+#include "structs_unions.h"
 
 /**
  * @brief Converts an integer to a string.
@@ -24,7 +14,10 @@ typedef enum status_t {
  * @param base base of conversion, max is 16
  * @param buf buffer and an output string
  * @param bufsize size of a buffer
- * @return Status of the conversion
+ * @return Status of the conversion: 
+ * BASEOUTOFRANGE if given base is too big, 
+ * FAILURE if conversion fails,
+ * SUCCESS if conversion succeeds.
  */
 status_t itos(int in, int base, char* buf, size_t bufsize);
 
@@ -36,6 +29,16 @@ status_t itos(int in, int base, char* buf, size_t bufsize);
  * @return texture, NULL if error
  */
 SDL_Texture* loadTexture(const char* path, SDL_Renderer* renderer);
+
+/**
+ * @brief Loads an SDL texture and sets rectangle parameters for it.
+ * 
+ * @param path path to file with texture
+ * @param renderer SDL renderer
+ * @param rect SDL rectangle
+ * @return texture, NULL if error
+ */
+SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect* rect);
 
 
 #endif
