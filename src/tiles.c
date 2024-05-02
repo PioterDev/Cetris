@@ -175,6 +175,16 @@ Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* 
             }
             break;
         }
+        case COLOR_UNKNOWN: {
+            switch(shape) {
+                case BACKGROUND: {
+                    strcat(path, "tile_background.png");
+                    break;
+                }
+                default: goto failure;
+            }
+            break;
+        }
         default: goto failure;
     }
     if(debug != NULL)fprintf(debug, "%s\n", path);

@@ -15,6 +15,17 @@ typedef union int32_u {
     char bytes[4];
 } int32_u;
 
+typedef struct QueueElement {
+    void* data;
+    struct QueueElement* next;
+} QueueElement;
+
+typedef struct Queue {
+    size_t size;
+    QueueElement* head;
+    QueueElement* last;
+} Queue;
+
 /**
  * @brief Simple enum for a status of an operation. Used in otherwise 'void' functions.
  */
@@ -22,7 +33,16 @@ typedef enum status_t {
     SUCCESS,
     FAILURE,
     BASEOUTOFRANGE,
-    BUFFERTOOSMALL
+    BUFFERTOOSMALL,
+    MEMORY_FAILURE,
+    FILEOPEN_FAILURE,
+    LOADCONFIG_FAILURE,
+    SDL_INIT_FAILURE,
+    IMG_INIT_FAILURE,
+    SDL_WINDOW_FAILURE,
+    SDL_RENDERER_FAILURE,
+    MUTEX_FAILURE,
+    THREAD_START_FAILURE
 } status_t;
 
 /**
@@ -75,17 +95,6 @@ typedef struct Tile {
 } Tile;
 
 /**
- * @brief Struct for holding parameters for the input thread. Unused, as you can't put the input loop on a separate thread.
- */
-/* typedef struct inputThreadParameters {
-    loopStatus_t* inputStatus;
-    HANDLE inputMutex;
-    HANDLE rectMutex;
-    ProgramParameters* programParameters;
-    SDL_Rect** rects;
-} inputThreadParameters; */
-
-/**
  * @brief Struct for holding parameters for the render thread.
  */
 typedef struct renderThreadParameters {
@@ -94,7 +103,17 @@ typedef struct renderThreadParameters {
     HANDLE tilesMutex;
     SDL_Renderer* renderer;
     Tile** tiles;
+    size_t tilesAmount;
 } renderThreadParameters;
+
+typedef struct logicLoopParameters {
+    loopStatus_t* logicStatus;
+    HANDLE logicMutex;
+    HANDLE tilesMutex;
+    Queue* actionQueue;
+    Tile** tiles;
+    size_t tilesAmount;
+} logicLoopParameters;
 
 typedef enum TileColor{
     COLOR_UNKNOWN,
@@ -113,7 +132,8 @@ typedef enum TileShape {
     L,
     S,
     SQUARE,
-    T
+    T,
+    BACKGROUND
 } TileShape;
 
 
