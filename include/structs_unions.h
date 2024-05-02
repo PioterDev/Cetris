@@ -7,6 +7,9 @@
 
 typedef unsigned long long size_t;
 
+typedef struct Point {
+    int x, y;
+} Point;
 typedef union int32_u {
     int integer;
     char bytes[4];
@@ -64,15 +67,23 @@ typedef struct ProgramParameters {
 } ProgramParameters;
 
 /**
- * @brief Struct for holding parameters for the input thread.
+ * @brief Struct for holding tiles.
  */
-typedef struct inputThreadParameters {
+typedef struct Tile {
+    SDL_Texture* texture;
+    SDL_Rect rect;
+} Tile;
+
+/**
+ * @brief Struct for holding parameters for the input thread. Unused, as you can't put the input loop on a separate thread.
+ */
+/* typedef struct inputThreadParameters {
     loopStatus_t* inputStatus;
     HANDLE inputMutex;
     HANDLE rectMutex;
     ProgramParameters* programParameters;
     SDL_Rect** rects;
-} inputThreadParameters;
+} inputThreadParameters; */
 
 /**
  * @brief Struct for holding parameters for the render thread.
@@ -80,11 +91,30 @@ typedef struct inputThreadParameters {
 typedef struct renderThreadParameters {
     loopStatus_t* renderStatus;
     HANDLE renderMutex;
-    HANDLE rectMutex;
+    HANDLE tilesMutex;
     SDL_Renderer* renderer;
-    SDL_Texture* texture;
-    SDL_Rect** rects;
+    Tile** tiles;
 } renderThreadParameters;
+
+typedef enum TileColor{
+    COLOR_UNKNOWN,
+    AQUA,
+    BLUE,
+    GREEN,
+    MAGENTA,
+    RED,
+    YELLOW
+} TileColor;
+
+typedef enum TileShape {
+    SHAPE_UNKNOWN,
+    BASE,
+    BAR,
+    L,
+    S,
+    SQUARE,
+    T
+} TileShape;
 
 
 #endif

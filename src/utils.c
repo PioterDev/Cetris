@@ -54,6 +54,7 @@ SDL_Texture* loadTexture(const char* path, SDL_Renderer* renderer) {
 SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect* rect) {
     SDL_Texture* tex;
     SDL_Surface* surface = IMG_Load(path);
+
     if(surface == NULL) return NULL;
     
     tex = SDL_CreateTextureFromSurface(renderer, surface);
