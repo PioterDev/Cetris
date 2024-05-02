@@ -3,12 +3,10 @@
 
 
 #include <windows.h>
-#include <SDL.h>
-
-#include "utils.h"
 
 /**
  * @brief Renders to the screen using given parameters.
+ * Meant to be used in a separate thread.
  * 
  * @param parameters renderThreadParameters struct
  * @return exit status

@@ -15,9 +15,13 @@ DWORD WINAPI renderScreen(void* params) {
         WaitForSingleObject(parameters->renderMutex, INFINITE);
         WaitForSingleObject(parameters->tilesMutex, INFINITE);
         
-        SDL_SetRenderDrawColor(parameters->renderer, 255, 255, 255, 255);
+        SDL_SetRenderDrawColor(parameters->renderer, 20, 20, 20, 255);
         SDL_RenderClear(parameters->renderer);
-        SDL_RenderCopy(parameters->renderer, parameters->tiles[0]->texture, NULL, &parameters->tiles[0]->rect); //change later
+
+        for(size_t i = 0; i < parameters->tilesAmount; i++) {
+            SDL_RenderCopy(parameters->renderer, parameters->tiles[i]->texture, NULL, &parameters->tiles[i]->rect);
+        }
+
         SDL_RenderPresent(parameters->renderer);
     
         ReleaseMutex(parameters->tilesMutex);

@@ -1,5 +1,7 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Wl,-subsystem,windows -std=c99 -I$(INCDIR) -I$(SDLINCLUDE) -L$(SDLLIB) -I$(SDLIMAGEINCLUDE) -L$(SDLIMAGELIB)
+CFLAGS = -Wall -Wextra -std=c99 -I$(INCDIR) -I$(SDLINCLUDE) -L$(SDLLIB) -I$(SDLIMAGEINCLUDE) -L$(SDLIMAGELIB)
+
+SUBSYSTEM = -Wl,-subsystem,windows
 
 SRCDIR = src
 INCDIR = include
@@ -27,7 +29,7 @@ all: $(EXEC)
 
 # Rule to build executable
 $(EXEC): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -lmingw32 -l$(LIBRARYSDLMAIN) -l$(LIBRARYSDL) -l$(LIBRARYSDLIMAGE) -mwindows -lwinmm -o $@
+	$(CC) $(CFLAGS) $(OBJS) -lmingw32 -l$(LIBRARYSDLMAIN) -l$(LIBRARYSDL) -l$(LIBRARYSDLIMAGE) -mwindows -lwinmm -g -o $@
 
 # Rule to compile source files
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
