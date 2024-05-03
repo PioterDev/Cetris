@@ -3,7 +3,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include "structs_unions.h"
+#include "structs_unions_defines.h"
 
 status_t itos(int in, int base, char* buf, size_t bufsize) {
     static char* digits = "0123456789ABCDEF";
@@ -66,4 +66,65 @@ SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect*
     SDL_FreeSurface(surface);
 
     return tex;
+}
+
+char** zeroMatrix(int height, int width) {
+    char** matrix = calloc(height, sizeof(char*));
+    if(matrix == NULL)return NULL;
+
+    for(int i = 0; i < height; i++) {
+        matrix[i] = calloc(width, 1);
+        if(matrix[i] == NULL) {
+            for(int j = 0; j < i; j++) {
+                free(matrix[j]);
+            }
+            free(matrix);
+            return NULL;
+        }
+    }
+
+    return matrix;
+}
+
+void freeMatrix(char** matrix, int height) {
+    for(int i = 0; i < height; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
+
+int MaxIndex(int* arr, int n) {
+    int maxIndex = 0;
+    for(int i = 1; i < n; i++) {
+        if(arr[i] > arr[maxIndex])maxIndex = i;
+    }
+
+    return maxIndex;
+}
+
+int MinIndex(int* arr, int n) {
+    int minIndex = 0;
+    for(int i = 1; i < n; i++) {
+        if(arr[i] < arr[minIndex])minIndex = i;
+    }
+
+    return minIndex;
+}
+
+int Max(int* arr, int n) {
+    int max = arr[0];
+    for(int i = 1; i < n; i++) {
+        if(arr[i] > max)max = arr[i];
+    }
+
+    return max;
+}
+
+int Min(int* arr, int n) {
+    int min = arr[0];
+    for(int i = 1; i < n; i++) {
+        if(arr[i] < min)min = arr[i];
+    }
+
+    return min;
 }

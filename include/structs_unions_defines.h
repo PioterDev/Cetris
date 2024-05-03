@@ -1,9 +1,12 @@
 #ifndef STRUCTS_UNIONS_H
 #define STRUCTS_UNIONS_H
 
-
+#include <stdio.h>
 #include <windows.h>
 #include <SDL.h>
+
+#define tilesPath "./assets/tiles/"
+#define tileColorAmount 7
 
 typedef unsigned long long size_t;
 
@@ -14,6 +17,11 @@ typedef union int32_u {
     int integer;
     char bytes[4];
 } int32_u;
+
+typedef union Color {
+    unsigned int color;
+    unsigned char rgba[4];
+} Color;
 
 typedef struct QueueElement {
     SDL_Event event;
@@ -67,6 +75,7 @@ typedef struct Keymap {
     int hold; //7 keys
 
     int pause;
+    int test;
 } Keymap;
 
 /**
@@ -85,11 +94,18 @@ typedef struct ProgramParameters {
     int screen_height;
     int fps;
     Keymap keymap;
+    short baseTileSize;
+    //If it's > 0, scale up, if it's < 0, scale down
+    char scalingFactor;
     LARGE_INTEGER* clockFrequency;
     LARGE_INTEGER* timer;
     FILE* generallog;
     FILE* errorlog;
     FILE* debugLog;
+    SDL_Texture* baseTextures[tileColorAmount];
+    char** tetrisGrid;
+    int tetrisGridHeight;
+    int tetrisGridWidth;
 } ProgramParameters;
 
 /**
@@ -109,19 +125,16 @@ typedef struct renderThreadParameters {
     HANDLE tilesMutex;
     ProgramParameters* programParameters;
     SDL_Renderer* renderer;
+    Color* backgroundColor;
     Tile** tiles;
     size_t tilesAmount;
 } renderThreadParameters;
 
-typedef struct logicLoopParameters {
-    loopStatus_t* logicStatus;
-    HANDLE logicMutex;
-    HANDLE tilesMutex;
+typedef struct logicParameters {
     ProgramParameters* programParameters;
-    Queue* eventQueue;
     Tile** tiles;
     size_t tilesAmount;
-} logicLoopParameters;
+} logicParameters;
 
 typedef enum TileColor{
     COLOR_UNKNOWN,
@@ -129,6 +142,7 @@ typedef enum TileColor{
     BLUE,
     GREEN,
     MAGENTA,
+    ORANGE,
     RED,
     YELLOW
 } TileColor;
@@ -137,10 +151,12 @@ typedef enum TileShape {
     SHAPE_UNKNOWN,
     BASE,
     BAR,
+    J,
     L,
     S,
     SQUARE,
     T,
+    Z,
     BACKGROUND
 } TileShape;
 

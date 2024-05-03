@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "utils.h"
-#include "structs_unions.h"
+#include "structs_unions_defines.h"
 
 static inline void setParameter(ProgramParameters* parameters, const char* key, int value) {
     if     (!strcmp(key, "moveleft"))                   parameters->keymap.movePieceLeft = value;
@@ -21,7 +21,7 @@ static inline void setParameter(ProgramParameters* parameters, const char* key, 
 }
 
 ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
-    ProgramParameters* parameters = malloc(sizeof(ProgramParameters));
+    ProgramParameters* parameters = calloc(1, sizeof(ProgramParameters));
     if(parameters == NULL)return NULL;
 
     char buf[128] = {0};
@@ -65,7 +65,7 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
         else if(!strcmp(value, "rightarrow"))   setParameter(parameters, key, SDLK_RIGHT);
         else if(!strcmp(value, "uparrow"))      setParameter(parameters, key, SDLK_UP);
         else if(!strcmp(value, "downarrow"))    setParameter(parameters, key, SDLK_DOWN);
-        else if(!strcmp(value, "lshift"))        setParameter(parameters, key, SDLK_LSHIFT);
+        else if(!strcmp(value, "lshift"))       setParameter(parameters, key, SDLK_LSHIFT);
         else if(!strcmp(value, "space"))        setParameter(parameters, key, SDLK_SPACE);
         else if(!strcmp(value, "esc"))          setParameter(parameters, key, SDLK_ESCAPE);
 
@@ -76,7 +76,51 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
     return parameters;
 }
 
-inline void freeProgramConfig(ProgramParameters* params) {
+status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer) {
+    char path[256] = tilesPath;
+    char* pos = path + strlen(tilesPath);
+    SDL_Rect rect;
+
+    strcpy(pos, "tile_base_aqua.png");
+    parameters->baseTextures[0] = loadTextureRect(path, renderer, &rect);
+    if(parameters->baseTextures[0] == NULL) return FAILURE;
+
+    strcpy(pos, "tile_base_blue.png");
+    parameters->baseTextures[1] = loadTexture(path, renderer);
+    if(parameters->baseTextures[1] == NULL) return FAILURE;
+
+    strcpy(pos, "tile_base_green.png");
+    parameters->baseTextures[2] = loadTexture(path, renderer);
+    if(parameters->baseTextures[2] == NULL) return FAILURE;
+
+    strcpy(pos, "tile_base_magenta.png");
+    parameters->baseTextures[3] = loadTexture(path, renderer);
+    if(parameters->baseTextures[3] == NULL) return FAILURE;
+
+    strcpy(pos, "tile_base_orange.png");
+    parameters->baseTextures[4] = loadTexture(path, renderer);
+    if(parameters->baseTextures[4] == NULL) return FAILURE;
+
+    strcpy(pos, "tile_base_red.png");
+    parameters->baseTextures[5] = loadTexture(path, renderer);
+    if(parameters->baseTextures[5] == NULL) return FAILURE;
+    
+    strcpy(pos, "tile_base_yellow.png");
+    parameters->baseTextures[6] = loadTexture(path, renderer);
+    if(parameters->baseTextures[6] == NULL) return FAILURE;
+
+    parameters->baseTileSize = rect.h;
+
+    return SUCCESS;
+}
+
+void freeProgramConfig(ProgramParameters* params) {
+    for(int i = 0; i < tileColorAmount; i++) {
+        if(params->baseTextures[i] != NULL) {
+            SDL_DestroyTexture(params->baseTextures[i]);
+        }
+    }
+    freeMatrix(params->tetrisGrid, params->tetrisGridHeight);
     free(params);
 }
 
@@ -112,6 +156,7 @@ void printKeymap(Keymap* keymap, FILE* stream) {
 }
 
 void printConfig(ProgramParameters* params, FILE* stream) {
+    if(stream == NULL)return;
     fprintf(stream, "Screen width: %d\n", params->screen_width);
     fprintf(stream, "Screen height: %d\n", params->screen_height);
     fprintf(stream, "FPS: %d\n", params->fps);
