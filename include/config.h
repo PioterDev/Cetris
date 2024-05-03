@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-#include "structs_unions.h"
+#include "structs_unions_defines.h"
 
 /**
  * @brief Loads game configuration and returns a pointer to GameParameters struct, NULL on error.
@@ -14,6 +14,15 @@
  * @return pointer to GameParameters struct, NULL on error 
  */
 ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile);
+
+/**
+ * @brief Loads base tile textures into program parameters.
+ * 
+ * @param parameters ProgramParameters struct
+ * @param renderer renderer
+ * @return SUCCESS on success, FAILURE on failure
+ */
+status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer);
 
 /**
  * @brief Frees game configuration.

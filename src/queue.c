@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <windows.h>
+#include <SDL.h>
 
-#include "structs_unions.h"
+#include "structs_unions_defines.h"
 
 Queue* initQueue() {
     Queue* queue = calloc(1, sizeof(Queue));
@@ -10,11 +11,11 @@ Queue* initQueue() {
     return queue;
 }
 
-status_t enqueue(Queue* queue, void* data) {
+status_t enqueue(Queue* queue, SDL_Event event) {
     QueueElement* new = malloc(sizeof(QueueElement));
     if(new == NULL)return MEMORY_FAILURE;
     
-    new->data = data;
+    new->event = event;
     new->next = NULL;
     
     if(queue->size == 0) {
@@ -33,21 +34,9 @@ status_t enqueue(Queue* queue, void* data) {
     return SUCCESS;
 }
 
-void* dequeue(Queue* queue) {
-    if(queue->head == NULL)return NULL; //empty queue
-    void* data = queue->head->data;
-    QueueElement* next = queue->head->next;
-
-    free(queue->head);   
-    queue->head = next;
-    queue->size--;
-
-    return data;
-}
-
-char dequeueAlt(Queue* queue, void* out) {
+char dequeue(Queue* queue, SDL_Event* event) {
     if(queue->head == NULL)return 0;
-    out = queue->head->data;
+    *event = queue->head->event;
     QueueElement* next = queue->head->next;
 
     free(queue->head);
@@ -57,7 +46,7 @@ char dequeueAlt(Queue* queue, void* out) {
     return 1;
 }
 
-void printQueue(Queue* queue) {
+/* void printQueue(Queue* queue) {
     printf("Size: %lld\n", queue->size);
     QueueElement* current = queue->head;
     size_t i = 1;
@@ -66,13 +55,12 @@ void printQueue(Queue* queue) {
         current = current->next;
         i++;
     }
-}
+} */
 
 void freeQueue(Queue* queue) {
     QueueElement* current = queue->head;
     QueueElement* tmp;
     while(current != NULL) {
-        free(current->data);
         tmp = current->next;
         free(current);
         current = tmp;

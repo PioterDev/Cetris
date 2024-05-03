@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <SDL.h>
 
-#include "structs_unions.h"
+#include "structs_unions_defines.h"
 
 /**
  * @brief Loads a tile of given color, shape and coordinates. If `coordinates` is NULL, the position is `(0, 0)`.
@@ -25,6 +25,22 @@ Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* 
  * @param tile pointer to Tile struct
  */
 void freeTile(Tile* tile);
+
+/**
+ * @brief Loads a random tile. Look up `loadTile`.
+ * 
+ * @param renderer renderer
+ * @param coordinates pointer to Point struct of the tile
+ * @param debug debug stream, optional
+ * @return pointer to Tile struct, NULL on error
+ */
+Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, FILE* debug);
+
+void centerTileHorizontally(Tile* tile, ProgramParameters* programParameters);
+
+void centerTileVertically(Tile* tile, ProgramParameters* programParameters);
+
+void centerTile(Tile* tile, ProgramParameters* programParameters);
 
 
 #endif
