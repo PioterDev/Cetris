@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <SDL.h>
 
-#include "structs_unions.h"
+#include "structs_unions_defines.h"
 
 //A failed attempt at making an input loop on a separate thread.
 //Doesn't work because SDL_PollEvent can
@@ -12,7 +12,7 @@
 //I'm gonna leave this file as is for
 //future generations of C programmers.
 
-DWORD WINAPI inputLoop(void* params) {
+/* DWORD WINAPI inputLoop(void* params) {
     inputThreadParameters* parameters = params;
     SDL_Event event;
 
@@ -52,4 +52,4 @@ DWORD WINAPI inputLoop(void* params) {
         Sleep(1);
     }
     return SUCCESS;
-}
+} */

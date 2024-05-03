@@ -2,7 +2,9 @@
 #define QUEUE_H
 
 
-#include "structs_unions.h"
+#include <SDL.h>
+
+#include "structs_unions_defines.h"
 
 /**
  * @brief Creates a queue.
@@ -18,30 +20,15 @@ Queue* initQueue();
  * @param data pointer to data
  * @return SUCCESS on success, MEMORY_FAILURE on memory allocation error
  */
-status_t enqueue(Queue* queue, void* data);
+status_t enqueue(Queue* queue, SDL_Event event);
 
 /**
- * @brief Removes first element from queue and returns pointer to its data.
+ * @brief Removes first element from queue and sets passed event to dequeued event.
  * 
  * @param queue queue
- * @return pointer to dequeued element's data, NULL on empty queue
+ * @return 0 if empty queue, 1 if not
  */
-void* dequeue(Queue* queue);
-
-/**
- * @brief Removes first element from queue and puts its data in `out`.
- * 
- * @param queue queue
- * @param out variable to store element's pointer to data
- */
-char dequeueAlt(Queue* queue, void* out);
-
-/**
- * @brief Prints pointers to elements queued. Not really useful.
- * 
- * @param queue queue
- */
-void printQueue(Queue* queue);
+char dequeue(Queue* queue, SDL_Event* event);
 
 /**
  * @brief Frees all elements and their data from the queue.

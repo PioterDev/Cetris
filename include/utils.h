@@ -5,7 +5,7 @@
 #include <windows.h>
 #include <SDL.h>
 
-#include "structs_unions.h"
+#include "structs_unions_defines.h"
 
 /**
  * @brief Converts an integer to a string.
@@ -39,6 +39,61 @@ SDL_Texture* loadTexture(const char* path, SDL_Renderer* renderer);
  * @return texture, NULL if error
  */
 SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect* rect);
+
+/**
+ * @brief Creates a matrix filled with 0s with elements of given size.
+ * 
+ * @param elementSize element size in bytes
+ * @param height height of the matrix
+ * @param width width of the matrix
+ * @return pointer to the matrix, NULL on allocation error
+ */
+char** zeroMatrix(int height, int width);
+
+/**
+ * @brief Frees the matrix from memory.
+ * 
+ * @param matrix matrix
+ * @param height height of the matrix
+ * @param width width of the matrix
+ */
+void freeMatrix(char** matrix, int height);
+
+/**
+ * @brief Returns the index of the biggest element in an int array.
+ * 
+ * @param arr array
+ * @param n number of elements
+ * @return index to max element
+ */
+int MaxIndex(int* arr, int n);
+
+/**
+ * @brief Returns the index of the smallest element in an int array.
+ * 
+ * @param arr array
+ * @param n number of elements
+ * @return index to min element
+ */
+int MinIndex(int* arr, int n);
+
+/**
+ * @brief Returns the biggest element in an int array.
+ * 
+ * @param arr array
+ * @param n number of elements
+ * @return max element 
+ */
+int Max(int* arr, int n);
+
+/**
+ * @brief Returns the biggest element in an int array.
+ * 
+ * @param arr array
+ * @param n number of elements
+ * @return min element
+ */
+int Min(int* arr, int n);
 
 
 #endif

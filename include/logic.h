@@ -10,7 +10,9 @@
  * @param params logicThreadParameters struct
  * @return exit status
  */
-DWORD WINAPI logicLoop(void* params);
+//DWORD WINAPI logicLoop(void* params);
+
+
 
 
 #endif
