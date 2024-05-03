@@ -16,7 +16,7 @@ typedef union int32_u {
 } int32_u;
 
 typedef struct QueueElement {
-    void* data;
+    SDL_Event event;
     struct QueueElement* next;
 } QueueElement;
 
@@ -42,6 +42,7 @@ typedef enum status_t {
     SDL_WINDOW_FAILURE,
     SDL_RENDERER_FAILURE,
     MUTEX_FAILURE,
+    SEMAPHORE_FAILURE,
     THREAD_START_FAILURE
 } status_t;
 
@@ -84,6 +85,11 @@ typedef struct ProgramParameters {
     int screen_height;
     int fps;
     Keymap keymap;
+    LARGE_INTEGER* clockFrequency;
+    LARGE_INTEGER* timer;
+    FILE* generallog;
+    FILE* errorlog;
+    FILE* debugLog;
 } ProgramParameters;
 
 /**
@@ -101,6 +107,7 @@ typedef struct renderThreadParameters {
     loopStatus_t* renderStatus;
     HANDLE renderMutex;
     HANDLE tilesMutex;
+    ProgramParameters* programParameters;
     SDL_Renderer* renderer;
     Tile** tiles;
     size_t tilesAmount;
@@ -110,7 +117,8 @@ typedef struct logicLoopParameters {
     loopStatus_t* logicStatus;
     HANDLE logicMutex;
     HANDLE tilesMutex;
-    Queue* actionQueue;
+    ProgramParameters* programParameters;
+    Queue* eventQueue;
     Tile** tiles;
     size_t tilesAmount;
 } logicLoopParameters;
@@ -135,6 +143,11 @@ typedef enum TileShape {
     T,
     BACKGROUND
 } TileShape;
+
+typedef struct clockThreadParameters {
+    loopStatus_t* clockStatus;
+    LARGE_INTEGER* timer;
+} clockThreadParameters;
 
 
 #endif
