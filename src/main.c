@@ -18,7 +18,7 @@
 #include "tiles.h"
 #include "utils.h"
 
-// #define DEBUG
+#define DEBUG
 #define TEST
 
 int main(int argc, char** argv) {
@@ -28,9 +28,6 @@ int main(int argc, char** argv) {
 
     LARGE_INTEGER timer, frequency;
     QueryPerformanceFrequency(&frequency);
-
-    const int tetrisGridHeight = 20;
-    const int tetrisGridWidth = 10;
 
     status_t status = SUCCESS; //Exit code
     char errormsgBuffer[128] = {0};
@@ -183,7 +180,7 @@ int main(int argc, char** argv) {
 
 
     logToStream(generallog, "Attempting to create a game matrix...");
-    char** tetrisGrid = zeroMatrix(tetrisGridHeight, tetrisGridWidth);
+    char** tetrisGrid = zeroMatrix(GridHeight, GridWidth);
     if(tetrisGrid == NULL) {
         status = MEMORY_FAILURE;
         sprintf(errormsgBuffer, "Error allocating memory for the game matrix.");
@@ -191,8 +188,8 @@ int main(int argc, char** argv) {
         goto sdl_destroyrenderer;
     }
     programParameters->tetrisGrid = tetrisGrid;
-    programParameters->tetrisGridHeight = tetrisGridHeight;
-    programParameters->tetrisGridWidth = tetrisGridWidth;
+    programParameters->tetrisGridHeight = GridHeight;
+    programParameters->tetrisGridWidth = GridWidth;
     logToStream(generallog, "Game matrix successfully created!");
 
 
@@ -235,18 +232,8 @@ int main(int argc, char** argv) {
     }
     logToStream(generallog, "Background tile successfully loaded!");
 
-
-
-    tiles[1] = loadTile(renderer, RED, L, NULL, debugLog);
-    if(tiles[1] == NULL) {
-        status = FAILURE;
-        sprintf(errormsgBuffer, "Error loading current tile.");
-        logToStream(errorlog, errormsgBuffer);
-        goto freeTiles;
-    }
+    Tile* currentTile = tiles[1];
     tilesAmount++;
-
-
 
     logToStream(generallog, "Attempting to create a tiles mutex...");
     HANDLE tilesMutex = CreateMutex(NULL, TRUE, NULL);
@@ -351,7 +338,7 @@ int main(int argc, char** argv) {
     //ReleaseMutex(logicMutex); //start logic thread
     while(running) { //main game loop
         WaitForSingleObject(tilesMutex, INFINITE);
-        
+
         while(SDL_PollEvent(&event)) {
             if(event.type == SDL_QUIT) {
                 running = false;
@@ -366,28 +353,114 @@ int main(int argc, char** argv) {
             }
             else if(event.type == SDL_KEYDOWN) {
                 SDL_Keycode key = event.key.keysym.sym;
+                fprintf(debugLog, "%d\n", key);
                 Keymap keymap = programParameters->keymap;
-                if(tiles[1] == NULL)continue;
-                SDL_Rect* rect = &tiles[1]->rect;
-                if(key == keymap.movePieceLeft) {
-                    if(rect->x >= 10)rect->x -= 32;
+                //SDL_Rect* rect = &currentTile->rect;
+                
+                if(key == keymap.dropHard) {
+                    printTile(currentTile, debugLog);
+                    dropHard(tetrisGrid, currentTile);
+                }
+                else if(key == keymap.movePieceLeft) {
+                    moveLeft(tetrisGrid, currentTile);
                 }
                 else if(key == keymap.movePieceRight) {
-                    if(rect->x <= programParameters->screen_width)rect->x += 32;
+                    moveRight(tetrisGrid, currentTile);
                 }
                 else if(key == keymap.dropSoft) {
-                    if(rect->y <= programParameters->screen_height)rect->y += 32;
+                    moveDown(tetrisGrid, currentTile);
+                    //if(rect->y <= programParameters->screen_height)rect->y += 32;
                 }
                 else if(key == keymap.rotateClockwise) {
-                    if(rect->y >= 10)rect->y -= 32;
+                    rotateClockwise(tetrisGrid, currentTile);
                 }
+                #ifdef TEST
                 else if(key == keymap.test) {
-                    freeTile(tiles[1]);
-                    tiles[1] = loadTileRandom(renderer, NULL, debugLog);
+                    freeTile(currentTile);
+                    currentTile = loadTileRandom(renderer, NULL, debugLog);
                     if(tiles[1] == NULL) {
                         logToStream(errorlog, "Error loading random tile");
                     }
+                    printTile(currentTile, debugLog);
                 }
+                else if(key == SDLK_1) {
+                    freeTile(currentTile);
+                    currentTile = loadTile(renderer, AQUA, BAR, NULL, debugLog);
+                    if(currentTile == NULL) {
+                        logToStream(errorlog, "Error loading tile");
+                        continue;
+                    }
+                    printTile(currentTile, debugLog);
+                    loadTileIntoGrid(tetrisGrid, currentTile);
+                    printMatrix(tetrisGrid, GridHeight, GridWidth, debugLog);
+                }
+                else if(key == SDLK_2) {
+                    freeTile(currentTile);
+                    currentTile = loadTile(renderer, BLUE, J, NULL, debugLog);
+                    if(currentTile == NULL) {
+                        logToStream(errorlog, "Error loading tile");
+                        continue;
+                    }
+                    printTile(currentTile, debugLog);
+                    loadTileIntoGrid(tetrisGrid, currentTile);
+                    printMatrix(tetrisGrid, GridHeight, GridWidth, debugLog);
+                }
+                else if(key == SDLK_3) {
+                    freeTile(currentTile);
+                    currentTile = loadTile(renderer, GREEN, L, NULL, debugLog);
+                    if(currentTile == NULL) {
+                        logToStream(errorlog, "Error loading tile");
+                        continue;
+                    }
+                    printTile(currentTile, debugLog);
+                    loadTileIntoGrid(tetrisGrid, currentTile);
+                    printMatrix(tetrisGrid, GridHeight, GridWidth, debugLog);
+                }
+                else if(key == SDLK_4) {
+                    freeTile(currentTile);
+                    currentTile = loadTile(renderer, MAGENTA, S, NULL, debugLog);
+                    if(currentTile == NULL) {
+                        logToStream(errorlog, "Error loading tile");
+                        continue;
+                    }
+                    printTile(currentTile, debugLog);
+                    loadTileIntoGrid(tetrisGrid, currentTile);
+                    printMatrix(tetrisGrid, GridHeight, GridWidth, debugLog);
+                }
+                else if(key == SDLK_5) {
+                    freeTile(currentTile);
+                    currentTile = loadTile(renderer, ORANGE, SQUARE, NULL, debugLog);
+                    if(currentTile == NULL) {
+                        logToStream(errorlog, "Error loading tile");
+                        continue;
+                    }
+                    printTile(currentTile, debugLog);
+                    loadTileIntoGrid(tetrisGrid, currentTile);
+                    printMatrix(tetrisGrid, GridHeight, GridWidth, debugLog);
+                }
+                else if(key == SDLK_6) {
+                    freeTile(currentTile);
+                    currentTile = loadTile(renderer, RED, T, NULL, debugLog);
+                    if(currentTile == NULL) {
+                        logToStream(errorlog, "Error loading tile");
+                        continue;
+                    }
+                    printTile(currentTile, debugLog);
+                    loadTileIntoGrid(tetrisGrid, currentTile);
+                    printMatrix(tetrisGrid, GridHeight, GridWidth, debugLog);
+                }
+                else if(key == SDLK_7) {
+                    freeTile(currentTile);
+                    currentTile = loadTile(renderer, YELLOW, Z, NULL, debugLog);
+                    if(currentTile == NULL) {
+                        logToStream(errorlog, "Error loading tile");
+                        continue;
+                    }
+                    printTile(currentTile, debugLog);
+                    loadTileIntoGrid(tetrisGrid, currentTile);
+                    printMatrix(tetrisGrid, GridHeight, GridWidth, debugLog);
+                }
+                #endif
             }
         }
 
@@ -441,7 +514,8 @@ int main(int argc, char** argv) {
 
     sdl_quit: SDL_Quit();
 
-    freeConfig: freeProgramConfig(programParameters);
+    freeConfig:
+        freeProgramConfig(programParameters);
 
     close_configfile: fclose(configFile);
 
