@@ -271,6 +271,67 @@ Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* 
     if(debug != NULL)fprintf(debug, "%s\n", path);
     texture = loadTextureRect(path, renderer, &tile->rect);
     if(texture == NULL) goto failure;
+
+    switch(shape) {
+        case BAR:
+            tile->center.x = tile->rect.w / 2;
+            tile->center.y = tile->rect.h;
+            tile->position.y = 0;
+            tile->position.x = GridWidth / 2 - 2;
+            tile->state = BAR_HORIZONTAL_UP;
+            break;
+        case J:
+            tile->center.x = tile->rect.w / 4 * 3;
+            tile->center.y = tile->rect.h / 2;
+            tile->position.y = 2;
+            tile->position.x = GridWidth / 2 - 1;
+            tile->state = J_0;
+            break;
+        case L:
+            tile->center.x = tile->rect.w / 4;
+            tile->center.y = tile->rect.h / 2;
+            tile->position.y = 2;
+            tile->position.x = GridWidth / 2 - 1;
+            tile->state = L_0;
+            break;
+        case S:
+            tile->center.x = tile->rect.w / 2;
+            tile->center.y = tile->rect.h / 4 * 3;
+            tile->position.y = 1;
+            tile->position.x = GridWidth / 2 - 1;
+            tile->state = S_0;
+            break;
+        case SQUARE:
+            tile->center.x = tile->rect.w / 2;
+            tile->center.y = tile->rect.h / 2;
+            tile->position.y = 0;
+            tile->position.x = GridWidth / 2 - 1;
+            tile->state = SQR;
+            break;
+        case T:
+            tile->center.x = tile->rect.w / 2;
+            tile->center.y = tile->rect.h / 4;
+            tile->position.y = 1;
+            tile->position.x = GridWidth / 2 - 1;
+            tile->state = T_0;
+            break;
+        case Z:
+            tile->center.x = tile->rect.w / 2;
+            tile->center.y = tile->rect.h / 4 * 3;
+            tile->position.y = 1;
+            tile->position.x = GridWidth / 2 - 1;
+            tile->state = Z_0;
+            break;
+        case BACKGROUND:
+            tile->center.x = tile->rect.w / 2;
+            tile->center.y = tile->rect.h / 2;
+            tile->position.y = -1;
+            tile->position.x = -1;
+            tile->state = STATE_UNKNOWN;
+            break;
+        default: goto failure;
+    }
+
     if(coordinates != NULL) {
         tile->rect.x = coordinates->x;
         tile->rect.y = coordinates->y;
@@ -280,6 +341,10 @@ Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* 
         tile->rect.y = 0;
     }
     tile->texture = texture;
+    tile->angle = 0;
+    tile->shape = shape;
+    tile->color = color;
+
     return tile;
 
     failure:
@@ -312,4 +377,13 @@ void centerTileVertically(Tile* tile, ProgramParameters* programParameters) {
 void centerTile(Tile* tile, ProgramParameters* programParameters) {
     centerTileVertically(tile, programParameters);
     centerTileHorizontally(tile, programParameters);
+}
+
+void printTile(Tile* tile, FILE* stream) {
+    if(tile == NULL) {
+        fprintf(stream, "Nothing to print\n");
+        return;
+    }
+    fprintf(stream, "Tile color: %d\nTile shape: %d\n", tile->color, tile->shape);
+    fprintf(stream, "Position: (%d, %d)\n", tile->position.x, tile->position.y);
 }
