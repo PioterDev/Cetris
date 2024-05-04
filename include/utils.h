@@ -60,6 +60,16 @@ char** zeroMatrix(int height, int width);
 void freeMatrix(char** matrix, int height);
 
 /**
+ * @brief Prints given matrix to given stream.
+ * 
+ * @param matrix matrix
+ * @param height height of the matrix
+ * @param width width of the matrix
+ * @param stream stream
+ */
+void printMatrix(char** matrix, int height, int width, FILE* stream);
+
+/**
  * @brief Returns the index of the biggest element in an int array.
  * 
  * @param arr array

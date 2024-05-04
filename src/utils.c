@@ -93,6 +93,15 @@ void freeMatrix(char** matrix, int height) {
     free(matrix);
 }
 
+void printMatrix(char** matrix, int height, int width, FILE* stream) {
+    for(int i = 0; i < height; i++) {
+        for(int j = 0; j < width; j++) {
+            fprintf(stream, "%d ", matrix[i][j]);
+        }
+        fprintf(stream, "\n");
+    }
+}
+
 int MaxIndex(int* arr, int n) {
     int maxIndex = 0;
     for(int i = 1; i < n; i++) {
