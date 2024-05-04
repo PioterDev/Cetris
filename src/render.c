@@ -38,6 +38,17 @@ DWORD WINAPI renderScreen(void* params) {
         SDL_SetRenderDrawColor(renderer, backgroundColor->rgba[0], backgroundColor->rgba[1], backgroundColor->rgba[2], backgroundColor->rgba[3]); //background color
         SDL_RenderClear(renderer);
 
+        SDL_Rect backgroundRect = backgroundTile->rect;
+        if(scalingFactor > 0) {
+            backgroundRect.h *= scalingFactor;
+            backgroundRect.w *= scalingFactor;
+        }
+        else if(scalingFactor < 0) {
+            backgroundRect.h /= abs(scalingFactor);
+            backgroundRect.w /= abs(scalingFactor);
+        }
+        SDL_RenderCopy(renderer, backgroundTile->texture, NULL, &backgroundRect);
+
         SDL_Rect current;
         if(scalingFactor > 0) {
             current.w = baseTileSize * scalingFactor;
@@ -48,19 +59,24 @@ DWORD WINAPI renderScreen(void* params) {
             current.h = baseTileSize / abs(scalingFactor);
         }
 
+
         char** tetrisGrid = programParameters->tetrisGrid;
         for(int i = 0; i < programParameters->tetrisGridHeight; i++) {
             for(int j = 0; j < programParameters->tetrisGridWidth; j++) {
                 char color = tetrisGrid[i][j];
-                if(color > 0) {
-                    current.y = backgroundTile->rect.y + j * current.h;
-                    current.x = backgroundTile->rect.x + i * current.w;
-                    SDL_RenderCopy(renderer, baseTextures[color - 1], NULL, &current);
+                if(color == 0)continue;
+                if(color < 0)color = abs(color);
+                current.y = backgroundTile->rect.y + i * current.h;
+                current.x = backgroundTile->rect.x + j * current.w;
+                if(SDL_RenderCopy(renderer, baseTextures[color - 1], NULL, &current) != 0) {
+                    fprintf(programParameters->debugLog, "Error rendering tile\n");
                 }
+
             }
         }
         SDL_Rect rect;
-        for(size_t i = 0; i < parameters->tilesAmount; i++) {
+        SDL_Point point;
+        for(size_t i = 1; i < parameters->tilesAmount; i++) {
             if(parameters->tiles[i] != NULL) {
                 rect = parameters->tiles[i]->rect;
                 if(scalingFactor > 0) {
@@ -71,7 +87,10 @@ DWORD WINAPI renderScreen(void* params) {
                     rect.h /= abs(scalingFactor);
                     rect.w /= abs(scalingFactor);
                 }
-                SDL_RenderCopy(renderer, parameters->tiles[i]->texture, NULL, &rect);
+                point.x = parameters->tiles[i]->center.x + parameters->tiles[i]->rect.x;
+                point.y = parameters->tiles[i]->center.y + parameters->tiles[i]->rect.y;
+                // SDL_RenderCopy(renderer, parameters->tiles[i]->texture, NULL, &rect);
+                SDL_RenderCopyEx(renderer, parameters->tiles[i]->texture, NULL, &rect, parameters->tiles[i]->angle, &point, SDL_FLIP_NONE);
             }
         }
         end = timer->QuadPart;

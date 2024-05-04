@@ -42,5 +42,13 @@ void centerTileVertically(Tile* tile, ProgramParameters* programParameters);
 
 void centerTile(Tile* tile, ProgramParameters* programParameters);
 
+/**
+ * @brief Prints information about given tile to the given stream.
+ * 
+ * @param tile tile
+ * @param stream stream
+ */
+void printTile(Tile* tile, FILE* stream);
+
 
 #endif

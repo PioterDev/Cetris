@@ -7,6 +7,8 @@
 
 #define tilesPath "./assets/tiles/"
 #define tileColorAmount 7
+#define GridHeight 20
+#define GridWidth 10
 
 typedef unsigned long long size_t;
 
@@ -108,35 +110,8 @@ typedef struct ProgramParameters {
     int tetrisGridWidth;
 } ProgramParameters;
 
-/**
- * @brief Struct for holding tiles.
- */
-typedef struct Tile {
-    SDL_Texture* texture;
-    SDL_Rect rect;
-} Tile;
-
-/**
- * @brief Struct for holding parameters for the render thread.
- */
-typedef struct renderThreadParameters {
-    loopStatus_t* renderStatus;
-    HANDLE renderMutex;
-    HANDLE tilesMutex;
-    ProgramParameters* programParameters;
-    SDL_Renderer* renderer;
-    Color* backgroundColor;
-    Tile** tiles;
-    size_t tilesAmount;
-} renderThreadParameters;
-
-typedef struct logicParameters {
-    ProgramParameters* programParameters;
-    Tile** tiles;
-    size_t tilesAmount;
-} logicParameters;
-
 typedef enum TileColor{
+    GHOST = -1,
     COLOR_UNKNOWN,
     AQUA,
     BLUE,
@@ -160,10 +135,79 @@ typedef enum TileShape {
     BACKGROUND
 } TileShape;
 
+typedef enum TileState {
+    STATE_UNKNOWN,
+    BAR_HORIZONTAL_UP,
+    BAR_HORIZONTAL_DOWN,
+    BAR_VERTICAL_LEFT,
+    BAR_VERTICAL_RIGHT,
+    J_0,
+    J_90,
+    J_180,
+    J_270,
+    L_0,
+    L_90,
+    L_180,
+    L_270,
+    S_0,
+    S_90,
+    S_180,
+    S_270,
+    SQR,
+    T_0,
+    T_90,
+    T_180,
+    T_270,
+    Z_0,
+    Z_90,
+    Z_180,
+    Z_270
+} TileState;
+
+/**
+ * @brief Struct for holding tiles.
+ */
+typedef struct Tile {
+    SDL_Texture* texture;
+    SDL_Rect rect;
+    double angle;
+    SDL_Point center;
+    TileColor color;
+    TileShape shape;
+    TileState state;
+    Point position;
+} Tile;
+
+/**
+ * @brief Struct for holding parameters for the render thread.
+ */
+typedef struct renderThreadParameters {
+    loopStatus_t* renderStatus;
+    HANDLE renderMutex;
+    HANDLE tilesMutex;
+    ProgramParameters* programParameters;
+    SDL_Renderer* renderer;
+    Color* backgroundColor;
+    Tile** tiles;
+    size_t tilesAmount;
+} renderThreadParameters;
+
+typedef struct logicParameters {
+    ProgramParameters* programParameters;
+    Tile** tiles;
+    size_t tilesAmount;
+} logicParameters;
+
 typedef struct clockThreadParameters {
     loopStatus_t* clockStatus;
     LARGE_INTEGER* timer;
 } clockThreadParameters;
+
+typedef enum Rotation {
+    ROTATION_CLOCKWISE = -1,
+    ROTATION_COUNTERCLOCKWISE = 1
+} Rotation;
+
 
 
 #endif
