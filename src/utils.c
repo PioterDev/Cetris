@@ -103,6 +103,22 @@ void printMatrix(char** matrix, int height, int width, FILE* stream) {
     }
 }
 
+void setMatrix(char** matrix, int height, int width, char value) {
+    for(int i = 0; i < height; i++) {
+        for(int j = 0; j < width; j++) {
+            matrix[i][j] = value;
+        }
+    }
+}
+
+void absMatrix(char** matrix, int height, int width) {
+    for(int i = 0; i < height; i++) {
+        for(int j = 0; j < width; j++) {
+            if(matrix[i][j] < 0)matrix[i][j] = abs(matrix[i][j]);
+        }
+    }
+}
+
 int MaxIndex(int* arr, int n) {
     int maxIndex = 0;
     for(int i = 1; i < n; i++) {

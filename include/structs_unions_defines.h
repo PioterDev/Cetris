@@ -95,8 +95,9 @@ typedef struct ProgramParameters {
     int screen_width;
     int screen_height;
     int fps;
-    Keymap keymap;
+    short baseFallSpeed;
     short baseTileSize;
+    Keymap keymap;
     //If it's > 0, scale up, if it's < 0, scale down
     char scalingFactor;
     LARGE_INTEGER* clockFrequency;

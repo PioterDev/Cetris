@@ -70,6 +70,7 @@ _       is _
 
 Additional options:
 
-width   -   specifies window width
-height  -   specifies window height
-fps     -   specifies desired FPS
+width         - specifies window width
+height        - specifies window height
+fps           - specifies desired FPS
+basefallspeed - base time in miliseconds required for the piece to move down 

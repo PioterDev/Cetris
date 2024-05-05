@@ -384,6 +384,6 @@ void printTile(Tile* tile, FILE* stream) {
         fprintf(stream, "Nothing to print\n");
         return;
     }
-    fprintf(stream, "Tile color: %d\nTile shape: %d\n", tile->color, tile->shape);
+    fprintf(stream, "Tile color: %d\nTile shape: %d\nTile state: %d\n", tile->color, tile->shape, tile->state);
     fprintf(stream, "Position: (%d, %d)\n", tile->position.x, tile->position.y);
 }

@@ -70,6 +70,24 @@ void freeMatrix(char** matrix, int height);
 void printMatrix(char** matrix, int height, int width, FILE* stream);
 
 /**
+ * @brief Sets all cells in the matrix to given value.
+ * 
+ * @param matrix matrix
+ * @param height height of the matrix
+ * @param width width of the matrix
+ */
+void setMatrix(char** matrix, int height, int width, char value);
+
+/**
+ * @brief Replaces all negative values in the matrix to positive ones.
+ * 
+ * @param matrix matrix
+ * @param height height of the matrix
+ * @param width width of the matrix
+ */
+void absMatrix(char** matrix, int height, int width);
+
+/**
  * @brief Returns the index of the biggest element in an int array.
  * 
  * @param arr array

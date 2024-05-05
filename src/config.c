@@ -18,6 +18,7 @@ static inline void setParameter(ProgramParameters* parameters, const char* key, 
     else if(!strcmp(key, "width"))                      parameters->screen_width = value;
     else if(!strcmp(key, "height"))                     parameters->screen_height = value;
     else if(!strcmp(key, "fps"))                        parameters->fps = value;
+    else if(!strcmp(key, "basefallspeed"))              parameters->baseFallSpeed = value;
 }
 
 ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
@@ -70,7 +71,7 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
         else if(!strcmp(value, "esc"))          setParameter(parameters, key, SDLK_ESCAPE);
 
         int valueNumerical = atoi(value);
-        if((!strcmp(key, "width") || !strcmp(key, "height") || !strcmp(key, "fps")) && valueNumerical != 0)setParameter(parameters, key, valueNumerical);
+        if((!strcmp(key, "width") || !strcmp(key, "height") || !strcmp(key, "fps") || !strcmp(key, "basefallspeed")) && valueNumerical != 0)setParameter(parameters, key, valueNumerical);
     }
 
     return parameters;
@@ -160,6 +161,7 @@ void printConfig(ProgramParameters* params, FILE* stream) {
     fprintf(stream, "Screen width: %d\n", params->screen_width);
     fprintf(stream, "Screen height: %d\n", params->screen_height);
     fprintf(stream, "FPS: %d\n", params->fps);
-
+    fprintf(stream, "Base fall speed: %d\n", params->baseFallSpeed);
+    fprintf(stream, "Scaling factor: %d\n", params->scalingFactor);
     printKeymap(&params->keymap, stream);
 }
