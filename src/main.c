@@ -336,6 +336,9 @@ int main(int argc, char** argv) {
                     else if(key == programParameters->keymap.rotateClockwise) {
                         rotateClockwise(tetrisGrid, currentTile);
                     }
+                    else if(key == programParameters->keymap.rotateCounterClockwise) {
+                        rotateCounterClockwise(tetrisGrid, currentTile);
+                    }
                     #ifdef TEST
                     else if(key == programParameters->keymap.test) {
                         freeTile(currentTile);
