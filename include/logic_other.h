@@ -41,5 +41,14 @@ status_t getNewTile(SDL_Renderer* renderer, Tile* tile, FILE* debug);
  */
 //status_t dropHardOld(char** tetrisGrid, Tile* tile, const int tetrisGridHeight, FILE* debug);
 
+/**
+ * @brief 
+ * 
+ * @param tetrisGrid 
+ * @param tetrisGridSize size of the game matrix
+ * @param score 
+ */
+void onPlacement(char** tetrisGrid, const Size tetrisGridSize, int score);
+
 
 #endif

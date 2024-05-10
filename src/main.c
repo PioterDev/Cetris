@@ -322,12 +322,14 @@ int main(int argc, char** argv) {
                     
                     if(key == programParameters->keymap.dropHard) {
                         dropHard(tetrisGrid, currentTile, programParameters->tetrisGridSize);
+                        onPlacement(tetrisGrid, programParameters->tetrisGridSize, 0); //TODO: score
                         freeTile(currentTile);
                         currentTile = loadTileRandom(renderer, NULL, debugLog);
                         if(currentTile == NULL) {
                             logToStream(errorlog, "Error loading tile");
                         }
                         else loadTileIntoGrid(tetrisGrid, currentTile);
+                        dropsoft = false;
                     }
                     else if(key == programParameters->keymap.movePieceLeft) {
                         moveLeft(tetrisGrid, currentTile);
@@ -426,12 +428,14 @@ int main(int argc, char** argv) {
                     if(event.key.keysym.sym == programParameters->keymap.dropSoft) {
                         dropsoft = false;
                     }
+                    break;
                 }
             }
 
         }
-        long long baseFallSpeed = (long long)programParameters->baseFallSpeed * (frequency.QuadPart / 1000);
-        if(dropsoft)baseFallSpeed /= 10;
+        //long long baseFallSpeed = (long long)programParameters->baseFallSpeed * (frequency.QuadPart / 1000);
+        long long baseFallSpeed = 1000 * (frequency.QuadPart / 1000);
+        if(dropsoft)baseFallSpeed /= 5;
         tickTimerEnd = timer.QuadPart;
 
         if(tickTimerEnd - tickTimerStart > baseFallSpeed) {
@@ -446,14 +450,21 @@ int main(int argc, char** argv) {
                     if(currentTile == NULL) {
                         logToStream(errorlog, "Error loading tile");
                     }
-                    else loadTileIntoGrid(tetrisGrid, currentTile);
+                    else {
+                        if(loadTileIntoGrid(tetrisGrid, currentTile) == FAILURE) { //TODO: expand functionality on end of the game
+                            freeTile(currentTile);
+                            currentTile = NULL;
+                            setMatrix(tetrisGrid, programParameters->tetrisGridSize, 0);
+                        }
+                    }
                 }
+                dropsoft = false;
             }
             tickTimerStart += baseFallSpeed;
         }
 
-
         ReleaseMutex(tilesMutex);
+        Sleep(1);
     }
 
 
