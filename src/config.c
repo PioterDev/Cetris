@@ -15,8 +15,8 @@ static inline void setParameter(ProgramParameters* parameters, const char* key, 
     else if(!strcmp(key, "hold"))                       parameters->keymap.hold = value;
     else if(!strcmp(key, "pause"))                      parameters->keymap.pause = value;
 
-    else if(!strcmp(key, "width"))                      parameters->screen_width = value;
-    else if(!strcmp(key, "height"))                     parameters->screen_height = value;
+    else if(!strcmp(key, "width"))                      parameters->screenSize.width = value;
+    else if(!strcmp(key, "height"))                     parameters->screenSize.height = value;
     else if(!strcmp(key, "fps"))                        parameters->fps = value;
     else if(!strcmp(key, "basefallspeed"))              parameters->baseFallSpeed = value;
 }
@@ -121,7 +121,7 @@ void freeProgramConfig(ProgramParameters* params) {
             SDL_DestroyTexture(params->baseTextures[i]);
         }
     }
-    freeMatrix(params->tetrisGrid, params->tetrisGridHeight);
+    freeMatrix(params->tetrisGrid, params->tetrisGridSize.height);
     free(params);
 }
 
@@ -158,8 +158,8 @@ void printKeymap(Keymap* keymap, FILE* stream) {
 
 void printConfig(ProgramParameters* params, FILE* stream) {
     if(stream == NULL)return;
-    fprintf(stream, "Screen width: %d\n", params->screen_width);
-    fprintf(stream, "Screen height: %d\n", params->screen_height);
+    fprintf(stream, "Screen width: %d\n", params->screenSize.width);
+    fprintf(stream, "Screen height: %d\n", params->screenSize.height);
     fprintf(stream, "FPS: %d\n", params->fps);
     fprintf(stream, "Base fall speed: %d\n", params->baseFallSpeed);
     fprintf(stream, "Scaling factor: %d\n", params->scalingFactor);

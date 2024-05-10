@@ -38,10 +38,9 @@ status_t moveDown(char** tetrisGrid, Tile* tile, const int tetrisGridHeight);
  * 
  * @param tetrisGrid game matrix
  * @param tile tile
- * @param tetrisGridHeight height of the game matrix
- * @param tetrisGridWidth width of the game matrix
+ * @param tetrisGridSize Size struct for the matrix size
  */
-void dropHard(char** tetrisGrid, Tile* tile, const int tetrisGridHeight, const int tetrisGridWidth);
+void dropHard(char** tetrisGrid, Tile* tile, const Size tetrisGridSize);
 
 
 #endif

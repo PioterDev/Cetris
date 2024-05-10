@@ -68,12 +68,12 @@ SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect*
     return tex;
 }
 
-char** zeroMatrix(int height, int width) {
-    char** matrix = calloc(height, sizeof(char*));
+char** zeroMatrix(Size size) {
+    char** matrix = calloc(size.height, sizeof(char*));
     if(matrix == NULL)return NULL;
 
-    for(int i = 0; i < height; i++) {
-        matrix[i] = calloc(width, 1);
+    for(int i = 0; i < size.height; i++) {
+        matrix[i] = calloc(size.width, 1);
         if(matrix[i] == NULL) {
             for(int j = 0; j < i; j++) {
                 free(matrix[j]);
@@ -93,9 +93,9 @@ void freeMatrix(char** matrix, int height) {
     free(matrix);
 }
 
-void printMatrix(char** matrix, int height, int width, FILE* stream) {
-    for(int i = 0; i < height; i++) {
-        for(int j = 0; j < width; j++) {
+void printMatrix(char** matrix, Size size, FILE* stream) {
+    for(int i = 0; i < size.height; i++) {
+        for(int j = 0; j < size.width; j++) {
             if(matrix[i][j] < 0)fprintf(stream, "%d ", matrix[i][j]);
             else fprintf(stream, " %d ", matrix[i][j]);
         }
@@ -103,17 +103,17 @@ void printMatrix(char** matrix, int height, int width, FILE* stream) {
     }
 }
 
-void setMatrix(char** matrix, int height, int width, char value) {
-    for(int i = 0; i < height; i++) {
-        for(int j = 0; j < width; j++) {
+void setMatrix(char** matrix, Size size, char value) {
+    for(int i = 0; i < size.height; i++) {
+        for(int j = 0; j < size.width; j++) {
             matrix[i][j] = value;
         }
     }
 }
 
-void absMatrix(char** matrix, int height, int width) {
-    for(int i = 0; i < height; i++) {
-        for(int j = 0; j < width; j++) {
+void absMatrix(char** matrix, Size size) {
+    for(int i = 0; i < size.height; i++) {
+        for(int j = 0; j < size.width; j++) {
             if(matrix[i][j] < 0)matrix[i][j] = abs(matrix[i][j]);
         }
     }

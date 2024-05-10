@@ -367,11 +367,11 @@ Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, FILE* debug) {
 }
 
 void centerTileHorizontally(Tile* tile, ProgramParameters* programParameters) {
-    tile->rect.x = programParameters->screen_width / 2 - tile->rect.w / 4;
+    tile->rect.x = programParameters->screenSize.width / 2 - tile->rect.w / 4;
 }
 
 void centerTileVertically(Tile* tile, ProgramParameters* programParameters) {
-    tile->rect.y = programParameters->screen_height / 2 - tile->rect.h / 4;
+    tile->rect.y = programParameters->screenSize.height / 2 - tile->rect.h / 4;
 }
 
 void centerTile(Tile* tile, ProgramParameters* programParameters) {

@@ -5,7 +5,7 @@ status_t moveLeft(char** tetrisGrid, Tile* tile) {
     if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
-    if(x == -1 || y == -1)return FAILURE;
+    if(x < 0 || y < 0)return FAILURE;
     switch(tile->state) {
         case BAR_HORIZONTAL_UP:
         case BAR_HORIZONTAL_DOWN: {
@@ -288,7 +288,7 @@ status_t moveRight(char** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
     if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
-    if(x == -1 || y == -1)return FAILURE;
+    if(x < 0 || y < 0)return FAILURE;
     switch(tile->state) {
         case BAR_HORIZONTAL_UP:
         case BAR_HORIZONTAL_DOWN: {
@@ -867,11 +867,12 @@ status_t moveDown(char** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
     return FAILURE;
 }
 
-void dropHard(char** tetrisGrid, Tile* tile, const int tetrisGridHeight, const int tetrisGridWidth) {
-    while(moveDown(tetrisGrid, tile, tetrisGridHeight) == SUCCESS);
+//Extremely inefficient, but works for now
+void dropHard(char** tetrisGrid, Tile* tile, const Size tetrisGridSize) {
+    while(moveDown(tetrisGrid, tile, tetrisGridSize.height) == SUCCESS);
 
     tile->position.x = -1;
     tile->position.y = -1;
 
-    absMatrix(tetrisGrid, tetrisGridHeight, tetrisGridWidth);
+    absMatrix(tetrisGrid, tetrisGridSize);
 }

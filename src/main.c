@@ -112,11 +112,17 @@ int main(int argc, char** argv) {
     }
     programParameters->baseTileSize = 0;
     programParameters->scalingFactor = 0;
+    
     programParameters->clockFrequency = &frequency;
     programParameters->timer = &timer;
+    
     programParameters->generallog = generallog;
     programParameters->errorlog = errorlog;
     programParameters->debugLog = debugLog;
+
+    programParameters->tetrisGridSize.height = GridHeight;
+    programParameters->tetrisGridSize.width = GridWidth;
+    
     #ifdef TEST
     programParameters->keymap.test = SDLK_w;
     #endif
@@ -145,7 +151,7 @@ int main(int argc, char** argv) {
 
 
     logToStream(generallog, "Attempting to create a window...");
-    window = SDL_CreateWindow("Title", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, programParameters->screen_width, programParameters->screen_height, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, programParameters->screenSize.width, programParameters->screenSize.height, SDL_WINDOW_SHOWN);
     if(window == NULL) {
         status = SDL_WINDOW_FAILURE;
         sprintf(errormsgBuffer, "Error creating window: %s", SDL_GetError());
@@ -179,8 +185,9 @@ int main(int argc, char** argv) {
 
 
 
+    
     logToStream(generallog, "Attempting to create a game matrix...");
-    char** tetrisGrid = zeroMatrix(GridHeight, GridWidth);
+    char** tetrisGrid = zeroMatrix(programParameters->tetrisGridSize);
     if(tetrisGrid == NULL) {
         status = MEMORY_FAILURE;
         sprintf(errormsgBuffer, "Error allocating memory for the game matrix.");
@@ -188,8 +195,6 @@ int main(int argc, char** argv) {
         goto sdl_destroyrenderer;
     }
     programParameters->tetrisGrid = tetrisGrid;
-    programParameters->tetrisGridHeight = GridHeight;
-    programParameters->tetrisGridWidth = GridWidth;
     logToStream(generallog, "Game matrix successfully created!");
 
 
@@ -217,18 +222,18 @@ int main(int argc, char** argv) {
     tiles[0] = backgroundTile;
     tilesAmount++;
     //dynamic calculation of by how much should everything be scaled
-    if(backgroundTile->rect.h > programParameters->screen_height || backgroundTile->rect.w > programParameters->screen_width) {
+    if(backgroundTile->rect.h > programParameters->screenSize.height || backgroundTile->rect.w > programParameters->screenSize.width) {
         programParameters->scalingFactor = -1;
         while(
-            backgroundTile->rect.h / abs(programParameters->scalingFactor) > programParameters->screen_height ||
-            backgroundTile->rect.w / abs(programParameters->scalingFactor) > programParameters->screen_width
+            backgroundTile->rect.h / abs(programParameters->scalingFactor) > programParameters->screenSize.height ||
+            backgroundTile->rect.w / abs(programParameters->scalingFactor) > programParameters->screenSize.width
         ) {programParameters->scalingFactor--;}
     }
-    else if(backgroundTile->rect.h * 2 < programParameters->screen_height || backgroundTile->rect.w * 2 < programParameters->screen_width) {
+    else if(backgroundTile->rect.h * 2 < programParameters->screenSize.height || backgroundTile->rect.w * 2 < programParameters->screenSize.width) {
         programParameters->scalingFactor = 1;
         while(
-            backgroundTile->rect.h * programParameters->scalingFactor < programParameters->screen_height ||
-            backgroundTile->rect.w * programParameters->scalingFactor < programParameters->screen_width
+            backgroundTile->rect.h * programParameters->scalingFactor < programParameters->screenSize.height ||
+            backgroundTile->rect.w * programParameters->scalingFactor < programParameters->screenSize.width
         ) {programParameters->scalingFactor++;}
     }
     logToStream(generallog, "Background tile successfully loaded!");
@@ -316,7 +321,7 @@ int main(int argc, char** argv) {
                     fprintf(debugLog, "%d\n", key);
                     
                     if(key == programParameters->keymap.dropHard) {
-                        dropHard(tetrisGrid, currentTile, programParameters->tetrisGridHeight, programParameters->tetrisGridWidth);
+                        dropHard(tetrisGrid, currentTile, programParameters->tetrisGridSize);
                         freeTile(currentTile);
                         currentTile = loadTileRandom(renderer, NULL, debugLog);
                         if(currentTile == NULL) {
@@ -328,7 +333,7 @@ int main(int argc, char** argv) {
                         moveLeft(tetrisGrid, currentTile);
                     }
                     else if(key == programParameters->keymap.movePieceRight) {
-                        moveRight(tetrisGrid, currentTile, programParameters->tetrisGridWidth);
+                        moveRight(tetrisGrid, currentTile, programParameters->tetrisGridSize.width);
                     }
                     else if(key == programParameters->keymap.dropSoft) {
                         dropsoft = true;
@@ -412,7 +417,7 @@ int main(int argc, char** argv) {
                         else loadTileIntoGrid(tetrisGrid, currentTile);
                     }
                     else if(key == SDLK_ESCAPE) {
-                        setMatrix(tetrisGrid, GridHeight, GridWidth, 0);
+                        setMatrix(tetrisGrid, programParameters->tetrisGridSize, 0);
                     }
                     #endif
                     break;
@@ -431,11 +436,11 @@ int main(int argc, char** argv) {
 
         if(tickTimerEnd - tickTimerStart > baseFallSpeed) {
             if(currentTile != NULL) {
-                status_t moveStatus = moveDown(tetrisGrid, currentTile, programParameters->tetrisGridHeight);
+                status_t moveStatus = moveDown(tetrisGrid, currentTile, programParameters->tetrisGridSize.height);
                 if(moveStatus == FAILURE) {
                     currentTile->position.x = -1;
                     currentTile->position.y = -1;
-                    absMatrix(tetrisGrid, programParameters->tetrisGridHeight, programParameters->tetrisGridWidth);
+                    absMatrix(tetrisGrid, programParameters->tetrisGridSize);
                     freeTile(currentTile);
                     currentTile = loadTileRandom(renderer, NULL, debugLog);
                     if(currentTile == NULL) {

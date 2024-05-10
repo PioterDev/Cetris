@@ -61,8 +61,8 @@ DWORD WINAPI renderScreen(void* params) {
 
 
         char** tetrisGrid = programParameters->tetrisGrid;
-        for(int i = 0; i < programParameters->tetrisGridHeight; i++) {
-            for(int j = 0; j < programParameters->tetrisGridWidth; j++) {
+        for(int i = 0; i < programParameters->tetrisGridSize.height; i++) {
+            for(int j = 0; j < programParameters->tetrisGridSize.width; j++) {
                 char color = tetrisGrid[i][j];
                 if(color == 0)continue;
                 if(color < 0)color = abs(color);

@@ -15,6 +15,10 @@ typedef unsigned long long size_t;
 typedef struct Point {
     int x, y;
 } Point;
+
+typedef struct Size {
+    int width, height;
+} Size;
 typedef union int32_u {
     int integer;
     char bytes[4];
@@ -85,15 +89,14 @@ typedef struct Keymap {
  */
 typedef union Keymap_array {
     Keymap keymap;
-    int keys[8];
+    int keys[sizeof(Keymap) / sizeof(int)];
 } Keymap_array;
 
 /**
  * @brief Struct for holding program parameters.
  */
 typedef struct ProgramParameters {
-    int screen_width;
-    int screen_height;
+    Size screenSize;
     int fps;
     short baseFallSpeed;
     short baseTileSize;
@@ -107,13 +110,11 @@ typedef struct ProgramParameters {
     FILE* debugLog;
     SDL_Texture* baseTextures[tileColorAmount];
     char** tetrisGrid;
-    int tetrisGridHeight;
-    int tetrisGridWidth;
+    Size tetrisGridSize;
 } ProgramParameters;
-
 typedef enum TileColor{
-    COLOR_UNKNOWN,
-    AQUA,
+    COLOR_UNKNOWN = -1,
+    AQUA = 1,
     BLUE,
     GREEN,
     MAGENTA,

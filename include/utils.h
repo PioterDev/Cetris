@@ -48,7 +48,7 @@ SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect*
  * @param width width of the matrix
  * @return pointer to the matrix, NULL on allocation error
  */
-char** zeroMatrix(int height, int width);
+char** zeroMatrix(Size size);
 
 /**
  * @brief Frees the matrix from memory.
@@ -63,29 +63,26 @@ void freeMatrix(char** matrix, int height);
  * @brief Prints given matrix to given stream.
  * 
  * @param matrix matrix
- * @param height height of the matrix
- * @param width width of the matrix
+ * @param size size of the matrix
  * @param stream stream
  */
-void printMatrix(char** matrix, int height, int width, FILE* stream);
+void printMatrix(char** matrix, Size size, FILE* stream);
 
 /**
  * @brief Sets all cells in the matrix to given value.
  * 
  * @param matrix matrix
- * @param height height of the matrix
- * @param width width of the matrix
+ * @param size size of the matrix
  */
-void setMatrix(char** matrix, int height, int width, char value);
+void setMatrix(char** matrix, Size size, char value);
 
 /**
  * @brief Replaces all negative values in the matrix to positive ones.
  * 
  * @param matrix matrix
- * @param height height of the matrix
- * @param width width of the matrix
+ * @param size size of the matrix
  */
-void absMatrix(char** matrix, int height, int width);
+void absMatrix(char** matrix, Size size);
 
 /**
  * @brief Returns the index of the biggest element in an int array.
