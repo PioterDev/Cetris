@@ -112,7 +112,6 @@ typedef struct ProgramParameters {
 } ProgramParameters;
 
 typedef enum TileColor{
-    GHOST = -1,
     COLOR_UNKNOWN,
     AQUA,
     BLUE,
@@ -120,7 +119,8 @@ typedef enum TileColor{
     MAGENTA,
     ORANGE,
     RED,
-    YELLOW
+    YELLOW,
+    GHOST = 0x7F
 } TileColor;
 
 typedef enum TileShape {

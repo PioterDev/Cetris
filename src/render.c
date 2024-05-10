@@ -98,6 +98,8 @@ DWORD WINAPI renderScreen(void* params) {
             Sleep(1);
             end = timer->QuadPart;
         }
+        
+        ReleaseMutex(parameters->tilesMutex);
 
         //formula: [ticks per second (probably 10^7) / FPS - time elapsed for input processing]
         delta = frameTime - (end - start) - overhead;
@@ -108,7 +110,6 @@ DWORD WINAPI renderScreen(void* params) {
         
         overhead = timer->QuadPart - start - frameTime;
     
-        ReleaseMutex(parameters->tilesMutex);
         ReleaseMutex(parameters->renderMutex);
     }
 
