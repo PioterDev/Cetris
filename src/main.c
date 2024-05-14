@@ -431,13 +431,16 @@ int main(int argc, char** argv) {
                     if(event.key.keysym.sym == programParameters->keymap.dropSoft) {
                         speed = NORMAL;
                     }
+                    if(event.key.keysym.sym == programParameters->keymap.hold) {
+                        speed = NORMAL;
+                    }
                     break;
                 }
             }
 
         }
         //long long baseFallSpeed = (long long)programParameters->baseFallSpeed * (frequency.QuadPart / 1000);
-        long long baseFallSpeed = 1000 * (frequency.QuadPart / 1000);
+        long long baseFallSpeed = programParameters->baseFallSpeed * (frequency.QuadPart / 1000);
         if(speed == DROPSOFT)baseFallSpeed /= 5;
         else if(speed == HOLD)baseFallSpeed *= 5;
         tickTimerEnd = timer.QuadPart;
