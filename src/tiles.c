@@ -356,12 +356,13 @@ void freeTile(Tile* tile) {
     if(tile == NULL)return;
     SDL_DestroyTexture(tile->texture);
     free(tile);
+    tile = NULL;
 }
 
 Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, FILE* debug) {
     TileColor color = rand() % 7 + 1;
     TileShape shape = rand() % 7 + 2;
-    fprintf(debug, "%d %d\n", color, shape);
+    if(debug != NULL)fprintf(debug, "%d %d\n", color, shape);
 
     return loadTile(renderer, color, shape, coordinates, debug);
 }

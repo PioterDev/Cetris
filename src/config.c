@@ -41,6 +41,7 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
         while((value[0] == ' ' || value[0] == '\t') && value[0] != '\n')value++;
         
         if(debugFile != NULL)fprintf(debugFile, "Value: %s\n", value);
+
         //...so anyway, let's begin this mess
         if(strlen(value) == 1) {
             //a-z
@@ -51,7 +52,7 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
         }
         else if(value[0] == 'F' || value[0] == 'f') {
             if(value[1] == '1') {
-                if(value[2] == '\0')setParameter(parameters, key, SDLK_F1);
+                if     (value[2] == '\0')setParameter(parameters, key, SDLK_F1);
                 else if(value[2] == '0')setParameter(parameters, key, SDLK_F10);
                 else if(value[2] == '1')setParameter(parameters, key, SDLK_F11);
                 else if(value[2] == '2')setParameter(parameters, key, SDLK_F12);

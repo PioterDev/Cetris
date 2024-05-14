@@ -210,6 +210,11 @@ typedef enum Rotation {
     ROTATION_COUNTERCLOCKWISE = 1
 } Rotation;
 
+typedef enum MovementSpeed {
+    NORMAL,
+    DROPSOFT,
+    HOLD
+} MovementSpeed;
 
 
 #endif

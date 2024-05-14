@@ -298,7 +298,7 @@ int main(int argc, char** argv) {
     ReleaseMutex(renderMutex); //start render thread
 
     tickTimerStart = tickTimerEnd = timer.QuadPart;
-    bool dropsoft = false;
+    MovementSpeed speed = NORMAL;
 
     while(running) { //main game loop
         WaitForSingleObject(tilesMutex, INFINITE);
@@ -318,8 +318,8 @@ int main(int argc, char** argv) {
                 case SDL_KEYDOWN: {
                     SDL_Keycode key = event.key.keysym.sym;
                 
-                    fprintf(debugLog, "%d\n", key);
-                    
+                    if(debugLog != NULL)fprintf(debugLog, "%d\n", key);
+
                     if(key == programParameters->keymap.dropHard) {
                         dropHard(tetrisGrid, currentTile, programParameters->tetrisGridSize);
                         onPlacement(tetrisGrid, programParameters->tetrisGridSize, 0); //TODO: score
@@ -329,7 +329,7 @@ int main(int argc, char** argv) {
                             logToStream(errorlog, "Error loading tile");
                         }
                         else loadTileIntoGrid(tetrisGrid, currentTile);
-                        dropsoft = false;
+                        speed = NORMAL;
                     }
                     else if(key == programParameters->keymap.movePieceLeft) {
                         moveLeft(tetrisGrid, currentTile);
@@ -338,13 +338,16 @@ int main(int argc, char** argv) {
                         moveRight(tetrisGrid, currentTile, programParameters->tetrisGridSize.width);
                     }
                     else if(key == programParameters->keymap.dropSoft) {
-                        dropsoft = true;
+                        speed = DROPSOFT;
                     }
                     else if(key == programParameters->keymap.rotateClockwise) {
                         rotateClockwise(tetrisGrid, currentTile);
                     }
                     else if(key == programParameters->keymap.rotateCounterClockwise) {
                         rotateCounterClockwise(tetrisGrid, currentTile);
+                    }
+                    else if(key == programParameters->keymap.hold) {
+                        speed = HOLD;
                     }
                     #ifdef TEST
                     else if(key == programParameters->keymap.test) {
@@ -426,7 +429,7 @@ int main(int argc, char** argv) {
                 }
                 case SDL_KEYUP: {
                     if(event.key.keysym.sym == programParameters->keymap.dropSoft) {
-                        dropsoft = false;
+                        speed = NORMAL;
                     }
                     break;
                 }
@@ -435,7 +438,8 @@ int main(int argc, char** argv) {
         }
         //long long baseFallSpeed = (long long)programParameters->baseFallSpeed * (frequency.QuadPart / 1000);
         long long baseFallSpeed = 1000 * (frequency.QuadPart / 1000);
-        if(dropsoft)baseFallSpeed /= 5;
+        if(speed == DROPSOFT)baseFallSpeed /= 5;
+        else if(speed == HOLD)baseFallSpeed *= 5;
         tickTimerEnd = timer.QuadPart;
 
         if(tickTimerEnd - tickTimerStart > baseFallSpeed) {
@@ -455,10 +459,12 @@ int main(int argc, char** argv) {
                             freeTile(currentTile);
                             currentTile = NULL;
                             setMatrix(tetrisGrid, programParameters->tetrisGridSize, 0);
+                            printMatrix(tetrisGrid, programParameters->tetrisGridSize, debugLog);
+                            printTile(currentTile, debugLog);
                         }
                     }
+                    speed = NORMAL;
                 }
-                dropsoft = false;
             }
             tickTimerStart += baseFallSpeed;
         }

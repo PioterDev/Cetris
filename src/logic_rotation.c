@@ -82,7 +82,7 @@ status_t rotateClockwise(char** tetrisGrid, Tile* tile) {
             break;
         }
         case J_0: {
-            if(y > 1 && tetrisGrid[y - 2][x] == 0 && tetrisGrid[y - 1][x] == 0 && tetrisGrid[y - 1][x + 2] == 0) {
+            if(x < GridWidth - 2 && tetrisGrid[y - 2][x] == 0 && tetrisGrid[y - 1][x] == 0 && tetrisGrid[y - 1][x + 2] == 0) {
                 tetrisGrid[y - 2][x]     = -1 * tile->color;
                 tetrisGrid[y - 1][x]     = -1 * tile->color;
                 tetrisGrid[y - 1][x + 2] = -1 * tile->color;
@@ -100,7 +100,7 @@ status_t rotateClockwise(char** tetrisGrid, Tile* tile) {
             break;
         }
         case J_90: {
-            if(tetrisGrid[y][x + 1] == 0 && tetrisGrid[y][x + 2] == 0 && tetrisGrid[y + 2][x + 1] == 0) {
+            if(y < GridHeight - 2 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y][x + 2] == 0 && tetrisGrid[y + 2][x + 1] == 0) {
                 tetrisGrid[y]    [x + 1] = -1 * tile->color;
                 tetrisGrid[y]    [x + 2] = -1 * tile->color;
                 tetrisGrid[y + 2][x + 1] = -1 * tile->color;

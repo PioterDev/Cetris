@@ -55,7 +55,6 @@ char** zeroMatrix(Size size);
  * 
  * @param matrix matrix
  * @param height height of the matrix
- * @param width width of the matrix
  */
 void freeMatrix(char** matrix, int height);
 
