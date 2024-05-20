@@ -11,7 +11,7 @@
  * @param tile tile
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t loadTileIntoGrid(char** tetrisGrid, Tile* tile);
+status_t loadTileIntoGrid(char** tetrisGrid, Tile* tile, FILE* debug);
 
 /**
  * @brief Frees previous tile, loads a new one.
@@ -20,7 +20,7 @@ status_t loadTileIntoGrid(char** tetrisGrid, Tile* tile);
  * @param tile pointer to current tile
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t getNewTile(SDL_Renderer* renderer, Tile* tile, FILE* debug);
+status_t getNewTile(SDL_Renderer* renderer, Tile* tile, const int flags, FILE* debug);
 
 /**
  * @brief Hard drop functionality. Uses moveDown.

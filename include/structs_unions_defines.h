@@ -29,17 +29,6 @@ typedef union Color {
     unsigned char rgba[4];
 } Color;
 
-typedef struct QueueElement {
-    SDL_Event event;
-    struct QueueElement* next;
-} QueueElement;
-
-typedef struct Queue {
-    size_t size;
-    QueueElement* head;
-    QueueElement* last;
-} Queue;
-
 /**
  * @brief Simple enum for a status of an operation. Used in otherwise 'void' functions.
  */
@@ -59,6 +48,13 @@ typedef enum status_t {
     SEMAPHORE_FAILURE,
     THREAD_START_FAILURE
 } status_t;
+
+typedef enum LogLevel {
+    LOGLEVEL_INFO,
+    LOGLEVEL_WARNING,
+    LOGLEVEL_ERROR,
+    LOGLEVEL_DEBUG
+} LogLevel;
 
 /**
  * @brief Loop status enum. Used for controlling execution of loops outside the main thread.
@@ -173,12 +169,15 @@ typedef struct Tile {
     SDL_Texture* texture;
     SDL_Rect rect;
     double angle;
-    SDL_Point center;
     TileColor color;
     TileShape shape;
     TileState state;
     Point position;
 } Tile;
+
+typedef enum TileLoadingFlags {
+    TILELOAD_NOTEXTURE = 1
+} TileLoadingFlags;
 
 /**
  * @brief Struct for holding parameters for the render thread.
@@ -194,6 +193,9 @@ typedef struct renderThreadParameters {
     size_t tilesAmount;
 } renderThreadParameters;
 
+/**
+ * @brief Not used anywhere.
+ */
 typedef struct logicParameters {
     ProgramParameters* programParameters;
     Tile** tiles;
@@ -205,16 +207,18 @@ typedef struct clockThreadParameters {
     LARGE_INTEGER* timer;
 } clockThreadParameters;
 
-typedef enum Rotation {
-    ROTATION_CLOCKWISE = -1,
-    ROTATION_COUNTERCLOCKWISE = 1
-} Rotation;
-
 typedef enum MovementSpeed {
     NORMAL,
     DROPSOFT,
     HOLD
 } MovementSpeed;
+
+typedef enum PointsPerAction {
+    ACTION_SINGLE = 100,
+    ACTION_DOUBLE = 300,
+    ACTION_TRIPLE = 500,
+    ACTION_TETRIS = 800
+} PointsPerAction;
 
 
 #endif

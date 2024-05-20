@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
+#include "logging.h"
 #include "structs_unions_defines.h"
 
 DWORD WINAPI renderScreen(void* params) {
@@ -69,7 +70,7 @@ DWORD WINAPI renderScreen(void* params) {
                 current.y = backgroundTile->rect.y + i * current.h;
                 current.x = backgroundTile->rect.x + j * current.w;
                 if(SDL_RenderCopy(renderer, baseTextures[color - 1], NULL, &current) != 0) {
-                    fprintf(programParameters->debugLog, "Error rendering tile\n");
+                    logToStream(programParameters->debugLog, "Error rendering tile", LOGLEVEL_ERROR);
                 }
 
             }
@@ -87,8 +88,8 @@ DWORD WINAPI renderScreen(void* params) {
                     rect.h /= abs(scalingFactor);
                     rect.w /= abs(scalingFactor);
                 }
-                point.x = parameters->tiles[i]->center.x + parameters->tiles[i]->rect.x;
-                point.y = parameters->tiles[i]->center.y + parameters->tiles[i]->rect.y;
+                //point.x = parameters->tiles[i]->center.x + parameters->tiles[i]->rect.x;
+                //point.y = parameters->tiles[i]->center.y + parameters->tiles[i]->rect.y;
                 // SDL_RenderCopy(renderer, parameters->tiles[i]->texture, NULL, &rect);
                 SDL_RenderCopyEx(renderer, parameters->tiles[i]->texture, NULL, &rect, parameters->tiles[i]->angle, &point, SDL_FLIP_NONE);
             }

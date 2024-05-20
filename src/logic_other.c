@@ -1,15 +1,17 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "structs_unions_defines.h"
 #include "tiles.h"
 #include "utils.h"
 
-status_t loadTileIntoGrid(char** tetrisGrid, Tile* tile) {
+status_t loadTileIntoGrid(char** tetrisGrid, Tile* tile, FILE* debug) {
+    if(tile == NULL)return FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
     switch(tile->state) {
         case BAR_HORIZONTAL_UP: {
-            if(tetrisGrid[y][x] == 0 && tetrisGrid[y][x + 1] && tetrisGrid[y][x + 2] == 0 && tetrisGrid[y][x + 3] == 0) {
+            if(tetrisGrid[y][x] == 0 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y][x + 2] == 0 && tetrisGrid[y][x + 3] == 0) {
                 tetrisGrid[y][x]     = -1 * tile->color;
                 tetrisGrid[y][x + 1] = -1 * tile->color;
                 tetrisGrid[y][x + 2] = -1 * tile->color;
@@ -83,9 +85,9 @@ status_t loadTileIntoGrid(char** tetrisGrid, Tile* tile) {
     return FAILURE;
 }
 
-status_t getNewTile(SDL_Renderer* renderer, Tile* tile, FILE* debug) {
+status_t getNewTile(SDL_Renderer* renderer, Tile* tile, const int flags, FILE* debug) {
     freeTile(tile);
-    tile = loadTileRandom(renderer, NULL, debug);
+    tile = loadTileRandom(renderer, NULL, flags, debug);
     if(tile == NULL)return FAILURE;
     return SUCCESS;
 }

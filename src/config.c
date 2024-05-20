@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "logging.h"
 #include "utils.h"
 #include "structs_unions_defines.h"
 
@@ -27,7 +28,7 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
 
     char buf[128] = {0};
     while(fgets(buf, 128, configFile)) {
-        if(debugFile != NULL)fprintf(debugFile, "Read line: %s", buf);
+        if(debugFile != NULL)fprintf(debugFile, "[loadConfig] Read line: %s", buf);
         
         if(buf[0] == '#')continue; //comment line
         
@@ -35,12 +36,12 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
         char key[32] = {0};
         strncpy(key, buf, strcspn(buf, ":"));
 
-        if(debugFile != NULL)fprintf(debugFile, "Key: %s\n", key);
+        if(debugFile != NULL)fprintf(debugFile, "[loadConfig] Key: %s\n", key);
 
         char* value = strstr(buf, ":") + 1;
         while((value[0] == ' ' || value[0] == '\t') && value[0] != '\n')value++;
         
-        if(debugFile != NULL)fprintf(debugFile, "Value: %s\n", value);
+        if(debugFile != NULL)fprintf(debugFile, "[loadConfig] Value: %s\n", value);
 
         //...so anyway, let's begin this mess
         if(strlen(value) == 1) {

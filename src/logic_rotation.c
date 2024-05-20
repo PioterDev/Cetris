@@ -2,6 +2,7 @@
 #include "utils.h"
 
 status_t rotateClockwise(char** tetrisGrid, Tile* tile) {
+    if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
     switch(tile->state) {
@@ -423,6 +424,7 @@ status_t rotateClockwise(char** tetrisGrid, Tile* tile) {
 }
 
 status_t rotateCounterClockwise(char** tetrisGrid, Tile* tile) {
+    if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
     switch(tile->state) {
