@@ -5,6 +5,9 @@
 #include <windows.h>
 #include <SDL.h>
 
+#define true 1
+#define false 0
+
 #define tilesPath "./assets/tiles/"
 #define tileColorAmount 7
 #define GridHeight 20
@@ -105,7 +108,7 @@ typedef struct ProgramParameters {
     FILE* errorlog;
     FILE* debugLog;
     SDL_Texture* baseTextures[tileColorAmount];
-    char** tetrisGrid;
+    int** tetrisGrid;
     Size tetrisGridSize;
 } ProgramParameters;
 typedef enum TileColor{
@@ -219,6 +222,17 @@ typedef enum PointsPerAction {
     ACTION_TRIPLE = 500,
     ACTION_TETRIS = 800
 } PointsPerAction;
+
+typedef struct TileQueueElement {
+    Tile* tile;
+    struct TileQueueElement* next;
+} TileQueueElement;
+
+typedef struct TileQueue {
+    size_t size;
+    TileQueueElement* head;
+    TileQueueElement* last;
+} TileQueue;
 
 
 #endif

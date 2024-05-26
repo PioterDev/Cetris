@@ -11,7 +11,7 @@
  * @param tile tile
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t loadTileIntoGrid(char** tetrisGrid, Tile* tile, FILE* debug);
+status_t loadTileIntoGrid(int** tetrisGrid, Tile* tile, FILE* debug);
 
 /**
  * @brief Frees previous tile, loads a new one.
@@ -46,9 +46,9 @@ status_t getNewTile(SDL_Renderer* renderer, Tile* tile, const int flags, FILE* d
  * 
  * @param tetrisGrid 
  * @param tetrisGridSize size of the game matrix
- * @param score 
+ * @param score pointer to score variable, meant to be incremenented based on how many rows were cleared 
  */
-void onPlacement(char** tetrisGrid, const Size tetrisGridSize, int score);
+void onPlacement(int** tetrisGrid, const Size tetrisGridSize, int* score);
 
 
 #endif

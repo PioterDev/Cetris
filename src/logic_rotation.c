@@ -1,7 +1,7 @@
 #include "structs_unions_defines.h"
 #include "utils.h"
 
-status_t rotateClockwise(char** tetrisGrid, Tile* tile) {
+status_t rotateClockwise(int** tetrisGrid, Tile* tile) {
     if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
@@ -423,7 +423,7 @@ status_t rotateClockwise(char** tetrisGrid, Tile* tile) {
     return FAILURE;
 }
 
-status_t rotateCounterClockwise(char** tetrisGrid, Tile* tile) {
+status_t rotateCounterClockwise(int** tetrisGrid, Tile* tile) {
     if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;

@@ -61,10 +61,10 @@ DWORD WINAPI renderScreen(void* params) {
         }
 
 
-        char** tetrisGrid = programParameters->tetrisGrid;
+        int** tetrisGrid = programParameters->tetrisGrid;
         for(int i = 0; i < programParameters->tetrisGridSize.height; i++) {
             for(int j = 0; j < programParameters->tetrisGridSize.width; j++) {
-                char color = tetrisGrid[i][j];
+                int color = tetrisGrid[i][j];
                 if(color == 0)continue;
                 if(color < 0)color = abs(color);
                 current.y = backgroundTile->rect.y + i * current.h;
@@ -75,7 +75,7 @@ DWORD WINAPI renderScreen(void* params) {
 
             }
         }
-        SDL_Rect rect;
+        /* SDL_Rect rect;
         SDL_Point point;
         for(size_t i = 1; i < parameters->tilesAmount; i++) {
             if(parameters->tiles[i] != NULL) {
@@ -93,7 +93,7 @@ DWORD WINAPI renderScreen(void* params) {
                 // SDL_RenderCopy(renderer, parameters->tiles[i]->texture, NULL, &rect);
                 SDL_RenderCopyEx(renderer, parameters->tiles[i]->texture, NULL, &rect, parameters->tiles[i]->angle, &point, SDL_FLIP_NONE);
             }
-        }
+        } */
         end = timer->QuadPart;
         if(end - start == 0) {
             Sleep(1);

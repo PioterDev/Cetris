@@ -11,7 +11,7 @@
  * @param tile tile
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t moveLeft(char** tetrisGrid, Tile* tile);
+status_t moveLeft(int** tetrisGrid, Tile* tile);
 
 /**
  * @brief Moves the tile one square right.
@@ -21,7 +21,7 @@ status_t moveLeft(char** tetrisGrid, Tile* tile);
  * @param tetrisGridHeight height of the game matrix
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t moveRight(char** tetrisGrid, Tile* tile, const int tetrisGridWidth);
+status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth);
 
 /**
  * @brief Moves the tile one square down.
@@ -31,7 +31,7 @@ status_t moveRight(char** tetrisGrid, Tile* tile, const int tetrisGridWidth);
  * @param tetrisGridHeight height of the game matrix
  * @return SUCCESS on success, FAILURE on failure 
  */
-status_t moveDown(char** tetrisGrid, Tile* tile, const int tetrisGridHeight);
+status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight);
 
 /**
  * @brief 
@@ -40,7 +40,7 @@ status_t moveDown(char** tetrisGrid, Tile* tile, const int tetrisGridHeight);
  * @param tile tile
  * @param tetrisGridSize Size struct for the matrix size
  */
-void dropHard(char** tetrisGrid, Tile* tile, const Size tetrisGridSize);
+void dropHard(int** tetrisGrid, Tile* tile, const Size tetrisGridSize);
 
 
 #endif

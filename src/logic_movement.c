@@ -1,7 +1,7 @@
 #include "structs_unions_defines.h"
 #include "utils.h"
 
-status_t moveLeft(char** tetrisGrid, Tile* tile) {
+status_t moveLeft(int** tetrisGrid, Tile* tile) {
     if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
@@ -284,7 +284,7 @@ status_t moveLeft(char** tetrisGrid, Tile* tile) {
     return FAILURE;
 }
 
-status_t moveRight(char** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
+status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
     if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
@@ -567,7 +567,7 @@ status_t moveRight(char** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
     return FAILURE;
 }
 
-status_t moveDown(char** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
+status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
     if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
@@ -868,7 +868,7 @@ status_t moveDown(char** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
 }
 
 //Extremely inefficient, but works for now
-void dropHard(char** tetrisGrid, Tile* tile, const Size tetrisGridSize) {
+void dropHard(int** tetrisGrid, Tile* tile, const Size tetrisGridSize) {
     while(moveDown(tetrisGrid, tile, tetrisGridSize.height) == SUCCESS);
 
     tile->position.x = -1;

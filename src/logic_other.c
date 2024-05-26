@@ -5,7 +5,7 @@
 #include "tiles.h"
 #include "utils.h"
 
-status_t loadTileIntoGrid(char** tetrisGrid, Tile* tile, FILE* debug) {
+status_t loadTileIntoGrid(int** tetrisGrid, Tile* tile, FILE* debug) {
     if(tile == NULL)return FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
@@ -227,7 +227,7 @@ status_t dropHard(char** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
  * FIXME: rewrite this shit from scratch
  * nah, I'm too lazy
  */
-status_t dropHardOld(char** tetrisGrid, Tile* tile, const int tetrisGridHeight, FILE* debug) {
+status_t dropHardOld(int** tetrisGrid, Tile* tile, const int tetrisGridHeight, FILE* debug) {
     //Convention is as follows:
     //(x, y) point to left-most square of the current tile.
     //If there are multiple, it points to the top-most one.
@@ -766,7 +766,7 @@ status_t dropHardOld(char** tetrisGrid, Tile* tile, const int tetrisGridHeight, 
     return SUCCESS;
 }
 
-static inline void shiftDown(char** tetrisGrid, const Size tetrisGridSize, int n, int startHeight) {
+static inline void shiftDown(int** tetrisGrid, const Size tetrisGridSize, int n, int startHeight) {
     for(int i = startHeight; i > n - 1; i--) {
         for(int j = 0; j < tetrisGridSize.width; j++) {
             tetrisGrid[i][j] = tetrisGrid[i - n][j];
@@ -777,13 +777,13 @@ static inline void shiftDown(char** tetrisGrid, const Size tetrisGridSize, int n
     }
 }
 
-void onPlacement(char** tetrisGrid, const Size tetrisGridSize, int score) {
+void onPlacement(int** tetrisGrid, const Size tetrisGridSize, int* score) {
     int howManyFull = 0, lowestFull = tetrisGridSize.height - 1;
     for(int i = tetrisGridSize.height - 1; i > 0; i--) {
-        char isRowFull = 1;
+        char isRowFull = true;
         for(int j = 0; j < tetrisGridSize.width; j++) {
             if(tetrisGrid[i][j] == 0 || tetrisGrid[i][j] == 127) {
-                isRowFull = 0;
+                isRowFull = false;
                 lowestFull--;
                 break;
             }
@@ -795,11 +795,11 @@ void onPlacement(char** tetrisGrid, const Size tetrisGridSize, int score) {
     }
     if(lowestFull == 0)return;
     int i = lowestFull - 1;
-    while(1) {
-        char isFull = 1;
+    while(true) {
+        char isFull = true;
         for(int j = 0; j < tetrisGridSize.width; j++) {
-            if(tetrisGrid[i][j] == 0 || tetrisGrid[i][j] == 127) {
-                isFull = 0;
+            if(tetrisGrid[i][j] == 0 || tetrisGrid[i][j] == GHOST) {
+                isFull = false;
                 break;
             }
         }

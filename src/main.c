@@ -183,10 +183,9 @@ int main(int argc, char** argv) {
     logToStream(generallog, "Base tile textures successfully loaded!", LOGLEVEL_INFO);
 
 
-
     
     logToStream(generallog, "Attempting to create a game matrix...", LOGLEVEL_INFO);
-    char** tetrisGrid = zeroMatrix(programParameters->tetrisGridSize);
+    int** tetrisGrid = zeroMatrix(programParameters->tetrisGridSize);
     if(tetrisGrid == NULL) {
         status = MEMORY_FAILURE;
         sprintf(errormsgBuffer, "Error allocating memory for the game matrix.");
@@ -221,18 +220,20 @@ int main(int argc, char** argv) {
     tiles[0] = backgroundTile;
     tilesAmount++;
     //dynamic calculation of by how much should everything be scaled
-    if(backgroundTile->rect.h > programParameters->screenSize.height || backgroundTile->rect.w > programParameters->screenSize.width) {
+    if( GridHeight * programParameters->baseTileSize > programParameters->screenSize.height || 
+        GridWidth * programParameters->baseTileSize > programParameters->screenSize.width) { //scale down
         programParameters->scalingFactor = -1;
         while(
-            backgroundTile->rect.h / abs(programParameters->scalingFactor) > programParameters->screenSize.height ||
-            backgroundTile->rect.w / abs(programParameters->scalingFactor) > programParameters->screenSize.width
+            GridHeight * programParameters->baseTileSize / abs(programParameters->scalingFactor) > programParameters->screenSize.height ||
+            GridWidth * programParameters->baseTileSize / abs(programParameters->scalingFactor) > programParameters->screenSize.width
         ) {programParameters->scalingFactor--;}
     }
-    else if(backgroundTile->rect.h * 2 < programParameters->screenSize.height || backgroundTile->rect.w * 2 < programParameters->screenSize.width) {
+    else if(GridHeight * programParameters->baseTileSize * 2 < programParameters->screenSize.height || 
+            GridWidth * programParameters->baseTileSize * 2 < programParameters->screenSize.width) { //scale up
         programParameters->scalingFactor = 1;
         while(
-            backgroundTile->rect.h * programParameters->scalingFactor < programParameters->screenSize.height ||
-            backgroundTile->rect.w * programParameters->scalingFactor < programParameters->screenSize.width
+            GridHeight * programParameters->baseTileSize * programParameters->scalingFactor < programParameters->screenSize.height ||
+            GridWidth * programParameters->baseTileSize * programParameters->scalingFactor < programParameters->screenSize.width
         ) {programParameters->scalingFactor++;}
     }
     logToStream(generallog, "Background tile successfully loaded!", LOGLEVEL_INFO);
@@ -264,7 +265,7 @@ int main(int argc, char** argv) {
     logToStream(generallog, "Render thread mutex successfully created!", LOGLEVEL_INFO);
 
     loopStatus_t renderStatus = CONTINUE;
-    Color backgroundColor; backgroundColor.color = 0xFFFFFFFF;
+    Color backgroundColor; backgroundColor.color = 0x7F7F7FFF;
     renderThreadParameters renderParameters = {
         &renderStatus, 
         renderMutex, 
@@ -340,22 +341,10 @@ int main(int argc, char** argv) {
                         speed = DROPSOFT;
                     }
                     else if(key == programParameters->keymap.rotateClockwise) {
-                        fprintf(debugLog, "Before:\n");
-                        printMatrix(tetrisGrid, programParameters->tetrisGridSize, debugLog);
-                        printTile(currentTile, debugLog);
                         rotateClockwise(tetrisGrid, currentTile);
-                        fprintf(debugLog, "After:\n");
-                        printMatrix(tetrisGrid, programParameters->tetrisGridSize, debugLog);
-                        printTile(currentTile, debugLog);
                     }
                     else if(key == programParameters->keymap.rotateCounterClockwise) {
-                        fprintf(debugLog, "Before:\n");
-                        printMatrix(tetrisGrid, programParameters->tetrisGridSize, debugLog);
-                        printTile(currentTile, debugLog);
                         rotateCounterClockwise(tetrisGrid, currentTile);
-                        fprintf(debugLog, "After:\n");
-                        printMatrix(tetrisGrid, programParameters->tetrisGridSize, debugLog);
-                        printTile(currentTile, debugLog);
                     }
                     else if(key == programParameters->keymap.hold) {
                         speed = HOLD;
@@ -473,8 +462,6 @@ int main(int argc, char** argv) {
                             freeTile(currentTile);
                             currentTile = NULL;
                             setMatrix(tetrisGrid, programParameters->tetrisGridSize, 0);
-                            printMatrix(tetrisGrid, programParameters->tetrisGridSize, debugLog);
-                            printTile(currentTile, debugLog);
                         }
                     }
                     speed = NORMAL;

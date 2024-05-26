@@ -11,7 +11,7 @@
  * @param tile tile
  * @return SUCCESS on success, FAILURE on failure 
  */
-status_t rotateClockwise(char** tetrisGrid, Tile* tile);
+status_t rotateClockwise(int** tetrisGrid, Tile* tile);
 
 
 /**
@@ -21,7 +21,7 @@ status_t rotateClockwise(char** tetrisGrid, Tile* tile);
  * @param tile tile
  * @return SUCCESS on success, FAILURE on failure 
  */
-status_t rotateCounterClockwise(char** tetrisGrid, Tile* tile);
+status_t rotateCounterClockwise(int** tetrisGrid, Tile* tile);
 
 
 #endif
