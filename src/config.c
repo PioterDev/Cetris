@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "deus.h"
 #include "logging.h"
 #include "utils.h"
-#include "structs_unions_defines.h"
 
 static inline void setParameter(ProgramParameters* parameters, const char* key, int value) {
     if     (!strcmp(key, "moveleft"))                   parameters->keymap.movePieceLeft = value;

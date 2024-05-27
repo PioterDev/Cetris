@@ -2,7 +2,7 @@
 #define LOGIC_MOVEMENT_H
 
 
-#include "structs_unions_defines.h"
+#include "deus.h"
 
 /**
  * @brief Moves the tile one square left.

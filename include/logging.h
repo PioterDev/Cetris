@@ -2,7 +2,7 @@
 #define LOGGING_H
 
 
-#include "structs_unions_defines.h"
+#include "deus.h"
 /**
  * @brief Logs given message to the specified stream in the following format: "[<Current date in ISO8601> message]"
  * 

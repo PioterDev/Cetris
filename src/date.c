@@ -1,7 +1,7 @@
 #include <time.h>
 #include <string.h>
 
-#include "structs_unions_defines.h"
+#include "deus.h"
 #include "utils.h"
 
 status_t ISO8601(char* buf, size_t bufsize) {

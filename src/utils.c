@@ -3,7 +3,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include "structs_unions_defines.h"
+#include "deus.h"
 
 status_t itos(int in, int base, char* buf, size_t bufsize) {
     static char* digits = "0123456789ABCDEF";
@@ -30,7 +30,7 @@ status_t itos(int in, int base, char* buf, size_t bufsize) {
     while(in != 0) {
         if(i == bufsize - 1)return FAILURE;
         char digit = in % base;
-        tmp[sign + len] = digits[digit];
+        tmp[sign + len] = digits[(int)digit];
         i++; len--;
         in /= base;
     }

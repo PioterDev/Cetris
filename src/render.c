@@ -5,7 +5,7 @@
 #include <SDL_image.h>
 
 #include "logging.h"
-#include "structs_unions_defines.h"
+#include "deus.h"
 
 DWORD WINAPI renderScreen(void* params) {
     renderThreadParameters* parameters = params;
@@ -36,7 +36,7 @@ DWORD WINAPI renderScreen(void* params) {
         baseTileSize = programParameters->baseTileSize;
         scalingFactor = programParameters->scalingFactor;
         
-        SDL_SetRenderDrawColor(renderer, backgroundColor->rgba[0], backgroundColor->rgba[1], backgroundColor->rgba[2], backgroundColor->rgba[3]); //background color
+        SDL_SetRenderDrawColor(renderer, backgroundColor->red, backgroundColor->green, backgroundColor->blue, backgroundColor->alpha); //background color
         SDL_RenderClear(renderer);
 
         SDL_Rect backgroundRect = backgroundTile->rect;

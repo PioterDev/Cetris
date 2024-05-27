@@ -13,7 +13,7 @@
 #include "logging.h"
 #include "logic.h"
 #include "render.h"
-#include "structs_unions_defines.h"
+#include "deus.h"
 #include "tiles.h"
 #include "utils.h"
 
@@ -240,6 +240,23 @@ int main(int argc, char** argv) {
 
     Tile* currentTile = tiles[1];
     tilesAmount++;
+    programParameters->currentTile = currentTile;
+
+    logToStream(generallog, "Attempting to create a tile queue...", LOGLEVEL_INFO);
+    TileQueue* tileQueue = createTileQueue();
+    if(tileQueue == NULL) {
+        status = MEMORY_FAILURE;
+        sprintf(errormsgBuffer, "Error creating tile queue.");
+        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        goto freeTiles;
+    }
+    programParameters->tileQueue = tileQueue;
+    logToStream(generallog, "Tile queue successfully created!", LOGLEVEL_INFO);
+
+    for(int i = 0; i < tileQueuedAmount; i++) {
+        Tile* tmp = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog);
+        if(tmp != NULL)enqueueTile(tileQueue, tmp);
+    }
 
     logToStream(generallog, "Attempting to create a tiles mutex...", LOGLEVEL_INFO);
     HANDLE tilesMutex = CreateMutex(NULL, TRUE, NULL);
@@ -247,7 +264,7 @@ int main(int argc, char** argv) {
         status = MUTEX_FAILURE;
         sprintf(errormsgBuffer, "Error initializing tiles mutex: %ld", GetLastError());
         logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
-        goto freeTiles;
+        goto freeTilequeue;
     }
     logToStream(generallog, "Tiles mutex successfully created!", LOGLEVEL_INFO);
 
@@ -265,7 +282,13 @@ int main(int argc, char** argv) {
     logToStream(generallog, "Render thread mutex successfully created!", LOGLEVEL_INFO);
 
     loopStatus_t renderStatus = CONTINUE;
-    Color backgroundColor; backgroundColor.color = 0x7F7F7FFF;
+    
+    Color backgroundColor;
+    backgroundColor.red = 16;
+    backgroundColor.green = 16;
+    backgroundColor.blue = 16;
+    backgroundColor.alpha = 0xFF;
+    
     renderThreadParameters renderParameters = {
         &renderStatus, 
         renderMutex, 
@@ -324,11 +347,16 @@ int main(int argc, char** argv) {
                         dropHard(tetrisGrid, currentTile, programParameters->tetrisGridSize);
                         onPlacement(tetrisGrid, programParameters->tetrisGridSize, 0); //TODO: score
                         freeTile(currentTile);
-                        currentTile = loadTileRandom(renderer, NULL, 0, debugLog);
+
+                        dequeueTile(tileQueue, &currentTile);
+                        enqueueTile(tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
+                        
                         if(currentTile == NULL) {
                             logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
                         }
-                        else loadTileIntoGrid(tetrisGrid, currentTile, debugLog);
+                        else if(loadTileIntoGrid(tetrisGrid, currentTile, debugLog) == FAILURE) {
+                            onGameEnd(programParameters);
+                        }
                         speed = NORMAL;
                     }
                     else if(key == programParameters->keymap.movePieceLeft) {
@@ -351,12 +379,16 @@ int main(int argc, char** argv) {
                     }
                     #ifdef TEST
                     else if(key == programParameters->keymap.test) {
-                        freeTile(currentTile);
-                        currentTile = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog);
-                        if(currentTile == NULL) {
-                            logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
-                        }
-                        else loadTileIntoGrid(tetrisGrid, currentTile, debugLog);
+                        Tile* tmp = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog);
+                        if(tmp != NULL)enqueueTile(tileQueue, tmp);
+                        printTileQueue(tileQueue, debugLog);
+                    }
+                    else if(key == SDLK_v) {
+                        Tile* tmp;
+                        dequeueTile(tileQueue, &tmp);
+                        logToStream(debugLog, "Dequeued tile: ", LOGLEVEL_DEBUG);
+                        //printTile(tmp, debugLog);
+                        freeTile(tmp);
                     }
                     else if(key == SDLK_1) {
                         freeTile(currentTile);
@@ -422,7 +454,7 @@ int main(int argc, char** argv) {
                         else loadTileIntoGrid(tetrisGrid, currentTile, debugLog);
                     }
                     else if(key == SDLK_ESCAPE) {
-                        setMatrix(tetrisGrid, programParameters->tetrisGridSize, 0);
+                        onGameEnd(programParameters);
                     }
                     #endif
                     break;
@@ -449,19 +481,18 @@ int main(int argc, char** argv) {
             if(currentTile != NULL) {
                 status_t moveStatus = moveDown(tetrisGrid, currentTile, programParameters->tetrisGridSize.height);
                 if(moveStatus == FAILURE) {
-                    currentTile->position.x = -1;
-                    currentTile->position.y = -1;
-                    absMatrix(tetrisGrid, programParameters->tetrisGridSize);
+                    onPlacement(tetrisGrid, programParameters->tetrisGridSize, NULL);
                     freeTile(currentTile);
-                    currentTile = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog);
+
+                    dequeueTile(tileQueue, &currentTile);
+                    enqueueTile(tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
+
                     if(currentTile == NULL) {
                         logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
                     }
                     else {
                         if(loadTileIntoGrid(tetrisGrid, currentTile, debugLog) == FAILURE) { //TODO: expand functionality on end of the game
-                            freeTile(currentTile);
-                            currentTile = NULL;
-                            setMatrix(tetrisGrid, programParameters->tetrisGridSize, 0);
+                            onGameEnd(programParameters);
                         }
                     }
                     speed = NORMAL;
@@ -489,6 +520,9 @@ int main(int argc, char** argv) {
 
     closeTilesMutex: CloseHandle(tilesMutex);
     
+    freeTilequeue:
+        freeTileQueue(tileQueue);
+
     freeTiles: 
         for(size_t i = 0; i < tilesAmount; i++) {
             if(tiles[i] != NULL) {

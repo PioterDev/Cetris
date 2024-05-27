@@ -2,7 +2,7 @@
 #define LOGIC_ROTATION_H
 
 
-#include "structs_unions_defines.h"
+#include "deus.h"
 
 /**
  * @brief Rotates piece clockwise.

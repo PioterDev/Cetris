@@ -5,7 +5,7 @@
 #include <windows.h>
 #include <SDL.h>
 
-#include "structs_unions_defines.h"
+#include "deus.h"
 
 /**
  * @brief Converts an integer to a string.

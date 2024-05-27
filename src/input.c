@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <SDL.h>
 
-#include "structs_unions_defines.h"
+#include "deus.h"
 
 //A failed attempt at making an input loop on a separate thread.
 //Doesn't work because SDL_PollEvent can

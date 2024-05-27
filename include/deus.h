@@ -1,5 +1,18 @@
-#ifndef STRUCTS_UNIONS_H
-#define STRUCTS_UNIONS_H
+/**
+ * DEUS - Defines Enums Unions Structs, "god" in Latin.
+ * Why is this file called "god"?!
+ * Well, this header file is included in pretty much 
+ * every other file in the project, so by analogy, 
+ * "all originates from God" -> all originates from this header.
+ * That's why this header is DIVINE.
+ * Special care shall be given to this header
+ * as breaking something here will break the entire project.
+ */
+
+#ifndef DEUS_H
+#define DEUS_H
+
+
 
 #include <stdio.h>
 #include <windows.h>
@@ -12,6 +25,7 @@
 #define tileColorAmount 7
 #define GridHeight 20
 #define GridWidth 10
+#define tileQueuedAmount 4
 
 typedef unsigned long long size_t;
 
@@ -29,7 +43,12 @@ typedef union int32_u {
 
 typedef union Color {
     unsigned int color;
-    unsigned char rgba[4];
+    struct {
+        unsigned char red;
+        unsigned char green;
+        unsigned char blue;
+        unsigned char alpha;
+    };
 } Color;
 
 /**
@@ -91,26 +110,6 @@ typedef union Keymap_array {
     int keys[sizeof(Keymap) / sizeof(int)];
 } Keymap_array;
 
-/**
- * @brief Struct for holding program parameters.
- */
-typedef struct ProgramParameters {
-    Size screenSize;
-    int fps;
-    short baseFallSpeed;
-    short baseTileSize;
-    Keymap keymap;
-    //If it's > 0, scale up, if it's < 0, scale down
-    char scalingFactor;
-    LARGE_INTEGER* clockFrequency;
-    LARGE_INTEGER* timer;
-    FILE* generallog;
-    FILE* errorlog;
-    FILE* debugLog;
-    SDL_Texture* baseTextures[tileColorAmount];
-    int** tetrisGrid;
-    Size tetrisGridSize;
-} ProgramParameters;
 typedef enum TileColor{
     COLOR_UNKNOWN = -1,
     AQUA = 1,
@@ -178,6 +177,40 @@ typedef struct Tile {
     Point position;
 } Tile;
 
+typedef struct TileQueueElement {
+    Tile* tile;
+    struct TileQueueElement* next;
+} TileQueueElement;
+
+typedef struct TileQueue {
+    size_t size;
+    TileQueueElement* head;
+    TileQueueElement* last;
+} TileQueue;
+
+/**
+ * @brief Struct for holding program parameters.
+ */
+typedef struct ProgramParameters {
+    Size screenSize;
+    int fps;
+    short baseFallSpeed;
+    short baseTileSize;
+    Keymap keymap;
+    //If it's > 0, scale up, if it's < 0, scale down
+    char scalingFactor;
+    LARGE_INTEGER* clockFrequency;
+    LARGE_INTEGER* timer;
+    FILE* generallog;
+    FILE* errorlog;
+    FILE* debugLog;
+    SDL_Texture* baseTextures[tileColorAmount];
+    int** tetrisGrid;
+    Size tetrisGridSize;
+    Tile* currentTile;
+    TileQueue* tileQueue;
+} ProgramParameters;
+
 typedef enum TileLoadingFlags {
     TILELOAD_NOTEXTURE = 1
 } TileLoadingFlags;
@@ -222,17 +255,6 @@ typedef enum PointsPerAction {
     ACTION_TRIPLE = 500,
     ACTION_TETRIS = 800
 } PointsPerAction;
-
-typedef struct TileQueueElement {
-    Tile* tile;
-    struct TileQueueElement* next;
-} TileQueueElement;
-
-typedef struct TileQueue {
-    size_t size;
-    TileQueueElement* head;
-    TileQueueElement* last;
-} TileQueue;
 
 
 #endif

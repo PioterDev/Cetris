@@ -2,7 +2,7 @@
 #define LOGIC_OTHER_H
 
 
-#include "structs_unions_defines.h"
+#include "deus.h"
 
 /**
  * @brief Loads the tile, given its "focal point", to the game matrix.
@@ -50,5 +50,11 @@ status_t getNewTile(SDL_Renderer* renderer, Tile* tile, const int flags, FILE* d
  */
 void onPlacement(int** tetrisGrid, const Size tetrisGridSize, int* score);
 
+/**
+ * @brief Function invoked when an end-of-game is detected (can't load next tile into the game matrix, etc.)
+ * 
+ * @param parameters pointer to ProgramParameters struct
+ */
+void onGameEnd(ProgramParameters* parameters);
 
 #endif

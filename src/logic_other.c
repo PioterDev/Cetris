@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "structs_unions_defines.h"
+#include "deus.h"
 #include "tiles.h"
 #include "utils.h"
 
@@ -812,4 +812,12 @@ void onPlacement(int** tetrisGrid, const Size tetrisGridSize, int* score) {
         memset(tetrisGrid[lowestFull - i], 0, sizeof(tetrisGrid[lowestFull][0]) * tetrisGridSize.width);
     }
     shiftDown(tetrisGrid, tetrisGridSize, howManyFull, lowestFull);
+    absMatrix(tetrisGrid, tetrisGridSize);
+}
+
+void onGameEnd(ProgramParameters* parameters) {
+    freeTile(parameters->currentTile);
+    flushTileQueue(parameters->tileQueue);
+    parameters->currentTile = NULL;
+    setMatrix(parameters->tetrisGrid, parameters->tetrisGridSize, 0);
 }

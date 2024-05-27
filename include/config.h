@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-#include "structs_unions_defines.h"
+#include "deus.h"
 
 /**
  * @brief Loads game configuration and returns a pointer to GameParameters struct, NULL on error.
