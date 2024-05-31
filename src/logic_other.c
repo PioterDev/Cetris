@@ -2,87 +2,21 @@
 #include <stdlib.h>
 
 #include "deus.h"
+#include "logic_shapes.h"
 #include "tiles.h"
 #include "utils.h"
 
 status_t loadTileIntoGrid(int** tetrisGrid, Tile* tile, FILE* debug) {
-    if(tile == NULL)return FAILURE;
+    if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
-    switch(tile->state) {
-        case BAR_HORIZONTAL_UP: {
-            if(tetrisGrid[y][x] == 0 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y][x + 2] == 0 && tetrisGrid[y][x + 3] == 0) {
-                tetrisGrid[y][x]     = -1 * tile->color;
-                tetrisGrid[y][x + 1] = -1 * tile->color;
-                tetrisGrid[y][x + 2] = -1 * tile->color;
-                tetrisGrid[y][x + 3] = -1 * tile->color;
-                return SUCCESS;
-            }
-            break;
-        }
-        case J_0: {
-            if(tetrisGrid[y][x] == 0 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y - 1][x + 1] == 0 && tetrisGrid[y - 2][x + 1] == 0) {
-                tetrisGrid[y]    [x]     = -1 * tile->color;
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x + 1] = -1 * tile->color;
-                tetrisGrid[y - 2][x + 1] = -1 * tile->color;
-                return SUCCESS;
-            }
-            break;
-        }
-        case L_0: {
-            if(tetrisGrid[y][x] == 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y - 1][x - 1] == 0 && tetrisGrid[y - 2][x - 1] == 0) {
-                tetrisGrid[y]    [x]     = -1 * tile->color;
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x - 1] = -1 * tile->color;
-                tetrisGrid[y - 2][x - 1] = -1 * tile->color;
-                return SUCCESS;
-            }
-            break;
-        }
-        case S_0: {
-            if(tetrisGrid[y][x] == 0 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y - 1][x + 1] == 0 && tetrisGrid[y - 1][x + 2] == 0) {
-                tetrisGrid[y]    [x]     = -1 * tile->color;
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x + 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x + 2] = -1 * tile->color;
-                return SUCCESS;
-            }
-            break;
-        }
-        case SQR: {
-            if(tetrisGrid[y][x] == 0 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 1][x + 1] == 0) {
-                tetrisGrid[y]    [x]     = -1 * tile->color;
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 1][x + 1] = -1 * tile->color;
-                return SUCCESS;
-            }
-            break;
-        }
-        case T_0: {
-            if(tetrisGrid[y][x] == 0 && tetrisGrid[y - 1][x - 1] == 0 && tetrisGrid[y - 1][x] == 0 && tetrisGrid[y - 1][x + 1] == 0) {
-                tetrisGrid[y]    [x]     = -1 * tile->color;
-                tetrisGrid[y - 1][x - 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x]     = -1 * tile->color;
-                tetrisGrid[y - 1][x + 1] = -1 * tile->color;
-                return SUCCESS;
-            }
-            break;
-        }
-        case Z_0: {
-            if(tetrisGrid[y][x] == 0 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y + 1][x + 1] == 0 && tetrisGrid[y + 1][x + 2] == 0) {
-                tetrisGrid[y]    [x]     = -1 * tile->color;
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 2] = -1 * tile->color;
-                return SUCCESS;
-            }
-            break;
-        }
-        default: return FAILURE;
-    }
-    return FAILURE;
+    int n = getOccupiedAmount(tile->state);
+    if(n == -1)return FAILURE;
+    Point positions[n];
+    if(getPositions(tile->state, tile->position, positions) == FAILURE) return FAILURE;
+    if(checkPositions(tetrisGrid, positions, n) == FAILURE) return FAILURE;
+    setPositions(tetrisGrid, positions, n, -1 * tile->color);
+    return SUCCESS;
 }
 
 status_t getNewTile(SDL_Renderer* renderer, Tile* tile, const int flags, FILE* debug) {
@@ -817,7 +751,15 @@ void onPlacement(int** tetrisGrid, const Size tetrisGridSize, int* score) {
 
 void onGameEnd(ProgramParameters* parameters) {
     freeTile(parameters->currentTile);
-    flushTileQueue(parameters->tileQueue);
     parameters->currentTile = NULL;
+    flushTileQueue(parameters->tileQueue);
     setMatrix(parameters->tetrisGrid, parameters->tetrisGridSize, 0);
+}
+
+void onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer) {
+    for(int i = 0; i < tileQueuedAmount; i++) {
+        Tile* tmp = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, parameters->debugLog);
+        if(tmp != NULL)enqueueTile(parameters->tileQueue, tmp);
+    }
+    
 }

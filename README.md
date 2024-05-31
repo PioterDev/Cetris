@@ -1,7 +1,10 @@
 # Game in C
 
-[2024-05-01] Currently undecided what exactly to do, will decide after experimenting with SDL2.
+Welcome to my repository, here you will find
+a pretty (terrible) implementation of the game "Tetris".
 
-[2024-05-04] Decided ultimately to make Tetris.
+To see features, see FEATURES.md.
 
-[2024-05-10] Movement is mostly done, all that's left is a scoring system.
+As of I'm writing this, I treat it as a learning opportunity
+for subjects like computer graphics, multithreading and
+game development, not only as "something I have to do for a grade".

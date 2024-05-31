@@ -57,4 +57,7 @@ void onPlacement(int** tetrisGrid, const Size tetrisGridSize, int* score);
  */
 void onGameEnd(ProgramParameters* parameters);
 
+void onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer);
+
+
 #endif

@@ -253,10 +253,7 @@ int main(int argc, char** argv) {
     programParameters->tileQueue = tileQueue;
     logToStream(generallog, "Tile queue successfully created!", LOGLEVEL_INFO);
 
-    for(int i = 0; i < tileQueuedAmount; i++) {
-        Tile* tmp = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog);
-        if(tmp != NULL)enqueueTile(tileQueue, tmp);
-    }
+
 
     logToStream(generallog, "Attempting to create a tiles mutex...", LOGLEVEL_INFO);
     HANDLE tilesMutex = CreateMutex(NULL, TRUE, NULL);
@@ -284,9 +281,9 @@ int main(int argc, char** argv) {
     loopStatus_t renderStatus = CONTINUE;
     
     Color backgroundColor;
-    backgroundColor.red = 16;
-    backgroundColor.green = 16;
-    backgroundColor.blue = 16;
+    backgroundColor.red = 32;
+    backgroundColor.green = 32;
+    backgroundColor.blue = 32;
     backgroundColor.alpha = 0xFF;
     
     renderThreadParameters renderParameters = {
@@ -315,6 +312,7 @@ int main(int argc, char** argv) {
     printConfig(programParameters, debugLog);
 
     bool running = true;
+    bool playing = false;
     SDL_Event event;
 
     ReleaseMutex(tilesMutex);
@@ -339,168 +337,106 @@ int main(int argc, char** argv) {
                     goto exit_start;
                 }
                 case SDL_KEYDOWN: {
+                    if(!playing) {
+                        onGameStart(programParameters, renderer);
+                        playing = true;
+                        dequeueTile(programParameters->tileQueue, &programParameters->currentTile);
+                        enqueueTile(programParameters->tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
+                        if(programParameters->currentTile == NULL) {
+                            playing = false;
+                            status = MEMORY_FAILURE;
+                            renderStatus = STOP;
+
+                            ReleaseMutex(tilesMutex);
+                            ReleaseMutex(renderMutex);
+                    
+                            WaitForSingleObject(renderThread, INFINITE);
+                    
+                            goto exit_start;
+                        }
+                        loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile, debugLog);
+                        break;
+                    }
+                    
                     SDL_Keycode key = event.key.keysym.sym;
                 
                     if(debugLog != NULL)fprintf(debugLog, "[Key press] %d\n", key);
 
                     if(key == programParameters->keymap.dropHard) {
-                        dropHard(tetrisGrid, currentTile, programParameters->tetrisGridSize);
-                        onPlacement(tetrisGrid, programParameters->tetrisGridSize, 0); //TODO: score
-                        freeTile(currentTile);
-
-                        dequeueTile(tileQueue, &currentTile);
-                        enqueueTile(tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
+                        dropHard(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize);
+                        onPlacement(programParameters->tetrisGrid, programParameters->tetrisGridSize, 0); //TODO: score
                         
-                        if(currentTile == NULL) {
+                        freeTile(programParameters->currentTile);
+                        dequeueTile(programParameters->tileQueue, &programParameters->currentTile);
+
+                        Tile* tmp = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog);
+                        if(tmp != NULL) enqueueTile(programParameters->tileQueue, tmp);
+                        
+                        if(programParameters->currentTile == NULL) {
                             logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
                         }
-                        else if(loadTileIntoGrid(tetrisGrid, currentTile, debugLog) == FAILURE) {
+                        else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile, debugLog) == FAILURE) {
                             onGameEnd(programParameters);
+                            playing = false;
+                            //FIXME: after game end, a tile STILL somehow falls
                         }
                         speed = NORMAL;
                     }
-                    else if(key == programParameters->keymap.movePieceLeft) {
-                        moveLeft(tetrisGrid, currentTile);
-                    }
-                    else if(key == programParameters->keymap.movePieceRight) {
-                        moveRight(tetrisGrid, currentTile, programParameters->tetrisGridSize.width);
-                    }
-                    else if(key == programParameters->keymap.dropSoft) {
-                        speed = DROPSOFT;
-                    }
-                    else if(key == programParameters->keymap.rotateClockwise) {
-                        rotateClockwise(tetrisGrid, currentTile);
-                    }
-                    else if(key == programParameters->keymap.rotateCounterClockwise) {
-                        rotateCounterClockwise(tetrisGrid, currentTile);
-                    }
-                    else if(key == programParameters->keymap.hold) {
-                        speed = HOLD;
-                    }
-                    #ifdef TEST
-                    else if(key == programParameters->keymap.test) {
-                        Tile* tmp = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog);
-                        if(tmp != NULL)enqueueTile(tileQueue, tmp);
-                        printTileQueue(tileQueue, debugLog);
-                    }
-                    else if(key == SDLK_v) {
-                        Tile* tmp;
-                        dequeueTile(tileQueue, &tmp);
-                        logToStream(debugLog, "Dequeued tile: ", LOGLEVEL_DEBUG);
-                        //printTile(tmp, debugLog);
-                        freeTile(tmp);
-                    }
-                    else if(key == SDLK_1) {
-                        freeTile(currentTile);
-                        currentTile = loadTile(renderer, AQUA, BAR, NULL, TILELOAD_NOTEXTURE, debugLog);
-                        if(currentTile == NULL) {
-                            logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
-                            continue;
-                        }
-                        else loadTileIntoGrid(tetrisGrid, currentTile, debugLog);
-                    }
-                    else if(key == SDLK_2) {
-                        freeTile(currentTile);
-                        currentTile = loadTile(renderer, BLUE, J, NULL, TILELOAD_NOTEXTURE, debugLog);
-                        if(currentTile == NULL) {
-                            logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
-                            continue;
-                        }
-                        else loadTileIntoGrid(tetrisGrid, currentTile, debugLog);
-                    }
-                    else if(key == SDLK_3) {
-                        freeTile(currentTile);
-                        currentTile = loadTile(renderer, GREEN, L, NULL, TILELOAD_NOTEXTURE, debugLog);
-                        if(currentTile == NULL) {
-                            logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
-                            continue;
-                        }
-                        else loadTileIntoGrid(tetrisGrid, currentTile, debugLog);
-                    }
-                    else if(key == SDLK_4) {
-                        freeTile(currentTile);
-                        currentTile = loadTile(renderer, MAGENTA, S, NULL, TILELOAD_NOTEXTURE, debugLog);
-                        if(currentTile == NULL) {
-                            logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
-                            continue;
-                        }
-                        else loadTileIntoGrid(tetrisGrid, currentTile, debugLog);
-                    }
-                    else if(key == SDLK_5) {
-                        freeTile(currentTile);
-                        currentTile = loadTile(renderer, ORANGE, SQUARE, NULL, TILELOAD_NOTEXTURE, debugLog);
-                        if(currentTile == NULL) {
-                            logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
-                            continue;
-                        }
-                        else loadTileIntoGrid(tetrisGrid, currentTile, debugLog);
-                    }
-                    else if(key == SDLK_6) {
-                        freeTile(currentTile);
-                        currentTile = loadTile(renderer, RED, T, NULL, TILELOAD_NOTEXTURE, debugLog);
-                        if(currentTile == NULL) {
-                            logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
-                            continue;
-                        }
-                        else loadTileIntoGrid(tetrisGrid, currentTile, debugLog);
-                    }
-                    else if(key == SDLK_7) {
-                        freeTile(currentTile);
-                        currentTile = loadTile(renderer, YELLOW, Z, NULL, TILELOAD_NOTEXTURE, debugLog);
-                        if(currentTile == NULL) {
-                            logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
-                            continue;
-                        }
-                        else loadTileIntoGrid(tetrisGrid, currentTile, debugLog);
-                    }
-                    else if(key == SDLK_ESCAPE) {
-                        onGameEnd(programParameters);
-                    }
-                    #endif
+                    else if(key == programParameters->keymap.movePieceLeft)  moveLeft(programParameters->tetrisGrid, programParameters->currentTile);
+
+                    else if(key == programParameters->keymap.movePieceRight) moveRight(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize.width);
+                    
+                    else if(key == programParameters->keymap.dropSoft) speed = DROPSOFT;
+
+                    else if(key == programParameters->keymap.rotateClockwise)        rotateClockwise(programParameters->tetrisGrid, programParameters->currentTile);
+                    
+                    else if(key == programParameters->keymap.rotateCounterClockwise) rotateCounterClockwise(programParameters->tetrisGrid, programParameters->currentTile);
+                        
+                    else if(key == programParameters->keymap.hold) speed = HOLD;
+
                     break;
                 }
                 case SDL_KEYUP: {
-                    if(event.key.keysym.sym == programParameters->keymap.dropSoft) {
-                        speed = NORMAL;
-                    }
-                    if(event.key.keysym.sym == programParameters->keymap.hold) {
+                    if( event.key.keysym.sym == programParameters->keymap.dropSoft ||
+                        event.key.keysym.sym == programParameters->keymap.hold) {
                         speed = NORMAL;
                     }
                     break;
                 }
             }
-
         }
-        //long long baseFallSpeed = (long long)programParameters->baseFallSpeed * (frequency.QuadPart / 1000);
-        long long baseFallSpeed = programParameters->baseFallSpeed * (frequency.QuadPart / 1000);
-        if(speed == DROPSOFT)baseFallSpeed /= 5;
-        else if(speed == HOLD)baseFallSpeed *= 5;
-        tickTimerEnd = timer.QuadPart;
 
-        if(tickTimerEnd - tickTimerStart > baseFallSpeed) {
-            if(currentTile != NULL) {
-                status_t moveStatus = moveDown(tetrisGrid, currentTile, programParameters->tetrisGridSize.height);
-                if(moveStatus == FAILURE) {
-                    onPlacement(tetrisGrid, programParameters->tetrisGridSize, NULL);
-                    freeTile(currentTile);
+        if(playing) {
+            long long baseFallSpeed = programParameters->baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
+            if(speed == DROPSOFT)baseFallSpeed /= 5;
+            else if(speed == HOLD)baseFallSpeed *= 5;
+            tickTimerEnd = timer.QuadPart;
 
-                    dequeueTile(tileQueue, &currentTile);
-                    enqueueTile(tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
+            if(tickTimerEnd - tickTimerStart > baseFallSpeed) {
+                if(programParameters->currentTile != NULL) {
+                    status_t moveStatus = moveDown(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize.height);
+                    if(moveStatus == FAILURE) {
+                        onPlacement(programParameters->tetrisGrid, programParameters->tetrisGridSize, NULL);
+                        freeTile(programParameters->currentTile);
 
-                    if(currentTile == NULL) {
-                        logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
-                    }
-                    else {
-                        if(loadTileIntoGrid(tetrisGrid, currentTile, debugLog) == FAILURE) { //TODO: expand functionality on end of the game
-                            onGameEnd(programParameters);
+                        dequeueTile(tileQueue, &programParameters->currentTile);
+                        enqueueTile(tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
+
+                        if(programParameters->currentTile == NULL) {
+                            logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
                         }
+                        else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile, debugLog) == FAILURE) { 
+                            onGameEnd(programParameters);
+                            playing = false;
+                            printTile(programParameters->currentTile, debugLog);
+                            //TODO: expand functionality on end of the game
+                        }
+                        speed = NORMAL;
                     }
-                    speed = NORMAL;
                 }
+                tickTimerStart += baseFallSpeed;
             }
-            tickTimerStart += baseFallSpeed;
         }
-
         ReleaseMutex(tilesMutex);
         Sleep(1);
     }

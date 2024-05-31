@@ -103,7 +103,7 @@ void printMatrix(int** matrix, Size size, FILE* stream) {
     }
 }
 
-void setMatrix(int** matrix, Size size, char value) {
+void setMatrix(int** matrix, Size size, int value) {
     for(int i = 0; i < size.height; i++) {
         for(int j = 0; j < size.width; j++) {
             matrix[i][j] = value;

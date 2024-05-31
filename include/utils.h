@@ -73,7 +73,7 @@ void printMatrix(int** matrix, Size size, FILE* stream);
  * @param matrix matrix
  * @param size size of the matrix
  */
-void setMatrix(int** matrix, Size size, char value);
+void setMatrix(int** matrix, Size size, int value);
 
 /**
  * @brief Replaces all negative values in the matrix to positive ones.

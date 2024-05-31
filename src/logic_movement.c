@@ -1,4 +1,5 @@
 #include "deus.h"
+#include "logic_shapes.h"
 #include "utils.h"
 
 status_t moveLeft(int** tetrisGrid, Tile* tile) {

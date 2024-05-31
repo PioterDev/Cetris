@@ -26,6 +26,7 @@
 #define GridHeight 20
 #define GridWidth 10
 #define tileQueuedAmount 4
+#define maxOccupiedTiles 4
 
 typedef unsigned long long size_t;
 
@@ -208,6 +209,7 @@ typedef struct ProgramParameters {
     int** tetrisGrid;
     Size tetrisGridSize;
     Tile* currentTile;
+    Tile* heldTile;
     TileQueue* tileQueue;
 } ProgramParameters;
 

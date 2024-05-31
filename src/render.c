@@ -49,6 +49,7 @@ DWORD WINAPI renderScreen(void* params) {
             backgroundRect.w /= abs(scalingFactor);
         }
         SDL_RenderCopy(renderer, backgroundTile->texture, NULL, &backgroundRect);
+        //TODO: remove this in favor of rendering individual blocks
 
         SDL_Rect current;
         if(scalingFactor > 0) {
@@ -75,25 +76,12 @@ DWORD WINAPI renderScreen(void* params) {
 
             }
         }
-        /* SDL_Rect rect;
-        SDL_Point point;
-        for(size_t i = 1; i < parameters->tilesAmount; i++) {
-            if(parameters->tiles[i] != NULL) {
-                rect = parameters->tiles[i]->rect;
-                if(scalingFactor > 0) {
-                    rect.h *= scalingFactor;
-                    rect.w *= scalingFactor;
-                }
-                else if(scalingFactor < 0) {
-                    rect.h /= abs(scalingFactor);
-                    rect.w /= abs(scalingFactor);
-                }
-                //point.x = parameters->tiles[i]->center.x + parameters->tiles[i]->rect.x;
-                //point.y = parameters->tiles[i]->center.y + parameters->tiles[i]->rect.y;
-                // SDL_RenderCopy(renderer, parameters->tiles[i]->texture, NULL, &rect);
-                SDL_RenderCopyEx(renderer, parameters->tiles[i]->texture, NULL, &rect, parameters->tiles[i]->angle, &point, SDL_FLIP_NONE);
-            }
-        } */
+
+        TileQueueElement* queued = programParameters->tileQueue->head;
+        for(size_t i = 0; i < programParameters->tileQueue->size; i++) {
+            
+        }
+
         end = timer->QuadPart;
         if(end - start == 0) {
             Sleep(1);
