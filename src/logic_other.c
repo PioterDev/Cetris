@@ -712,9 +712,9 @@ static inline void shiftDown(int** tetrisGrid, const Size tetrisGridSize, int n,
 
 void onPlacement(int** tetrisGrid, const Size tetrisGridSize, int* score) {
     int howManyFull = 0, lowestFull = tetrisGridSize.height - 1;
-    for(int i = tetrisGridSize.height - 1; i > 0; i--) {
+    for(unsigned int i = tetrisGridSize.height - 1; i > 0; i--) {
         char isRowFull = true;
-        for(int j = 0; j < tetrisGridSize.width; j++) {
+        for(unsigned int j = 0; j < tetrisGridSize.width; j++) {
             if(tetrisGrid[i][j] == 0 || tetrisGrid[i][j] == 127) {
                 isRowFull = false;
                 lowestFull--;
@@ -730,7 +730,7 @@ void onPlacement(int** tetrisGrid, const Size tetrisGridSize, int* score) {
     int i = lowestFull - 1;
     while(true) {
         char isFull = true;
-        for(int j = 0; j < tetrisGridSize.width; j++) {
+        for(unsigned int j = 0; j < tetrisGridSize.width; j++) {
             if(tetrisGrid[i][j] == 0 || tetrisGrid[i][j] == GHOST) {
                 isFull = false;
                 break;
@@ -754,6 +754,7 @@ void onGameEnd(ProgramParameters* parameters) {
     flushTileQueue(parameters->tileQueue);
     stopMusic();
     setMatrix(parameters->tetrisGrid, parameters->tetrisGridSize, 0);
+    parameters->flags.playing = false;
 }
 
 void onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer) {
@@ -761,5 +762,5 @@ void onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer) {
         Tile* tmp = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, parameters->debugLog);
         if(tmp != NULL)enqueueTile(parameters->tileQueue, tmp);
     }
-    
+    parameters->flags.playing = true;
 }

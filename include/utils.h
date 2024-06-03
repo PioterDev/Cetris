@@ -40,6 +40,8 @@ SDL_Texture* loadTexture(const char* path, SDL_Renderer* renderer);
  */
 SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect* rect);
 
+
+
 /**
  * @brief Loads a music file.
  * 
@@ -60,6 +62,46 @@ void freeMusic(Mix_Music* music);
  * 
  */
 void stopMusic();
+
+/**
+ * @brief Plays music.
+ * 
+ * @param soundtrack pointer to Soundtrack struct
+ */
+void playMusic(Soundtrack* soundtrack);
+
+
+/**
+ * @brief Loads a generic audio file.
+ * 
+ * @param path path to audio file
+ * @return pointer to Mix_Chunk struct, NULL on error 
+ */
+Mix_Chunk* loadSound(const char* path);
+
+/**
+ * @brief Frees a sound struct.
+ * 
+ * @param chunk chunk
+ */
+void freeSound(Mix_Chunk* chunk);
+
+/**
+ * @brief Stops the sound in a given channel.
+ * 
+ * @param channel channel ID
+ */
+void stopSound(int channel);
+
+/**
+ * @brief Plays a sound effect on any free channel.
+ * 
+ * @param soundEffect pointer to SoundEffect struct
+ */
+void playSound(SoundEffect* soundEffect, unsigned short volume);
+
+
+
 
 /**
  * @brief Creates a matrix filled with 0s with elements of given size.

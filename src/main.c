@@ -23,7 +23,6 @@
 #define TEST
 
 int main(int argc, char** argv) {
-
     srand(time(NULL));
     timeBeginPeriod(1);
 
@@ -151,7 +150,7 @@ int main(int argc, char** argv) {
 
 
 
-    if(Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+    if(Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 4, 2048) < 0) {
         status = FAILURE; //TODO: add enum for SDL_mixer failure
         sprintf(errormsgBuffer, "Error initializing SDL_mixer: %s", Mix_GetError());
         logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
@@ -192,8 +191,7 @@ int main(int argc, char** argv) {
     logToStream(generallog, "Base tile textures successfully loaded!", LOGLEVEL_INFO);
 
     logToStream(generallog, "Attempting to load a soundtrack...", LOGLEVEL_INFO);
-    status = loadSoundtrack(programParameters);
-    if(status == FAILURE || status == BASEOUTOFRANGE) {
+    if(loadSoundtrack(programParameters) != SUCCESS) {
         status = FAILURE;
         sprintf(errormsgBuffer, "Error loading soundtrack.");
         logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
@@ -201,42 +199,27 @@ int main(int argc, char** argv) {
     }
     logToStream(generallog, "Soundtrack successfully loaded!", LOGLEVEL_INFO);
 
+    logToStream(generallog, "Attempting to load sound effects...", LOGLEVEL_INFO);
+    if(loadSoundEffects(programParameters) != SUCCESS) {
+        status = FAILURE;
+        sprintf(errormsgBuffer, "Error loading sound effects.");
+        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        goto sdl_destroyrenderer;
+    }
+    logToStream(generallog, "Sound effects successfully loaded!", LOGLEVEL_INFO);
 
     logToStream(generallog, "Attempting to create a game matrix...", LOGLEVEL_INFO);
-    int** tetrisGrid = zeroMatrix(programParameters->tetrisGridSize);
-    if(tetrisGrid == NULL) {
+    programParameters->tetrisGrid = zeroMatrix(programParameters->tetrisGridSize);
+    if(programParameters->tetrisGrid == NULL) {
         status = MEMORY_FAILURE;
         sprintf(errormsgBuffer, "Error allocating memory for the game matrix.");
         logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
         goto sdl_destroyrenderer;
     }
-    programParameters->tetrisGrid = tetrisGrid;
     logToStream(generallog, "Game matrix successfully created!", LOGLEVEL_INFO);
 
 
 
-    Tile** tiles = calloc(3, sizeof(Tile*)); //3 for now, will be later changed, removed even!
-    size_t tilesAmount = 0;
-    if(tiles == NULL) {
-        status = MEMORY_FAILURE;
-        sprintf(errormsgBuffer, "Error allocating memory for tiles.");
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
-        goto sdl_destroyrenderer;
-    }
-
-
-
-    logToStream(generallog, "Attempting to load a background tile...", LOGLEVEL_INFO);
-    Tile* backgroundTile = loadTile(renderer, COLOR_UNKNOWN, BACKGROUND, NULL, 0, debugLog);
-    if(backgroundTile == NULL) {
-        status = FAILURE;
-        sprintf(errormsgBuffer, "Error loading background tile.");
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
-        goto freeTiles;
-    }
-    centerTileHorizontally(backgroundTile, programParameters);
-    tiles[0] = backgroundTile;
-    tilesAmount++;
     //dynamic calculation of by how much should everything be scaled
     if( GridHeight * programParameters->baseTileSize > programParameters->screenSize.height || 
         GridWidth * programParameters->baseTileSize > programParameters->screenSize.width) { //scale down
@@ -256,17 +239,13 @@ int main(int argc, char** argv) {
     }
     logToStream(generallog, "Background tile successfully loaded!", LOGLEVEL_INFO);
 
-    Tile* currentTile = tiles[1];
-    tilesAmount++;
-    programParameters->currentTile = currentTile;
-
     logToStream(generallog, "Attempting to create a tile queue...", LOGLEVEL_INFO);
     programParameters->tileQueue = createTileQueue();
     if(programParameters->tileQueue == NULL) {
         status = MEMORY_FAILURE;
         sprintf(errormsgBuffer, "Error creating tile queue.");
         logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
-        goto freeTiles;
+        goto sdl_destroyrenderer;
     }
     logToStream(generallog, "Tile queue successfully created!", LOGLEVEL_INFO);
 
@@ -278,7 +257,7 @@ int main(int argc, char** argv) {
         status = MUTEX_FAILURE;
         sprintf(errormsgBuffer, "Error initializing tiles mutex: %ld", GetLastError());
         logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
-        goto freeTiles;
+        goto sdl_destroyrenderer;
     }
     logToStream(generallog, "Tiles mutex successfully created!", LOGLEVEL_INFO);
 
@@ -309,9 +288,7 @@ int main(int argc, char** argv) {
         tilesMutex,
         programParameters,
         renderer,
-        &backgroundColor,
-        tiles,
-        tilesAmount
+        &backgroundColor
     };
 
     logToStream(generallog, "Attempting to start render thread...", LOGLEVEL_INFO);
@@ -325,25 +302,23 @@ int main(int argc, char** argv) {
     logToStream(generallog, "Render thread is now operational.", LOGLEVEL_INFO);
     //end of render thread //
 
-
     printConfig(programParameters, debugLog);
 
-    bool running = true;
-    bool playing = false;
+    programParameters->flags.running = true;
     SDL_Event event;
 
     ReleaseMutex(tilesMutex);
     ReleaseMutex(renderMutex); //start render thread
 
     tickTimerStart = tickTimerEnd = timer.QuadPart;
-    MovementSpeed speed = NORMAL;
 
-    while(running) { //main game loop
+    while(programParameters->flags.running) { //main game loop
         WaitForSingleObject(tilesMutex, INFINITE);
         while(SDL_PollEvent(&event)) {
-            switch(event.type) {
+            switch(event.type) { //this section *can* be optimized and moved into its own function, but for now, input processing will be here
                 case SDL_QUIT: {
-                    running = false;
+                    if(Mix_PlayingMusic()) stopMusic();
+                    programParameters->flags.running = false;
                     renderStatus = STOP;
 
                     ReleaseMutex(tilesMutex);
@@ -354,13 +329,14 @@ int main(int argc, char** argv) {
                     goto exit_start;
                 }
                 case SDL_KEYDOWN: {
-                    if(!playing) {
+                    if(!programParameters->flags.playing) {
                         onGameStart(programParameters, renderer);
-                        playing = true;
+
                         dequeueTile(programParameters->tileQueue, &programParameters->currentTile);
                         enqueueTile(programParameters->tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
+                        
                         if(programParameters->currentTile == NULL) {
-                            playing = false;
+                            programParameters->flags.playing = false;
                             status = MEMORY_FAILURE;
                             renderStatus = STOP;
 
@@ -372,7 +348,8 @@ int main(int argc, char** argv) {
                             goto exit_start;
                         }
                         loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile);
-                        Mix_PlayMusic(programParameters->soundtrack.music, 1);
+                        
+                        playMusic(&programParameters->soundtrack);
                         
                         break;
                     }
@@ -396,40 +373,46 @@ int main(int argc, char** argv) {
                         }
                         else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile) == FAILURE) {
                             onGameEnd(programParameters);
-                            playing = false;
                             //FIXME: after game end, a tile STILL somehow falls
                         }
-                        speed = NORMAL;
+                        programParameters->flags.speed = NORMAL;
                     }
+
                     else if(key == programParameters->keymap.movePieceLeft)  moveLeft(programParameters->tetrisGrid, programParameters->currentTile);
 
                     else if(key == programParameters->keymap.movePieceRight) moveRight(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize.width);
                     
-                    else if(key == programParameters->keymap.dropSoft) speed = DROPSOFT;
+                    else if(key == programParameters->keymap.dropSoft) programParameters->flags.speed = DROPSOFT;
 
-                    else if(key == programParameters->keymap.rotateClockwise)        rotateClockwise(programParameters->tetrisGrid, programParameters->currentTile);
+                    else if(key == programParameters->keymap.rotateClockwise) {
+                        rotateClockwise(programParameters->tetrisGrid, programParameters->currentTile);
+                        playSound(&programParameters->soundEffects[ACTION_ROTATECLOCKWISE], programParameters->soundEffectsVolume);
+                    }
                     
-                    else if(key == programParameters->keymap.rotateCounterClockwise) rotateCounterClockwise(programParameters->tetrisGrid, programParameters->currentTile);
+                    else if(key == programParameters->keymap.rotateCounterClockwise) {
+                        rotateCounterClockwise(programParameters->tetrisGrid, programParameters->currentTile);
+                        playSound(&programParameters->soundEffects[ACTION_ROTATECOUNTERCLOCKWISE], programParameters->soundEffectsVolume);
+                    }
                         
-                    else if(key == programParameters->keymap.hold) speed = HOLD;
+                    else if(key == programParameters->keymap.hold) programParameters->flags.speed = HOLD;
 
                     break;
                 }
                 case SDL_KEYUP: {
                     if( event.key.keysym.sym == programParameters->keymap.dropSoft ||
                         event.key.keysym.sym == programParameters->keymap.hold) {
-                        speed = NORMAL;
+                        programParameters->flags.speed = NORMAL;
                     }
                     break;
                 }
             }
         }
 
-        if(playing) {
-            if(!Mix_PlayingMusic())Mix_PlayMusic(programParameters->soundtrack.music, 1);
+        if(programParameters->flags.playing) {
+            if(!Mix_PlayingMusic()) playMusic(&programParameters->soundtrack);
             long long baseFallSpeed = programParameters->baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
-            if(speed == DROPSOFT)baseFallSpeed /= 5;
-            else if(speed == HOLD)baseFallSpeed *= 5;
+            if(programParameters->flags.speed == DROPSOFT)baseFallSpeed /= 5;
+            else if(programParameters->flags.speed == HOLD)baseFallSpeed *= 5;
             tickTimerEnd = timer.QuadPart;
 
             if(tickTimerEnd - tickTimerStart > baseFallSpeed) {
@@ -447,11 +430,9 @@ int main(int argc, char** argv) {
                         }
                         else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile) == FAILURE) { 
                             onGameEnd(programParameters);
-                            playing = false;
-                            printTile(programParameters->currentTile, debugLog);
                             //TODO: expand functionality on end of the game
                         }
-                        speed = NORMAL;
+                        programParameters->flags.speed = NORMAL;
                     }
                 }
                 tickTimerStart += baseFallSpeed;
@@ -476,14 +457,6 @@ int main(int argc, char** argv) {
     closeRenderMutex: CloseHandle(renderMutex);
 
     closeTilesMutex: CloseHandle(tilesMutex);
-
-    freeTiles: 
-        for(size_t i = 0; i < tilesAmount; i++) {
-            if(tiles[i] != NULL) {
-                freeTile(tiles[i]);
-            }
-        }
-        free(tiles);
 
     sdl_destroyrenderer: SDL_DestroyRenderer(renderer);
 

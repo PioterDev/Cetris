@@ -15,14 +15,17 @@ DWORD WINAPI renderScreen(void* params) {
     
     SDL_Renderer* renderer = parameters->renderer;
     SDL_Texture** baseTextures = programParameters->baseTextures;
+    Point P;
+    P.y = 0;
 
     long long frequency = programParameters->clockFrequency->QuadPart;
     long long start = 0, end = 0, delta = 0, frameTime = 0;
     long long overhead = 0; //if the thread sleeps for too long in one iteration, make it sleep shorter in another iteration
     Color* backgroundColor = parameters->backgroundColor;
-    Tile* backgroundTile = parameters->tiles[0];
     int baseTileSize = 0;
-    char scalingFactor = 0;
+    short scalingFactor = 0;
+
+    
 
     while(true) {
         if(*(parameters->renderStatus) == STOP)break;
@@ -36,20 +39,8 @@ DWORD WINAPI renderScreen(void* params) {
         baseTileSize = programParameters->baseTileSize;
         scalingFactor = programParameters->scalingFactor;
         
-        SDL_SetRenderDrawColor(renderer, backgroundColor->red, backgroundColor->green, backgroundColor->blue, backgroundColor->alpha); //background color
+        SDL_SetRenderDrawColor(renderer, backgroundColor->red, backgroundColor->green, backgroundColor->blue, backgroundColor->alpha);
         SDL_RenderClear(renderer);
-
-        /* SDL_Rect backgroundRect = backgroundTile->rect;
-        if(scalingFactor > 0) {
-            backgroundRect.h *= scalingFactor;
-            backgroundRect.w *= scalingFactor;
-        }
-        else if(scalingFactor < 0) {
-            backgroundRect.h /= abs(scalingFactor);
-            backgroundRect.w /= abs(scalingFactor);
-        }
-        SDL_RenderCopy(renderer, backgroundTile->texture, NULL, &backgroundRect);
-        //TODO: remove this in favor of rendering individual blocks */
 
         SDL_Rect current;
         if(scalingFactor > 0) {
@@ -61,15 +52,15 @@ DWORD WINAPI renderScreen(void* params) {
             current.h = baseTileSize / abs(scalingFactor);
         }
 
+        P.x = (programParameters->screenSize.width >> 1) - ((GridWidth * current.w) >> 1); //the x coordinate of a top-left corner of the game matrix
 
-        int** tetrisGrid = programParameters->tetrisGrid;
-        for(int i = 0; i < programParameters->tetrisGridSize.height; i++) {
-            for(int j = 0; j < programParameters->tetrisGridSize.width; j++) {
-                int color = tetrisGrid[i][j];
-                if(color == GHOST)continue; //TODO: ghost
-                if(color < 0)color = abs(color);
-                current.y = backgroundTile->rect.y + i * current.h;
-                current.x = backgroundTile->rect.x + j * current.w;
+        for(unsigned int i = 0; i < programParameters->tetrisGridSize.height; i++) {
+            for(unsigned int j = 0; j < programParameters->tetrisGridSize.width; j++) {
+                int color = programParameters->tetrisGrid[i][j];
+                if(color == GHOST) continue; //TODO: ghost
+                if(color < 0) color = abs(color);
+                current.y = P.y + i * current.h;
+                current.x = P.x + j * current.w;
                 if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current) != 0) {
                     logToStream(programParameters->debugLog, "Error rendering tile", LOGLEVEL_ERROR);
                 }
@@ -77,6 +68,7 @@ DWORD WINAPI renderScreen(void* params) {
             }
         }
 
+        //TODO: preview of next tiles
         /* TileQueueElement* queued = programParameters->tileQueue->head;
         for(size_t i = 0; i < programParameters->tileQueue->size; i++) {
             

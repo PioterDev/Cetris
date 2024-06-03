@@ -69,6 +69,8 @@ SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect*
     return tex;
 }
 
+
+
 Mix_Music* loadMusic(const char* path) {
     return Mix_LoadMUS(path);
 }
@@ -80,6 +82,32 @@ void freeMusic(Mix_Music* music) {
 void stopMusic() {
     Mix_HaltMusic();
 }
+
+void playMusic(Soundtrack* soundtrack) {
+    Mix_PlayMusic(soundtrack->music, 0);
+    Mix_VolumeMusic(soundtrack->volume);
+}
+
+
+
+Mix_Chunk* loadSound(const char* path) {
+    return Mix_LoadWAV(path);
+}
+
+void freeSound(Mix_Chunk* chunk) {
+    Mix_FreeChunk(chunk);
+}
+
+void stopSound(int channel) {
+    Mix_HaltChannel(channel);
+}
+
+void playSound(SoundEffect* soundEffect, unsigned short volume) {
+    Mix_PlayChannel(-1, soundEffect->sound, 0);
+    Mix_Volume(-1, volume);
+}
+
+
 
 int** zeroMatrix(Size size) {
     int** matrix = calloc(size.height, sizeof(int*));

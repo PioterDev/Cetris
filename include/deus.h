@@ -24,6 +24,7 @@
 
 #define tileColorAmount 8 //7 + background
 #define soundtracksAmount 3
+#define soundEffectAmount 9 //left & right movement, rotations, drop + line clears
 #define GridHeight 20
 #define GridWidth 10
 #define tileQueuedAmount 4
@@ -178,6 +179,12 @@ typedef struct Tile {
     Point position;
 } Tile;
 
+typedef enum MovementSpeed {
+    NORMAL,
+    DROPSOFT,
+    HOLD
+} MovementSpeed;
+
 typedef struct TileQueueElement {
     Tile* tile;
     struct TileQueueElement* next;
@@ -191,13 +198,28 @@ typedef struct TileQueue {
 
 typedef struct Soundtrack {
     Mix_Music* music;
+    unsigned short volume;
     char id;
 } Soundtrack;
+
+typedef struct SoundEffect {
+    Mix_Chunk* sound;
+} SoundEffect;
+
+//1st bit - whether the program should continue running
+//2nd bit - whether a game is played
+//3rd and 4th bit hold the game speed
+typedef struct ProgramFlags {
+    int running : 1;
+    int playing : 1;
+    MovementSpeed speed : 2;
+} ProgramFlags;
 
 /**
  * @brief Struct for holding program parameters.
  */
 typedef struct ProgramParameters {
+    ProgramFlags flags;
     Size screenSize;
     unsigned int fps;
     unsigned short baseFallSpeed;
@@ -217,6 +239,8 @@ typedef struct ProgramParameters {
     Tile* heldTile;
     TileQueue* tileQueue;
     Soundtrack soundtrack;
+    SoundEffect soundEffects[soundEffectAmount];
+    unsigned short soundEffectsVolume;
 } ProgramParameters;
 
 typedef enum TileLoadingFlags {
@@ -233,8 +257,6 @@ typedef struct renderThreadParameters {
     ProgramParameters* programParameters;
     SDL_Renderer* renderer;
     Color* backgroundColor;
-    Tile** tiles;
-    size_t tilesAmount;
 } renderThreadParameters;
 
 /**
@@ -251,17 +273,21 @@ typedef struct clockThreadParameters {
     LARGE_INTEGER* timer;
 } clockThreadParameters;
 
-typedef enum MovementSpeed {
-    NORMAL,
-    DROPSOFT,
-    HOLD
-} MovementSpeed;
+typedef enum Action {
+    ACTION_MOVELEFT,
+    ACTION_MOVERIGHT,
+    ACTION_MOVEDOWN,
+    ACTION_DROPHARD,
+    ACTION_ROTATECLOCKWISE,
+    ACTION_ROTATECOUNTERCLOCKWISE,
+    ACTION_HOLD
+} Action;
 
 typedef enum PointsPerAction {
-    ACTION_SINGLE = 100,
-    ACTION_DOUBLE = 300,
-    ACTION_TRIPLE = 500,
-    ACTION_TETRIS = 800
+    POINTS_SINGLE = 100,
+    POINTS_DOUBLE = 300,
+    POINTS_TRIPLE = 500,
+    POINTS_TETRIS = 800
 } PointsPerAction;
 
 

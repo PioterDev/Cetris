@@ -27,6 +27,15 @@ static const char soundtrackPaths[soundtracksAmount][32] = {
     "Theme_strings.mp3"
 };
 
+static const char soundEffectPaths[soundEffectAmount][32] = {
+    "",
+    "",
+    "",
+    "",
+    "Rotate_clockwise.mp3",
+    "Rotate_counterclockwise.mp3" //27 characters, wow
+};
+
 static inline void setParameter(ProgramParameters* parameters, const char* key, int value) {
     if     (!strcmp(key, "moveleft"))                   parameters->keymap.movePieceLeft = value;
     else if(!strcmp(key, "moveright"))                  parameters->keymap.movePieceRight = value;
@@ -42,6 +51,8 @@ static inline void setParameter(ProgramParameters* parameters, const char* key, 
     else if(!strcmp(key, "fps"))                        parameters->fps = value;
     else if(!strcmp(key, "basefallspeed"))              parameters->baseFallSpeed = value;
     else if(!strcmp(key, "soundtrack"))                 parameters->soundtrack.id = value;
+    else if(!strcmp(key, "soundtrack_volume"))          parameters->soundtrack.volume = value << 7 / 100;
+    else if(!strcmp(key, "sfx_volume"))                 parameters->soundEffectsVolume = value << 7 / 100;
 }
 
 ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
@@ -94,14 +105,9 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
         else if(!strcmp(value, "space"))        setParameter(parameters, key, SDLK_SPACE);
         else if(!strcmp(value, "esc"))          setParameter(parameters, key, SDLK_ESCAPE);
 
-        int valueNumerical = atoi(value);
-        if((!strcmp(key, "width") || 
-            !strcmp(key, "height") || 
-            !strcmp(key, "fps") || 
-            !strcmp(key, "basefallspeed") ||
-            !strcmp(key, "soundtrack")) && valueNumerical != 0) {
-                setParameter(parameters, key, valueNumerical);
-            }
+        unsigned int valueNumerical = (unsigned int)atoi(value);
+        if((!strcmp(key, "width") || !strcmp(key, "height") || !strcmp(key, "fps") || !strcmp(key, "basefallspeed")) && valueNumerical > 0) setParameter(parameters, key, valueNumerical);
+        else if((!strcmp(key, "soundtrack") || !strcmp(key, "soundtrack_volume") || !strcmp(key, "sfx_volume")) && valueNumerical <= 100)      setParameter(parameters, key, valueNumerical);
     }
 
     return parameters;
@@ -142,6 +148,22 @@ status_t loadSoundtrack(ProgramParameters* parameters) {
     return SUCCESS;
 }
 
+status_t loadSoundEffects(ProgramParameters* parameters) {
+    char path[256];
+    strcpy(path, audioPath);
+    char* pos = path + strlen(audioPath);
+
+    for(int i = 0; i < soundEffectAmount; i++) {
+        if(strlen(soundEffectPaths[i]) > 0) {
+            strcpy(pos, soundEffectPaths[i]);
+            parameters->soundEffects[i].sound = loadSound(path);
+            if(parameters->soundEffects[i].sound == NULL) return FAILURE;
+        }
+    }
+
+    return SUCCESS;
+}
+
 void freeProgramConfig(ProgramParameters* params) {
     for(int i = 0; i < tileColorAmount; i++) {
         if(params->baseTextures[i] != NULL) {
@@ -151,6 +173,12 @@ void freeProgramConfig(ProgramParameters* params) {
     freeTileQueue(params->tileQueue);
     freeMatrix(params->tetrisGrid, params->tetrisGridSize.height);
     freeMusic(params->soundtrack.music);
+    for(int i = 0; i < soundEffectAmount; i++) {
+        if(params->soundEffects[i].sound != NULL) {
+            freeSound(params->soundEffects[i].sound);
+        }
+    }
+
     free(params);
 }
 
