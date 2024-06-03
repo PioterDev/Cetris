@@ -17,11 +17,13 @@
 #include <stdio.h>
 #include <windows.h>
 #include <SDL.h>
+#include <SDL_mixer.h>
 
 #define true 1
 #define false 0
 
 #define tileColorAmount 8 //7 + background
+#define soundtracksAmount 3
 #define GridHeight 20
 #define GridWidth 10
 #define tileQueuedAmount 4
@@ -33,7 +35,7 @@ typedef struct Point {
 } Point;
 
 typedef struct Size {
-    int width, height;
+    unsigned int width, height;
 } Size;
 typedef union int32_u {
     int integer;
@@ -187,14 +189,19 @@ typedef struct TileQueue {
     TileQueueElement* last;
 } TileQueue;
 
+typedef struct Soundtrack {
+    Mix_Music* music;
+    char id;
+} Soundtrack;
+
 /**
  * @brief Struct for holding program parameters.
  */
 typedef struct ProgramParameters {
     Size screenSize;
-    int fps;
-    short baseFallSpeed;
-    short baseTileSize;
+    unsigned int fps;
+    unsigned short baseFallSpeed;
+    unsigned short baseTileSize;
     Keymap keymap;
     //If it's > 0, scale up, if it's < 0, scale down
     short scalingFactor;
@@ -209,6 +216,7 @@ typedef struct ProgramParameters {
     Tile* currentTile;
     Tile* heldTile;
     TileQueue* tileQueue;
+    Soundtrack soundtrack;
 } ProgramParameters;
 
 typedef enum TileLoadingFlags {

@@ -6,6 +6,7 @@
 #include <timeapi.h>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 
 #include "clock_thread.h"
 #include "config.h"
@@ -36,7 +37,7 @@ int main(int argc, char** argv) {
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;
 
-
+    
 
     #ifdef DEBUG
     FILE* debugLog = fopen("./log/debug.log", "a");
@@ -150,13 +151,20 @@ int main(int argc, char** argv) {
 
 
 
+    if(Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        status = FAILURE; //TODO: add enum for SDL_mixer failure
+        sprintf(errormsgBuffer, "Error initializing SDL_mixer: %s", Mix_GetError());
+        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        goto img_quit;
+    }
+
     logToStream(generallog, "Attempting to create a window...", LOGLEVEL_INFO);
     window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, programParameters->screenSize.width, programParameters->screenSize.height, SDL_WINDOW_SHOWN);
     if(window == NULL) {
         status = SDL_WINDOW_FAILURE;
         sprintf(errormsgBuffer, "Error creating window: %s", SDL_GetError());
         logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
-        goto img_quit;
+        goto mix_quit;
     }
     logToStream(generallog, "Window successfully created!", LOGLEVEL_INFO);
 
@@ -182,7 +190,18 @@ int main(int argc, char** argv) {
         goto sdl_destroyrenderer;
     }
     logToStream(generallog, "Base tile textures successfully loaded!", LOGLEVEL_INFO);
-    
+
+    logToStream(generallog, "Attempting to load a soundtrack...", LOGLEVEL_INFO);
+    status = loadSoundtrack(programParameters);
+    if(status == FAILURE || status == BASEOUTOFRANGE) {
+        status = FAILURE;
+        sprintf(errormsgBuffer, "Error loading soundtrack.");
+        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        goto sdl_destroyrenderer;
+    }
+    logToStream(generallog, "Soundtrack successfully loaded!", LOGLEVEL_INFO);
+
+
     logToStream(generallog, "Attempting to create a game matrix...", LOGLEVEL_INFO);
     int** tetrisGrid = zeroMatrix(programParameters->tetrisGridSize);
     if(tetrisGrid == NULL) {
@@ -228,11 +247,11 @@ int main(int argc, char** argv) {
         ) {programParameters->scalingFactor--;}
     }
     else if(GridHeight * programParameters->baseTileSize * 2 < programParameters->screenSize.height || 
-            GridWidth * programParameters->baseTileSize * 2 < programParameters->screenSize.width) { //scale up
+            GridWidth  * programParameters->baseTileSize * 2 < programParameters->screenSize.width) { //scale up
         programParameters->scalingFactor = 1;
         while(
-            GridHeight * programParameters->baseTileSize * programParameters->scalingFactor < programParameters->screenSize.height ||
-            GridWidth * programParameters->baseTileSize * programParameters->scalingFactor < programParameters->screenSize.width
+            GridHeight * programParameters->baseTileSize * (unsigned short)programParameters->scalingFactor < programParameters->screenSize.height ||
+            GridWidth  * programParameters->baseTileSize * (unsigned short)programParameters->scalingFactor < programParameters->screenSize.width
         ) {programParameters->scalingFactor++;}
     }
     logToStream(generallog, "Background tile successfully loaded!", LOGLEVEL_INFO);
@@ -353,6 +372,8 @@ int main(int argc, char** argv) {
                             goto exit_start;
                         }
                         loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile);
+                        Mix_PlayMusic(programParameters->soundtrack.music, 1);
+                        
                         break;
                     }
                     
@@ -405,6 +426,7 @@ int main(int argc, char** argv) {
         }
 
         if(playing) {
+            if(!Mix_PlayingMusic())Mix_PlayMusic(programParameters->soundtrack.music, 1);
             long long baseFallSpeed = programParameters->baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
             if(speed == DROPSOFT)baseFallSpeed /= 5;
             else if(speed == HOLD)baseFallSpeed *= 5;
@@ -435,6 +457,7 @@ int main(int argc, char** argv) {
                 tickTimerStart += baseFallSpeed;
             }
         }
+        
         ReleaseMutex(tilesMutex);
         Sleep(1);
     }
@@ -465,6 +488,8 @@ int main(int argc, char** argv) {
     sdl_destroyrenderer: SDL_DestroyRenderer(renderer);
 
     sdl_destroywindow: SDL_DestroyWindow(window);
+
+    mix_quit: Mix_Quit();
 
     img_quit: IMG_Quit();
 

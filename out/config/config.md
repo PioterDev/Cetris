@@ -74,3 +74,4 @@ width         - specifies window width
 height        - specifies window height
 fps           - specifies desired FPS
 basefallspeed - base time in miliseconds required for the piece to move down 
+soundtrack    - specifies which soundtrack will be played during the game

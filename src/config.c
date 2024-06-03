@@ -8,6 +8,7 @@
 #include "utils.h"
 
 static const char tilesPath[] = "./assets/tiles/";
+static const char audioPath[] = "./assets/audio/";
 
 static const char baseTexturePaths[tileColorAmount][32] = {
     "tile_base_background.png",
@@ -18,6 +19,12 @@ static const char baseTexturePaths[tileColorAmount][32] = {
     "tile_base_orange.png",
     "tile_base_red.png",
     "tile_base_yellow.png"
+};
+
+static const char soundtrackPaths[soundtracksAmount][32] = {
+    "Theme_music_box.mp3",
+    "Theme_piano.mp3",
+    "Theme_strings.mp3"
 };
 
 static inline void setParameter(ProgramParameters* parameters, const char* key, int value) {
@@ -34,6 +41,7 @@ static inline void setParameter(ProgramParameters* parameters, const char* key, 
     else if(!strcmp(key, "height"))                     parameters->screenSize.height = value;
     else if(!strcmp(key, "fps"))                        parameters->fps = value;
     else if(!strcmp(key, "basefallspeed"))              parameters->baseFallSpeed = value;
+    else if(!strcmp(key, "soundtrack"))                 parameters->soundtrack.id = value;
 }
 
 ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
@@ -87,7 +95,13 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
         else if(!strcmp(value, "esc"))          setParameter(parameters, key, SDLK_ESCAPE);
 
         int valueNumerical = atoi(value);
-        if((!strcmp(key, "width") || !strcmp(key, "height") || !strcmp(key, "fps") || !strcmp(key, "basefallspeed")) && valueNumerical != 0)setParameter(parameters, key, valueNumerical);
+        if((!strcmp(key, "width") || 
+            !strcmp(key, "height") || 
+            !strcmp(key, "fps") || 
+            !strcmp(key, "basefallspeed") ||
+            !strcmp(key, "soundtrack")) && valueNumerical != 0) {
+                setParameter(parameters, key, valueNumerical);
+            }
     }
 
     return parameters;
@@ -114,6 +128,20 @@ status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer)
     return SUCCESS;
 }
 
+status_t loadSoundtrack(ProgramParameters* parameters) {
+    char path[256];
+    strcpy(path, audioPath);
+    char* pos = path + strlen(audioPath);
+
+    if(parameters->soundtrack.id < 1 || parameters->soundtrack.id > 3)return BASEOUTOFRANGE;
+    strcpy(pos, soundtrackPaths[parameters->soundtrack.id - 1]);
+    parameters->soundtrack.music = loadMusic(path);
+
+    if(parameters->soundtrack.music == NULL) return FAILURE;
+
+    return SUCCESS;
+}
+
 void freeProgramConfig(ProgramParameters* params) {
     for(int i = 0; i < tileColorAmount; i++) {
         if(params->baseTextures[i] != NULL) {
@@ -122,6 +150,7 @@ void freeProgramConfig(ProgramParameters* params) {
     }
     freeTileQueue(params->tileQueue);
     freeMatrix(params->tetrisGrid, params->tetrisGridSize.height);
+    freeMusic(params->soundtrack.music);
     free(params);
 }
 

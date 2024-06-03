@@ -41,6 +41,27 @@ SDL_Texture* loadTexture(const char* path, SDL_Renderer* renderer);
 SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect* rect);
 
 /**
+ * @brief Loads a music file.
+ * 
+ * @param path path to audio file
+ * @return pointer to Mix_Music struct, NULL on error
+ */
+Mix_Music* loadMusic(const char* path);
+
+/**
+ * @brief Frees a music struct.
+ * 
+ * @param music music
+ */
+void freeMusic(Mix_Music* music);
+
+/**
+ * @brief Stops the music.
+ * 
+ */
+void stopMusic();
+
+/**
  * @brief Creates a matrix filled with 0s with elements of given size.
  * 
  * @param elementSize element size in bytes

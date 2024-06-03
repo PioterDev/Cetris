@@ -7,11 +7,11 @@
 #include "deus.h"
 
 /**
- * @brief Loads game configuration and returns a pointer to GameParameters struct, NULL on error.
+ * @brief Loads program configuration and returns a pointer to ProgramParameters struct, NULL on error.
  * 
  * @param configFile stream to config file
  * @param debugFile stream to debug file, NULL if not needed
- * @return pointer to GameParameters struct, NULL on error 
+ * @return pointer to ProgramParameters struct, NULL on error 
  */
 ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile);
 
@@ -23,6 +23,14 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile);
  * @return SUCCESS on success, FAILURE on failure
  */
 status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer);
+
+/**
+ * @brief Loads a soundtrack from specified ID.
+ * 
+ * @param parameters ProgramParameters struct
+ * @return SUCCESS on success, FAILURE on failure
+ */
+status_t loadSoundtrack(ProgramParameters* parameters);
 
 /**
  * @brief Frees game configuration.

@@ -4,6 +4,7 @@
 #include "deus.h"
 #include "logic_shapes.h"
 #include "tiles.h"
+#include "tile_queue.h"
 #include "utils.h"
 
 status_t loadTileIntoGrid(int** tetrisGrid, Tile* tile) {
@@ -700,7 +701,7 @@ status_t dropHardOld(int** tetrisGrid, Tile* tile, const int tetrisGridHeight, F
 
 static inline void shiftDown(int** tetrisGrid, const Size tetrisGridSize, int n, int startHeight) {
     for(int i = startHeight; i > n - 1; i--) {
-        for(int j = 0; j < tetrisGridSize.width; j++) {
+        for(unsigned int j = 0; j < tetrisGridSize.width; j++) {
             tetrisGrid[i][j] = tetrisGrid[i - n][j];
         }
     }
@@ -751,6 +752,7 @@ void onGameEnd(ProgramParameters* parameters) {
     freeTile(parameters->currentTile);
     parameters->currentTile = NULL;
     flushTileQueue(parameters->tileQueue);
+    stopMusic();
     setMatrix(parameters->tetrisGrid, parameters->tetrisGridSize, 0);
 }
 

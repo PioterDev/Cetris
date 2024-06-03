@@ -2,6 +2,7 @@
 #include <string.h>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 
 #include "deus.h"
 
@@ -68,14 +69,26 @@ SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect*
     return tex;
 }
 
+Mix_Music* loadMusic(const char* path) {
+    return Mix_LoadMUS(path);
+}
+
+void freeMusic(Mix_Music* music) {
+    Mix_FreeMusic(music);
+}
+
+void stopMusic() {
+    Mix_HaltMusic();
+}
+
 int** zeroMatrix(Size size) {
     int** matrix = calloc(size.height, sizeof(int*));
     if(matrix == NULL)return NULL;
 
-    for(int i = 0; i < size.height; i++) {
+    for(unsigned int i = 0; i < size.height; i++) {
         matrix[i] = calloc(size.width, sizeof(int));
         if(matrix[i] == NULL) {
-            for(int j = 0; j < i; j++) {
+            for(unsigned int j = 0; j < i; j++) {
                 free(matrix[j]);
             }
             free(matrix);
@@ -94,8 +107,8 @@ void freeMatrix(int** matrix, int height) {
 }
 
 void printMatrix(int** matrix, Size size, FILE* stream) {
-    for(int i = 0; i < size.height; i++) {
-        for(int j = 0; j < size.width; j++) {
+    for(unsigned int i = 0; i < size.height; i++) {
+        for(unsigned int j = 0; j < size.width; j++) {
             if(matrix[i][j] < 0)fprintf(stream, "%d ", matrix[i][j]);
             else fprintf(stream, " %d ", matrix[i][j]);
         }
@@ -104,16 +117,16 @@ void printMatrix(int** matrix, Size size, FILE* stream) {
 }
 
 void setMatrix(int** matrix, Size size, int value) {
-    for(int i = 0; i < size.height; i++) {
-        for(int j = 0; j < size.width; j++) {
+    for(unsigned int i = 0; i < size.height; i++) {
+        for(unsigned int j = 0; j < size.width; j++) {
             matrix[i][j] = value;
         }
     }
 }
 
 void absMatrix(int** matrix, Size size) {
-    for(int i = 0; i < size.height; i++) {
-        for(int j = 0; j < size.width; j++) {
+    for(unsigned int i = 0; i < size.height; i++) {
+        for(unsigned int j = 0; j < size.width; j++) {
             if(matrix[i][j] < 0)matrix[i][j] = abs(matrix[i][j]);
         }
     }
