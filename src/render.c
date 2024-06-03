@@ -39,7 +39,7 @@ DWORD WINAPI renderScreen(void* params) {
         SDL_SetRenderDrawColor(renderer, backgroundColor->red, backgroundColor->green, backgroundColor->blue, backgroundColor->alpha); //background color
         SDL_RenderClear(renderer);
 
-        SDL_Rect backgroundRect = backgroundTile->rect;
+        /* SDL_Rect backgroundRect = backgroundTile->rect;
         if(scalingFactor > 0) {
             backgroundRect.h *= scalingFactor;
             backgroundRect.w *= scalingFactor;
@@ -49,7 +49,7 @@ DWORD WINAPI renderScreen(void* params) {
             backgroundRect.w /= abs(scalingFactor);
         }
         SDL_RenderCopy(renderer, backgroundTile->texture, NULL, &backgroundRect);
-        //TODO: remove this in favor of rendering individual blocks
+        //TODO: remove this in favor of rendering individual blocks */
 
         SDL_Rect current;
         if(scalingFactor > 0) {
@@ -66,21 +66,21 @@ DWORD WINAPI renderScreen(void* params) {
         for(int i = 0; i < programParameters->tetrisGridSize.height; i++) {
             for(int j = 0; j < programParameters->tetrisGridSize.width; j++) {
                 int color = tetrisGrid[i][j];
-                if(color == 0)continue;
+                if(color == GHOST)continue; //TODO: ghost
                 if(color < 0)color = abs(color);
                 current.y = backgroundTile->rect.y + i * current.h;
                 current.x = backgroundTile->rect.x + j * current.w;
-                if(SDL_RenderCopy(renderer, baseTextures[color - 1], NULL, &current) != 0) {
+                if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current) != 0) {
                     logToStream(programParameters->debugLog, "Error rendering tile", LOGLEVEL_ERROR);
                 }
 
             }
         }
 
-        TileQueueElement* queued = programParameters->tileQueue->head;
+        /* TileQueueElement* queued = programParameters->tileQueue->head;
         for(size_t i = 0; i < programParameters->tileQueue->size; i++) {
             
-        }
+        } */
 
         end = timer->QuadPart;
         if(end - start == 0) {

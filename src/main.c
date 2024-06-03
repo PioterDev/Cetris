@@ -15,6 +15,7 @@
 #include "render.h"
 #include "deus.h"
 #include "tiles.h"
+#include "tile_queue.h"
 #include "utils.h"
 
 #define DEBUG
@@ -181,8 +182,6 @@ int main(int argc, char** argv) {
         goto sdl_destroyrenderer;
     }
     logToStream(generallog, "Base tile textures successfully loaded!", LOGLEVEL_INFO);
-
-
     
     logToStream(generallog, "Attempting to create a game matrix...", LOGLEVEL_INFO);
     int** tetrisGrid = zeroMatrix(programParameters->tetrisGridSize);
@@ -197,7 +196,7 @@ int main(int argc, char** argv) {
 
 
 
-    Tile** tiles = calloc(3, sizeof(Tile*)); //3 for now, will be later changed
+    Tile** tiles = calloc(3, sizeof(Tile*)); //3 for now, will be later changed, removed even!
     size_t tilesAmount = 0;
     if(tiles == NULL) {
         status = MEMORY_FAILURE;
@@ -243,14 +242,13 @@ int main(int argc, char** argv) {
     programParameters->currentTile = currentTile;
 
     logToStream(generallog, "Attempting to create a tile queue...", LOGLEVEL_INFO);
-    TileQueue* tileQueue = createTileQueue();
-    if(tileQueue == NULL) {
+    programParameters->tileQueue = createTileQueue();
+    if(programParameters->tileQueue == NULL) {
         status = MEMORY_FAILURE;
         sprintf(errormsgBuffer, "Error creating tile queue.");
         logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
         goto freeTiles;
     }
-    programParameters->tileQueue = tileQueue;
     logToStream(generallog, "Tile queue successfully created!", LOGLEVEL_INFO);
 
 
@@ -261,7 +259,7 @@ int main(int argc, char** argv) {
         status = MUTEX_FAILURE;
         sprintf(errormsgBuffer, "Error initializing tiles mutex: %ld", GetLastError());
         logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
-        goto freeTilequeue;
+        goto freeTiles;
     }
     logToStream(generallog, "Tiles mutex successfully created!", LOGLEVEL_INFO);
 
@@ -354,7 +352,7 @@ int main(int argc, char** argv) {
                     
                             goto exit_start;
                         }
-                        loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile, debugLog);
+                        loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile);
                         break;
                     }
                     
@@ -375,7 +373,7 @@ int main(int argc, char** argv) {
                         if(programParameters->currentTile == NULL) {
                             logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
                         }
-                        else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile, debugLog) == FAILURE) {
+                        else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile) == FAILURE) {
                             onGameEnd(programParameters);
                             playing = false;
                             //FIXME: after game end, a tile STILL somehow falls
@@ -419,13 +417,13 @@ int main(int argc, char** argv) {
                         onPlacement(programParameters->tetrisGrid, programParameters->tetrisGridSize, NULL);
                         freeTile(programParameters->currentTile);
 
-                        dequeueTile(tileQueue, &programParameters->currentTile);
-                        enqueueTile(tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
+                        dequeueTile(programParameters->tileQueue, &programParameters->currentTile);
+                        enqueueTile(programParameters->tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
 
                         if(programParameters->currentTile == NULL) {
                             logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
                         }
-                        else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile, debugLog) == FAILURE) { 
+                        else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile) == FAILURE) { 
                             onGameEnd(programParameters);
                             playing = false;
                             printTile(programParameters->currentTile, debugLog);
@@ -455,9 +453,6 @@ int main(int argc, char** argv) {
     closeRenderMutex: CloseHandle(renderMutex);
 
     closeTilesMutex: CloseHandle(tilesMutex);
-    
-    freeTilequeue:
-        freeTileQueue(tileQueue);
 
     freeTiles: 
         for(size_t i = 0; i < tilesAmount; i++) {

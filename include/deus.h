@@ -21,12 +21,10 @@
 #define true 1
 #define false 0
 
-#define tilesPath "./assets/tiles/"
-#define tileColorAmount 7
+#define tileColorAmount 8 //7 + background
 #define GridHeight 20
 #define GridWidth 10
 #define tileQueuedAmount 4
-#define maxOccupiedTiles 4
 
 typedef unsigned long long size_t;
 
@@ -111,7 +109,7 @@ typedef union Keymap_array {
     int keys[sizeof(Keymap) / sizeof(int)];
 } Keymap_array;
 
-typedef enum TileColor{
+typedef enum TileColor {
     COLOR_UNKNOWN = -1,
     AQUA = 1,
     BLUE,
@@ -199,7 +197,7 @@ typedef struct ProgramParameters {
     short baseTileSize;
     Keymap keymap;
     //If it's > 0, scale up, if it's < 0, scale down
-    char scalingFactor;
+    short scalingFactor;
     LARGE_INTEGER* clockFrequency;
     LARGE_INTEGER* timer;
     FILE* generallog;

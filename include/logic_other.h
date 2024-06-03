@@ -11,7 +11,7 @@
  * @param tile tile
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t loadTileIntoGrid(int** tetrisGrid, Tile* tile, FILE* debug);
+status_t loadTileIntoGrid(int** tetrisGrid, Tile* tile);
 
 /**
  * @brief Frees previous tile, loads a new one.

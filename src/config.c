@@ -4,7 +4,21 @@
 
 #include "deus.h"
 #include "logging.h"
+#include "tile_queue.h"
 #include "utils.h"
+
+static const char tilesPath[] = "./assets/tiles/";
+
+static const char baseTexturePaths[tileColorAmount][32] = {
+    "tile_base_background.png",
+    "tile_base_aqua.png",
+    "tile_base_blue.png",
+    "tile_base_green.png",
+    "tile_base_magenta.png",
+    "tile_base_orange.png",
+    "tile_base_red.png",
+    "tile_base_yellow.png"
+};
 
 static inline void setParameter(ProgramParameters* parameters, const char* key, int value) {
     if     (!strcmp(key, "moveleft"))                   parameters->keymap.movePieceLeft = value;
@@ -27,7 +41,7 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
     if(parameters == NULL)return NULL;
 
     char buf[128] = {0};
-    while(fgets(buf, 128, configFile)) {
+    while(fgets(buf, sizeof(buf), configFile)) {
         if(debugFile != NULL)fprintf(debugFile, "[loadConfig] Read line: %s", buf);
         
         if(buf[0] == '#')continue; //comment line
@@ -57,11 +71,11 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
                 else if(value[2] == '0')setParameter(parameters, key, SDLK_F10);
                 else if(value[2] == '1')setParameter(parameters, key, SDLK_F11);
                 else if(value[2] == '2')setParameter(parameters, key, SDLK_F12);
-                else setParameter(parameters, key, SDLK_F13 - 3 + value[2] - '0');
+                else setParameter(parameters, key, SDLK_F13 - 3 + value[2] - '0'); //weird offsetting due to SDL2's internal mapping
             }
             else if(value[1] == '2') {
                 if(value[2] == '\0')setParameter(parameters, key, SDLK_F2);
-                else if(value[2] <= '0' && value[2] >= '4')setParameter(parameters, key, SDLK_F20 + value[2] - '0');
+                else if(value[2] <= '0' && value[2] >= '4')setParameter(parameters, key, SDLK_F20 + value[2] - '0'); //same here
             }
         }
         else if(!strcmp(value, "leftarrow"))    setParameter(parameters, key, SDLK_LEFT);
@@ -80,39 +94,22 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
 }
 
 status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer) {
-    char path[256] = tilesPath;
+    char path[256];
+    strcpy(path, tilesPath);
     char* pos = path + strlen(tilesPath);
     SDL_Rect rect;
 
-    strcpy(pos, "tile_base_aqua.png");
+    //The first one is necessary to get the base tile size
+    strcpy(pos, baseTexturePaths[0]);
     parameters->baseTextures[0] = loadTextureRect(path, renderer, &rect);
     if(parameters->baseTextures[0] == NULL) return FAILURE;
-
-    strcpy(pos, "tile_base_blue.png");
-    parameters->baseTextures[1] = loadTexture(path, renderer);
-    if(parameters->baseTextures[1] == NULL) return FAILURE;
-
-    strcpy(pos, "tile_base_green.png");
-    parameters->baseTextures[2] = loadTexture(path, renderer);
-    if(parameters->baseTextures[2] == NULL) return FAILURE;
-
-    strcpy(pos, "tile_base_magenta.png");
-    parameters->baseTextures[3] = loadTexture(path, renderer);
-    if(parameters->baseTextures[3] == NULL) return FAILURE;
-
-    strcpy(pos, "tile_base_orange.png");
-    parameters->baseTextures[4] = loadTexture(path, renderer);
-    if(parameters->baseTextures[4] == NULL) return FAILURE;
-
-    strcpy(pos, "tile_base_red.png");
-    parameters->baseTextures[5] = loadTexture(path, renderer);
-    if(parameters->baseTextures[5] == NULL) return FAILURE;
-    
-    strcpy(pos, "tile_base_yellow.png");
-    parameters->baseTextures[6] = loadTexture(path, renderer);
-    if(parameters->baseTextures[6] == NULL) return FAILURE;
-
     parameters->baseTileSize = rect.h;
+
+    for(int i = 1; i < tileColorAmount; i++) {
+        strcpy(pos, baseTexturePaths[i]);
+        parameters->baseTextures[i] = loadTexture(path, renderer);
+        if(parameters->baseTextures[i] == NULL) return FAILURE; //no need to worry about freeing textures, it's done on exit
+    }
 
     return SUCCESS;
 }
@@ -123,6 +120,7 @@ void freeProgramConfig(ProgramParameters* params) {
             SDL_DestroyTexture(params->baseTextures[i]);
         }
     }
+    freeTileQueue(params->tileQueue);
     freeMatrix(params->tetrisGrid, params->tetrisGridSize.height);
     free(params);
 }
@@ -136,7 +134,8 @@ void printKeymap(Keymap* keymap, FILE* stream) {
         "Soft drop", 
         "Hard drop", 
         "Hold", 
-        "Pause"
+        "Pause",
+        "Test"
     };
     Keymap_array* keymap_array = (Keymap_array*) keymap;
     for(int i = 0; i < (int) (sizeof(Keymap) / sizeof(int)); i++) {
@@ -160,10 +159,10 @@ void printKeymap(Keymap* keymap, FILE* stream) {
 
 void printConfig(ProgramParameters* params, FILE* stream) {
     if(stream == NULL)return;
-    fprintf(stream, "Screen width: %d\n", params->screenSize.width);
-    fprintf(stream, "Screen height: %d\n", params->screenSize.height);
+    fprintf(stream, "Screen width: %d px\n", params->screenSize.width);
+    fprintf(stream, "Screen height: %d px\n", params->screenSize.height);
     fprintf(stream, "FPS: %d\n", params->fps);
-    fprintf(stream, "Base fall speed: %d\n", params->baseFallSpeed);
+    fprintf(stream, "Base fall speed: %d ms\n", params->baseFallSpeed);
     fprintf(stream, "Scaling factor: %d\n", params->scalingFactor);
     printKeymap(&params->keymap, stream);
 }
