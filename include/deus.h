@@ -180,9 +180,9 @@ typedef struct Tile {
 } Tile;
 
 typedef enum MovementSpeed {
-    NORMAL,
-    DROPSOFT,
-    HOLD
+    SPEED_NORMAL,
+    SPEED_DROPSOFT, //sped up
+    SPEED_HOLD //slowed down
 } MovementSpeed;
 
 typedef struct TileQueueElement {
@@ -196,10 +196,9 @@ typedef struct TileQueue {
     TileQueueElement* last;
 } TileQueue;
 
+//I guess the following 2 structs be marked as unnecesary, but eh.
 typedef struct Soundtrack {
     Mix_Music* music;
-    unsigned short volume;
-    char id;
 } Soundtrack;
 
 typedef struct SoundEffect {
@@ -209,10 +208,14 @@ typedef struct SoundEffect {
 //1st bit - whether the program should continue running
 //2nd bit - whether a game is played
 //3rd and 4th bit hold the game speed
+//5th and 6th bit hold the soundtrack to be played
+//7th and 8th bit hold the soundtrack that is currently playing
 typedef struct ProgramFlags {
     int running : 1;
     int playing : 1;
     MovementSpeed speed : 2;
+    int soundtrack : 2;
+    int soundtrackNowPlaying : 2;
 } ProgramFlags;
 
 /**
@@ -238,9 +241,10 @@ typedef struct ProgramParameters {
     Tile* currentTile;
     Tile* heldTile;
     TileQueue* tileQueue;
-    Soundtrack soundtrack;
+    Soundtrack soundtracks[soundtracksAmount];
     SoundEffect soundEffects[soundEffectAmount];
-    unsigned short soundEffectsVolume;
+    unsigned char soundEffectsVolume; //max is 128
+    unsigned char soundtracksVolume;
 } ProgramParameters;
 
 typedef enum TileLoadingFlags {
@@ -258,15 +262,6 @@ typedef struct renderThreadParameters {
     SDL_Renderer* renderer;
     Color* backgroundColor;
 } renderThreadParameters;
-
-/**
- * @brief Not used anywhere.
- */
-typedef struct logicParameters {
-    ProgramParameters* programParameters;
-    Tile** tiles;
-    size_t tilesAmount;
-} logicParameters;
 
 typedef struct clockThreadParameters {
     loopStatus_t* clockStatus;

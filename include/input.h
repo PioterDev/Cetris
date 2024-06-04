@@ -6,6 +6,8 @@
 
 #include "utils.h"
 
+//Not used, see input.c for why.
+
 /**
  * @brief A game input loop, intended to run on a separate thread.
  * 

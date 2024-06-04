@@ -191,7 +191,7 @@ int main(int argc, char** argv) {
     logToStream(generallog, "Base tile textures successfully loaded!", LOGLEVEL_INFO);
 
     logToStream(generallog, "Attempting to load a soundtrack...", LOGLEVEL_INFO);
-    if(loadSoundtrack(programParameters) != SUCCESS) {
+    if(loadSoundtracks(programParameters) != SUCCESS) {
         status = FAILURE;
         sprintf(errormsgBuffer, "Error loading soundtrack.");
         logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
@@ -349,7 +349,7 @@ int main(int argc, char** argv) {
                         }
                         loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile);
                         
-                        playMusic(&programParameters->soundtrack);
+                        playMusic(programParameters);
                         
                         break;
                     }
@@ -375,14 +375,14 @@ int main(int argc, char** argv) {
                             onGameEnd(programParameters);
                             //FIXME: after game end, a tile STILL somehow falls
                         }
-                        programParameters->flags.speed = NORMAL;
+                        programParameters->flags.speed = SPEED_NORMAL;
                     }
 
                     else if(key == programParameters->keymap.movePieceLeft)  moveLeft(programParameters->tetrisGrid, programParameters->currentTile);
 
                     else if(key == programParameters->keymap.movePieceRight) moveRight(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize.width);
                     
-                    else if(key == programParameters->keymap.dropSoft) programParameters->flags.speed = DROPSOFT;
+                    else if(key == programParameters->keymap.dropSoft) programParameters->flags.speed = SPEED_DROPSOFT;
 
                     else if(key == programParameters->keymap.rotateClockwise) {
                         rotateClockwise(programParameters->tetrisGrid, programParameters->currentTile);
@@ -394,14 +394,14 @@ int main(int argc, char** argv) {
                         playSound(&programParameters->soundEffects[ACTION_ROTATECOUNTERCLOCKWISE], programParameters->soundEffectsVolume);
                     }
                         
-                    else if(key == programParameters->keymap.hold) programParameters->flags.speed = HOLD;
+                    else if(key == programParameters->keymap.hold) programParameters->flags.speed = SPEED_HOLD;
 
                     break;
                 }
                 case SDL_KEYUP: {
                     if( event.key.keysym.sym == programParameters->keymap.dropSoft ||
                         event.key.keysym.sym == programParameters->keymap.hold) {
-                        programParameters->flags.speed = NORMAL;
+                        programParameters->flags.speed = SPEED_NORMAL;
                     }
                     break;
                 }
@@ -409,10 +409,10 @@ int main(int argc, char** argv) {
         }
 
         if(programParameters->flags.playing) {
-            if(!Mix_PlayingMusic()) playMusic(&programParameters->soundtrack);
+            if(!Mix_PlayingMusic()) playMusic(programParameters);
             long long baseFallSpeed = programParameters->baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
-            if(programParameters->flags.speed == DROPSOFT)baseFallSpeed /= 5;
-            else if(programParameters->flags.speed == HOLD)baseFallSpeed *= 5;
+            if(programParameters->flags.speed == SPEED_DROPSOFT)baseFallSpeed /= 5;
+            else if(programParameters->flags.speed == SPEED_HOLD)baseFallSpeed *= 5;
             tickTimerEnd = timer.QuadPart;
 
             if(tickTimerEnd - tickTimerStart > baseFallSpeed) {
@@ -432,7 +432,7 @@ int main(int argc, char** argv) {
                             onGameEnd(programParameters);
                             //TODO: expand functionality on end of the game
                         }
-                        programParameters->flags.speed = NORMAL;
+                        programParameters->flags.speed = SPEED_NORMAL;
                     }
                 }
                 tickTimerStart += baseFallSpeed;

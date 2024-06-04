@@ -83,9 +83,20 @@ void stopMusic() {
     Mix_HaltMusic();
 }
 
-void playMusic(Soundtrack* soundtrack) {
-    Mix_PlayMusic(soundtrack->music, 0);
-    Mix_VolumeMusic(soundtrack->volume);
+void playMusic(ProgramParameters* parameters) {
+    switch(parameters->flags.soundtrack) {
+        case 3:
+            parameters->flags.soundtrackNowPlaying++;
+            if(parameters->flags.soundtrackNowPlaying & 0b11)parameters->flags.soundtrackNowPlaying = 0;
+            Mix_PlayMusic(parameters->soundtracks[parameters->flags.soundtrackNowPlaying].music, 0);
+            break;
+        case 2:
+        case 1:
+        case 0:
+            Mix_PlayMusic(parameters->soundtracks[parameters->flags.soundtrackNowPlaying].music, 0);
+            break;
+    }
+    Mix_VolumeMusic(parameters->soundtracksVolume);
 }
 
 

@@ -8,7 +8,7 @@
  * @brief A high performance clock. Counts how much time passed since it started.
  * Its accuracy is based on Windows' QueryPerformanceFrequency() (most likely 10^7 ticks / second).
  * 
- * @param params 
+ * @param params clockThreadParameters struct
  * @return exit status
  */
 DWORD WINAPI highPerformanceClockThread(void* params);

@@ -66,9 +66,9 @@ void stopMusic();
 /**
  * @brief Plays music.
  * 
- * @param soundtrack pointer to Soundtrack struct
+ * @param parameters pointer to ProgramParameters struct
  */
-void playMusic(Soundtrack* soundtrack);
+void playMusic(ProgramParameters* parameters);
 
 
 /**

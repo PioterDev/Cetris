@@ -2,6 +2,9 @@
 #include "logic_shapes.h"
 #include "utils.h"
 
+//There is kind of no way to make these functions shorter,
+//as every case is a bit different and there are a lot of them.
+
 status_t moveLeft(int** tetrisGrid, Tile* tile) {
     if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;

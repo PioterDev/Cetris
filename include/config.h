@@ -28,9 +28,9 @@ status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer)
  * @brief Loads a soundtrack from specified ID.
  * 
  * @param parameters pointer to ProgramParameters struct
- * @return SUCCESS on success, FAILURE on failure, BASEOUTOFRANGE on invalid soundtrack number (< 1 || > 3)
+ * @return SUCCESS on success, FAILURE on failure
  */
-status_t loadSoundtrack(ProgramParameters* parameters);
+status_t loadSoundtracks(ProgramParameters* parameters);
 
 /**
  * @brief Loads sound effects into program parameters.

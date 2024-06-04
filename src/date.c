@@ -31,5 +31,5 @@ status_t ISO8601(char* buf, size_t bufsize) {
     strcat(buf, ":");                    //2038-01-19 03:14:
     strcat(buf, nums[now->tm_sec]);      //2038-01-19 03:14:07
     return SUCCESS;
-    //The code could probably be optimized, but who cares, it works.
+    //The code could probably be optimized, but eh, it works.
 }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <SDL.h>
 
 #include "deus.h"
 #include "logging.h"
@@ -36,23 +37,72 @@ static const char soundEffectPaths[soundEffectAmount][32] = {
     "Rotate_counterclockwise.mp3" //27 characters, wow
 };
 
-static inline void setParameter(ProgramParameters* parameters, const char* key, int value) {
-    if     (!strcmp(key, "moveleft"))                   parameters->keymap.movePieceLeft = value;
-    else if(!strcmp(key, "moveright"))                  parameters->keymap.movePieceRight = value;
-    else if(!strcmp(key, "rotate_clockwise"))           parameters->keymap.rotateClockwise = value;
-    else if(!strcmp(key, "rotate_counter_clockwise"))   parameters->keymap.rotateCounterClockwise = value;
-    else if(!strcmp(key, "dropsoft"))                   parameters->keymap.dropSoft = value;
-    else if(!strcmp(key, "drophard"))                   parameters->keymap.dropHard = value;
-    else if(!strcmp(key, "hold"))                       parameters->keymap.hold = value;
-    else if(!strcmp(key, "pause"))                      parameters->keymap.pause = value;
+typedef enum Option {
+    MOVELEFT,
+    MOVERIGHT,
+    ROTATE_CLOCKWISE,
+    ROTATE_COUNTERCLOCKWISE,
+    DROPSOFT,
+    DROPHARD,
+    HOLD,
+    PAUSE,
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT,
+    FPS,
+    BASEFALLSPEED,
+    SOUNDTRACK,
+    SOUNDTRACK_VOLUME,
+    SFX_VOLUME
+} Option;
 
-    else if(!strcmp(key, "width"))                      parameters->screenSize.width = value;
-    else if(!strcmp(key, "height"))                     parameters->screenSize.height = value;
-    else if(!strcmp(key, "fps"))                        parameters->fps = value;
-    else if(!strcmp(key, "basefallspeed"))              parameters->baseFallSpeed = value;
-    else if(!strcmp(key, "soundtrack"))                 parameters->soundtrack.id = value;
-    else if(!strcmp(key, "soundtrack_volume"))          parameters->soundtrack.volume = value << 7 / 100;
-    else if(!strcmp(key, "sfx_volume"))                 parameters->soundEffectsVolume = value << 7 / 100;
+void setParameter(ProgramParameters* parameters, Option key, int value) {
+    switch(key) {
+        case MOVELEFT:
+            parameters->keymap.movePieceLeft = value;
+            break;
+        case MOVERIGHT:
+            parameters->keymap.movePieceRight = value;
+            break;
+        case ROTATE_CLOCKWISE:
+            parameters->keymap.rotateClockwise = value;
+            break;
+        case ROTATE_COUNTERCLOCKWISE:
+            parameters->keymap.rotateCounterClockwise = value;
+            break;
+        case DROPSOFT:
+            parameters->keymap.dropSoft = value;
+            break;
+        case DROPHARD:
+            parameters->keymap.dropHard = value;
+            break;
+        case HOLD:
+            parameters->keymap.hold = value;
+            break;
+        case PAUSE:
+            parameters->keymap.pause = value;
+            break;
+        case SCREEN_WIDTH:
+            parameters->screenSize.width = value;
+            break;
+        case SCREEN_HEIGHT:
+            parameters->screenSize.height = value;
+            break;
+        case FPS:
+            parameters->fps = value;
+            break;
+        case BASEFALLSPEED:
+            parameters->baseFallSpeed = value;
+            break;
+        case SOUNDTRACK:
+            parameters->flags.soundtrack = (abs(value) - 1) % 4; //to ensure it doesn't overflow
+            break;
+        case SOUNDTRACK_VOLUME:
+            parameters->soundtracksVolume = value <= 128 ? value << 7 / 100 : 128;
+            break;
+        case SFX_VOLUME:
+            parameters->soundEffectsVolume = value <= 128 ? value << 7 / 100 : 128;
+            break;
+    }
 }
 
 ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
@@ -61,7 +111,7 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
 
     char buf[128] = {0};
     while(fgets(buf, sizeof(buf), configFile)) {
-        if(debugFile != NULL)fprintf(debugFile, "[loadConfig] Read line: %s", buf);
+        if(debugFile != NULL) fprintf(debugFile, "[loadConfig] Read line: %s", buf);
         
         if(buf[0] == '#')continue; //comment line
         
@@ -69,45 +119,65 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
         char key[32] = {0};
         strncpy(key, buf, strcspn(buf, ":"));
 
-        if(debugFile != NULL)fprintf(debugFile, "[loadConfig] Key: %s\n", key);
 
         char* value = strstr(buf, ":") + 1;
         while((value[0] == ' ' || value[0] == '\t') && value[0] != '\n')value++;
         
-        if(debugFile != NULL)fprintf(debugFile, "[loadConfig] Value: %s\n", value);
+        if(debugFile != NULL) fprintf(debugFile, "[loadConfig] Key: %s, Value: %s\n", key, value);
 
         //...so anyway, let's begin this mess
+
+        Option option;
+        if     (!strcmp(key, "moveleft"))                   option = MOVELEFT;
+        else if(!strcmp(key, "moveright"))                  option = MOVERIGHT;
+        else if(!strcmp(key, "rotate_clockwise"))           option = ROTATE_CLOCKWISE;
+        else if(!strcmp(key, "rotate_counter_clockwise"))   option = ROTATE_COUNTERCLOCKWISE;
+        else if(!strcmp(key, "dropsoft"))                   option = DROPSOFT;
+        else if(!strcmp(key, "drophard"))                   option = DROPHARD;
+        else if(!strcmp(key, "hold"))                       option = HOLD;
+        else if(!strcmp(key, "pause"))                      option = PAUSE;
+
+        //numerical options
+        else if(!strcmp(key, "width"))                      option = SCREEN_WIDTH;
+        else if(!strcmp(key, "height"))                     option = SCREEN_HEIGHT;
+        else if(!strcmp(key, "fps"))                        option = FPS;
+        else if(!strcmp(key, "basefallspeed"))              option = BASEFALLSPEED;
+        else if(!strcmp(key, "soundtrack"))                 option = SOUNDTRACK;
+        else if(!strcmp(key, "soundtrack_volume"))          option = SOUNDTRACK_VOLUME;
+        else if(!strcmp(key, "sfx_volume"))                 option = SFX_VOLUME;
+
         if(strlen(value) == 1) {
-            //a-z
+            //ASCII
             if( (value[0] >= 91 && value[0] <= 126) || (value[0] >= 33 || value[0] <= 64)) {
-                //<[, `> + <a, z> + <{, ~> or <!, /> + <0, 9> + <:, @>
-                setParameter(parameters, key, (int)value[0]);
+                //      <[, `> + <a, z> + <{, ~>    or        <!, /> + <0, 9> + <:, @>
+                setParameter(parameters, option, (int)value[0]);
             }
         }
-        else if(value[0] == 'F' || value[0] == 'f') {
+        else if(value[0] == 'F' || value[0] == 'f') { //F1-24 keys
             if(value[1] == '1') {
-                if     (value[2] == '\0')setParameter(parameters, key, SDLK_F1);
-                else if(value[2] == '0')setParameter(parameters, key, SDLK_F10);
-                else if(value[2] == '1')setParameter(parameters, key, SDLK_F11);
-                else if(value[2] == '2')setParameter(parameters, key, SDLK_F12);
-                else setParameter(parameters, key, SDLK_F13 - 3 + value[2] - '0'); //weird offsetting due to SDL2's internal mapping
+                if     (value[2] == '\0')setParameter(parameters, option, SDLK_F1);
+                else if(value[2] == '0') setParameter(parameters, option, SDLK_F10);
+                else if(value[2] == '1') setParameter(parameters, option, SDLK_F11);
+                else if(value[2] == '2') setParameter(parameters, option, SDLK_F12);
+                else                     setParameter(parameters, option, SDLK_F13 - 3 + value[2] - '0'); //weird offsetting due to SDL2's internal mapping
             }
             else if(value[1] == '2') {
-                if(value[2] == '\0')setParameter(parameters, key, SDLK_F2);
-                else if(value[2] <= '0' && value[2] >= '4')setParameter(parameters, key, SDLK_F20 + value[2] - '0'); //same here
+                if     (value[2] == '\0')                   setParameter(parameters, option, SDLK_F2);
+                else if(value[2] <= '0' && value[2] >= '4') setParameter(parameters, option, SDLK_F20 + value[2] - '0'); //same here
             }
         }
-        else if(!strcmp(value, "leftarrow"))    setParameter(parameters, key, SDLK_LEFT);
-        else if(!strcmp(value, "rightarrow"))   setParameter(parameters, key, SDLK_RIGHT);
-        else if(!strcmp(value, "uparrow"))      setParameter(parameters, key, SDLK_UP);
-        else if(!strcmp(value, "downarrow"))    setParameter(parameters, key, SDLK_DOWN);
-        else if(!strcmp(value, "lshift"))       setParameter(parameters, key, SDLK_LSHIFT);
-        else if(!strcmp(value, "space"))        setParameter(parameters, key, SDLK_SPACE);
-        else if(!strcmp(value, "esc"))          setParameter(parameters, key, SDLK_ESCAPE);
+        else if(!strcmp(value, "leftarrow"))    setParameter(parameters, option, SDLK_LEFT);
+        else if(!strcmp(value, "rightarrow"))   setParameter(parameters, option, SDLK_RIGHT);
+        else if(!strcmp(value, "uparrow"))      setParameter(parameters, option, SDLK_UP);
+        else if(!strcmp(value, "downarrow"))    setParameter(parameters, option, SDLK_DOWN);
+        else if(!strcmp(value, "lshift"))       setParameter(parameters, option, SDLK_LSHIFT);
+        else if(!strcmp(value, "space"))        setParameter(parameters, option, SDLK_SPACE);
+        else if(!strcmp(value, "esc"))          setParameter(parameters, option, SDLK_ESCAPE);
 
-        unsigned int valueNumerical = (unsigned int)atoi(value);
-        if((!strcmp(key, "width") || !strcmp(key, "height") || !strcmp(key, "fps") || !strcmp(key, "basefallspeed")) && valueNumerical > 0) setParameter(parameters, key, valueNumerical);
-        else if((!strcmp(key, "soundtrack") || !strcmp(key, "soundtrack_volume") || !strcmp(key, "sfx_volume")) && valueNumerical <= 100)      setParameter(parameters, key, valueNumerical);
+        else {
+            unsigned int valueNumerical = (unsigned int)atoi(value);
+            setParameter(parameters, option, valueNumerical);
+        }
     }
 
     return parameters;
@@ -134,16 +204,16 @@ status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer)
     return SUCCESS;
 }
 
-status_t loadSoundtrack(ProgramParameters* parameters) {
+status_t loadSoundtracks(ProgramParameters* parameters) {
     char path[256];
     strcpy(path, audioPath);
     char* pos = path + strlen(audioPath);
 
-    if(parameters->soundtrack.id < 1 || parameters->soundtrack.id > 3)return BASEOUTOFRANGE;
-    strcpy(pos, soundtrackPaths[parameters->soundtrack.id - 1]);
-    parameters->soundtrack.music = loadMusic(path);
-
-    if(parameters->soundtrack.music == NULL) return FAILURE;
+    for(int i = 0; i < soundtracksAmount; i++) {
+        strcpy(pos, soundtrackPaths[i]);
+        parameters->soundtracks[i].music = loadMusic(path);
+        if(parameters->soundtracks[i].music == NULL) return FAILURE;
+    }
 
     return SUCCESS;
 }
@@ -172,7 +242,9 @@ void freeProgramConfig(ProgramParameters* params) {
     }
     freeTileQueue(params->tileQueue);
     freeMatrix(params->tetrisGrid, params->tetrisGridSize.height);
-    freeMusic(params->soundtrack.music);
+    for(int i = 0; i < soundtracksAmount; i++) {
+        freeMusic(params->soundtracks[i].music);
+    }
     for(int i = 0; i < soundEffectAmount; i++) {
         if(params->soundEffects[i].sound != NULL) {
             freeSound(params->soundEffects[i].sound);
