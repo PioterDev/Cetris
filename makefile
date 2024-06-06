@@ -6,33 +6,36 @@ SUBSYSTEM = -Wl,-subsystem,windows
 SRCDIR = src
 INCDIR = include
 BUILDDIR = build
-LIBDIR = lib
+LIBDIR = G:/Projects/CLibs
 
-SDLINCLUDE = G:/Projects/CLibs/SDL2/include/SDL2
-SDLLIB = G:/Projects/CLibs/SDL2/lib
-SDLIMAGEINCLUDE = G:/Projects/CLibs/SDL2_image/include/SDL2
-SDLIMAGELIB = G:/Projects/CLibs/SDL2_image/lib
-SDLMIXERINCLUDE = G:/Projects/CLibs/SDL2_mixer/include/SDL2
-SDLMIXERLIB = G:/Projects/CLibs/SDL2_mixer/lib
+SDLINCLUDE 		= $(LIBDIR)/SDL2/include/SDL2
+SDLIMAGEINCLUDE	= $(LIBDIR)/SDL2_image/include/SDL2
+SDLMIXERINCLUDE = $(LIBDIR)/SDL2_mixer/include/SDL2
+#SDLTTFINCLUDE	= $(LIBDIR)/SDL2_ttf/include/SDL2
 
-# Define source files and output executable
+SDLLIB 			= $(LIBDIR)/SDL2/lib
+SDLIMAGELIB 	= $(LIBDIR)/SDL2_image/lib
+SDLMIXERLIB 	= $(LIBDIR)/SDL2_mixer/lib
+#SDLTTFLIB 		= $(LIBDIR)/SDL2_ttf/lib
+
+
 SRCS = $(wildcard $(SRCDIR)/*.c)
 OBJS = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(filter-out main.c, $(SRCS)))
 #OBJS = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(SRCS))
-EXEC = ./out/main
+EXEC = ./out/Tetris
 
-# Specify the library name here
 LIBRARYSDL = SDL2
 LIBRARYSDLMAIN = SDL2main
 LIBRARYSDLIMAGE = SDL2_image
 LIBRARYSDLMIXER = SDL2_mixer
+#LIBRARYSDLTTF = SDL2_ttf
 
 # Default target
 all: $(EXEC)
 
 # Rule to build executable
 $(EXEC): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -lmingw32 -l$(LIBRARYSDLMAIN) -l$(LIBRARYSDL) -l$(LIBRARYSDLIMAGE) -l$(LIBRARYSDLMIXER) -mwindows -lwinmm -g -o ./out/Tetris.exe
+	$(CC) $(CFLAGS) $(OBJS) -lmingw32 -l$(LIBRARYSDLMAIN) -l$(LIBRARYSDL) -l$(LIBRARYSDLIMAGE) -l$(LIBRARYSDLMIXER) -mwindows -lwinmm -g -o $(EXEC)
 
 # Rule to compile source files
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
