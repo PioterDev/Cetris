@@ -85,7 +85,7 @@ DWORD WINAPI renderScreen(void* params) {
         //formula: [ticks per second (probably 10^7) / FPS - time elapsed for input processing]
         delta = frameTime - (end - start) - overhead;
         delta = delta * 1000 / frequency;
-        if(delta > 0)Sleep(delta);
+        if(delta > 0) Sleep(delta);
 
         SDL_RenderPresent(renderer);
         

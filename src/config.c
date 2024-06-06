@@ -82,13 +82,13 @@ void setParameter(ProgramParameters* parameters, Option key, int value) {
             parameters->keymap.pause = value;
             break;
         case SCREEN_WIDTH:
-            parameters->screenSize.width = value;
+            parameters->screenSize.width = value > 0 ? value : 640;
             break;
         case SCREEN_HEIGHT:
-            parameters->screenSize.height = value;
+            parameters->screenSize.height = value > 0 ? value : 360;
             break;
         case FPS:
-            parameters->fps = value;
+            parameters->fps = value > 0 ? value : 60;
             break;
         case BASEFALLSPEED:
             parameters->baseFallSpeed = value;

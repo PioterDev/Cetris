@@ -315,8 +315,8 @@ int main(int argc, char** argv) {
     while(programParameters->flags.running) { //main game loop
         WaitForSingleObject(tilesMutex, INFINITE);
         while(SDL_PollEvent(&event)) {
-            switch(event.type) { //this section *can* be optimized and moved into its own function, but for now, input processing will be here
-                case SDL_QUIT: {
+            switch(event.type) { //this section *can* be optimized and moved into its own function, 
+                case SDL_QUIT: { //but for now, input processing will be here
                     if(Mix_PlayingMusic()) stopMusic();
                     programParameters->flags.running = false;
                     renderStatus = STOP;
