@@ -754,7 +754,8 @@ void onGameEnd(ProgramParameters* parameters) {
     parameters->currentTile = NULL;
     flushTileQueue(parameters->tileQueue);
     stopMusic();
-    setMatrix(parameters->tetrisGrid, parameters->tetrisGridSize, 0);
+    freeMatrix(parameters->tetrisGrid, parameters->tetrisGridSize.height);
+    parameters->tetrisGrid = NULL;
     parameters->flags.playing = false;
 }
 
