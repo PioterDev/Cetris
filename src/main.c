@@ -7,6 +7,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
+// #include <SDL_ttf.h>
 
 #include "clock_thread.h"
 #include "config.h"
@@ -157,6 +158,14 @@ int main(int argc, char** argv) {
         goto img_quit;
     }
 
+
+    /* if(TTF_Init() != SUCCESS) {
+        status = FAILURE;
+        sprintf("Error initializing SDL_ttf: %s", TTF_GetError());
+        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        goto mix_quit;
+    } */
+
     logToStream(generallog, "Attempting to create a window...", LOGLEVEL_INFO);
     window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, programParameters->screenSize.width, programParameters->screenSize.height, SDL_WINDOW_SHOWN);
     if(window == NULL) {
@@ -190,6 +199,16 @@ int main(int argc, char** argv) {
     }
     logToStream(generallog, "Base tile textures successfully loaded!", LOGLEVEL_INFO);
 
+
+    logToStream(generallog, "Attempting to load digits...", LOGLEVEL_INFO);
+    if(loadDigits(programParameters, renderer) != SUCCESS) {
+        status = FAILURE;
+        sprintf(errormsgBuffer, "Error loading digits.");
+        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        goto sdl_destroyrenderer;
+    }
+
+
     logToStream(generallog, "Attempting to load a soundtrack...", LOGLEVEL_INFO);
     if(loadSoundtracks(programParameters) != SUCCESS) {
         status = FAILURE;
@@ -199,6 +218,7 @@ int main(int argc, char** argv) {
     }
     logToStream(generallog, "Soundtrack successfully loaded!", LOGLEVEL_INFO);
 
+
     logToStream(generallog, "Attempting to load sound effects...", LOGLEVEL_INFO);
     if(loadSoundEffects(programParameters) != SUCCESS) {
         status = FAILURE;
@@ -207,16 +227,6 @@ int main(int argc, char** argv) {
         goto sdl_destroyrenderer;
     }
     logToStream(generallog, "Sound effects successfully loaded!", LOGLEVEL_INFO);
-
-    logToStream(generallog, "Attempting to create a game matrix...", LOGLEVEL_INFO);
-    programParameters->tetrisGrid = zeroMatrix(programParameters->tetrisGridSize);
-    if(programParameters->tetrisGrid == NULL) {
-        status = MEMORY_FAILURE;
-        sprintf(errormsgBuffer, "Error allocating memory for the game matrix.");
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
-        goto sdl_destroyrenderer;
-    }
-    logToStream(generallog, "Game matrix successfully created!", LOGLEVEL_INFO);
 
 
 
@@ -237,7 +247,7 @@ int main(int argc, char** argv) {
             GridWidth  * programParameters->baseTileSize * (unsigned short)programParameters->scalingFactor < programParameters->screenSize.width
         ) {programParameters->scalingFactor++;}
     }
-    logToStream(generallog, "Background tile successfully loaded!", LOGLEVEL_INFO);
+
 
     logToStream(generallog, "Attempting to create a tile queue...", LOGLEVEL_INFO);
     programParameters->tileQueue = createTileQueue();
@@ -330,12 +340,7 @@ int main(int argc, char** argv) {
                 }
                 case SDL_KEYDOWN: {
                     if(!programParameters->flags.playing) {
-                        onGameStart(programParameters, renderer);
-
-                        dequeueTile(programParameters->tileQueue, &programParameters->currentTile);
-                        enqueueTile(programParameters->tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
-                        
-                        if(programParameters->currentTile == NULL) {
+                        if(onGameStart(programParameters, renderer) != SUCCESS) {
                             programParameters->flags.playing = false;
                             status = MEMORY_FAILURE;
                             renderStatus = STOP;
@@ -346,11 +351,7 @@ int main(int argc, char** argv) {
                             WaitForSingleObject(renderThread, INFINITE);
                     
                             goto exit_start;
-                        }
-                        loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile);
-                        
-                        playMusic(programParameters);
-                        
+                        }                  
                         break;
                     }
                     
@@ -360,7 +361,7 @@ int main(int argc, char** argv) {
 
                     if(key == programParameters->keymap.dropHard) {
                         dropHard(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize);
-                        onPlacement(programParameters->tetrisGrid, programParameters->tetrisGridSize, 0); //TODO: score
+                        onPlacement(programParameters);
                         
                         freeTile(programParameters->currentTile);
                         dequeueTile(programParameters->tileQueue, &programParameters->currentTile);
@@ -419,7 +420,7 @@ int main(int argc, char** argv) {
                 if(programParameters->currentTile != NULL) {
                     status_t moveStatus = moveDown(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize.height);
                     if(moveStatus == FAILURE) {
-                        onPlacement(programParameters->tetrisGrid, programParameters->tetrisGridSize, NULL);
+                        onPlacement(programParameters);
                         freeTile(programParameters->currentTile);
 
                         dequeueTile(programParameters->tileQueue, &programParameters->currentTile);
@@ -461,6 +462,8 @@ int main(int argc, char** argv) {
     sdl_destroyrenderer: SDL_DestroyRenderer(renderer);
 
     sdl_destroywindow: SDL_DestroyWindow(window);
+
+    // ttf_quit: TTF_Quit();
 
     mix_quit: Mix_Quit();
 

@@ -15,6 +15,7 @@ DWORD WINAPI renderScreen(void* params) {
     
     SDL_Renderer* renderer = parameters->renderer;
     SDL_Texture** baseTextures = programParameters->baseTextures;
+    SDL_Texture** digits = programParameters->digits;
     Point P;
     P.y = 0;
 
@@ -53,20 +54,45 @@ DWORD WINAPI renderScreen(void* params) {
         }
 
         P.x = (programParameters->screenSize.width >> 1) - ((GridWidth * current.w) >> 1); //the x coordinate of a top-left corner of the game matrix
-
-        for(unsigned int i = 0; i < programParameters->tetrisGridSize.height; i++) {
-            for(unsigned int j = 0; j < programParameters->tetrisGridSize.width; j++) {
-                int color = programParameters->tetrisGrid[i][j];
-                if(color == GHOST) continue; //TODO: ghost
-                if(color < 0) color = abs(color);
-                current.y = P.y + i * current.h;
-                current.x = P.x + j * current.w;
-                if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current) != 0) {
-                    logToStream(programParameters->debugLog, "Error rendering tile", LOGLEVEL_ERROR);
+        if(programParameters->tetrisGrid != NULL) {
+            for(unsigned int i = 0; i < programParameters->tetrisGridSize.height; i++) {
+                for(unsigned int j = 0; j < programParameters->tetrisGridSize.width; j++) {
+                    int color = programParameters->tetrisGrid[i][j];
+                    if(color == GHOST) continue; //TODO: ghost
+                    if(color < 0) color = abs(color);
+                    current.y = P.y + i * current.h;
+                    current.x = P.x + j * current.w;
+                    if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current) != 0) {
+                        logToStream(programParameters->debugLog, "Error rendering tile", LOGLEVEL_ERROR);
+                    }
                 }
-
             }
         }
+        else {
+            for(unsigned int i = 0; i < programParameters->tetrisGridSize.height; i++) {
+                for(unsigned int j = 0; j < programParameters->tetrisGridSize.width; j++) {
+                    current.y = P.y + i * current.h;
+                    current.x = P.x + j * current.w;
+                    if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current) != 0) {
+                        logToStream(programParameters->debugLog, "Error rendering tile", LOGLEVEL_ERROR);
+                    }
+                }
+            }
+        }
+
+        size_t tmp = programParameters->score;
+        current.x = P.x + GridWidth * current.w;
+        current.y = P.y + (GridHeight * 3 / 4) * current.h;
+        do {
+            int digit = tmp % 10;
+            tmp /= 10;
+            if(SDL_RenderCopy(renderer, digits[digit], NULL, &current)) {
+                logToStream(programParameters->debugLog, "Error rendering digit", LOGLEVEL_ERROR);
+            }
+            current.x += current.w;
+
+        }
+        while(tmp > 0);
 
         //TODO: preview of next tiles
         /* TileQueueElement* queued = programParameters->tileQueue->head;

@@ -48,16 +48,23 @@ status_t getNewTile(SDL_Renderer* renderer, Tile* tile, const int flags, FILE* d
  * @param tetrisGridSize size of the game matrix
  * @param score pointer to score variable, meant to be incremenented based on how many rows were cleared 
  */
-void onPlacement(int** tetrisGrid, const Size tetrisGridSize, int* score);
+void onPlacement(ProgramParameters* parameters);
 
 /**
- * @brief Function invoked when an end-of-game is detected (can't load next tile into the game matrix, etc.)
+ * @brief Function to be invoked when an end-of-game is detected (can't load next tile into the game matrix, etc.)
  * 
  * @param parameters pointer to ProgramParameters struct
  */
 void onGameEnd(ProgramParameters* parameters);
 
-void onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer);
+/**
+ * @brief Function to be invoked when the game starts.
+ * 
+ * @param parameters pointer to ProgramParameters struct
+ * @param renderer pointer to SDL2's renderer
+ * @return SUCCESS on starting the game, FAILURE on failure
+ */
+status_t onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer);
 
 
 #endif

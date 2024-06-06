@@ -214,8 +214,8 @@ typedef struct ProgramFlags {
     int running : 1;
     int playing : 1;
     MovementSpeed speed : 2;
-    int soundtrack : 2;
-    int soundtrackNowPlaying : 2;
+    unsigned int soundtrack : 2;
+    unsigned int soundtrackNowPlaying : 2;
 } ProgramFlags;
 
 /**
@@ -236,6 +236,7 @@ typedef struct ProgramParameters {
     FILE* errorlog;
     FILE* debugLog;
     SDL_Texture* baseTextures[tileColorAmount];
+    SDL_Texture* digits[10];
     int** tetrisGrid;
     Size tetrisGridSize;
     Tile* currentTile;
@@ -245,6 +246,7 @@ typedef struct ProgramParameters {
     SoundEffect soundEffects[soundEffectAmount];
     unsigned char soundEffectsVolume; //max is 128
     unsigned char soundtracksVolume;
+    size_t score;
 } ProgramParameters;
 
 typedef enum TileLoadingFlags {

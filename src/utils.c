@@ -84,17 +84,28 @@ void stopMusic() {
 }
 
 void playMusic(ProgramParameters* parameters) {
-    switch(parameters->flags.soundtrack) {
-        case 3:
-            parameters->flags.soundtrackNowPlaying++;
-            if(parameters->flags.soundtrackNowPlaying & 0b11)parameters->flags.soundtrackNowPlaying = 0;
-            Mix_PlayMusic(parameters->soundtracks[parameters->flags.soundtrackNowPlaying].music, 0);
-            break;
-        case 2:
-        case 1:
-        case 0:
-            Mix_PlayMusic(parameters->soundtracks[parameters->flags.soundtrackNowPlaying].music, 0);
-            break;
+    if(parameters->flags.soundtrack == 3) {
+        switch(parameters->flags.soundtrackNowPlaying) {
+            case 2:
+                parameters->flags.soundtrackNowPlaying = 0;
+                break;
+            case 1:
+                parameters->flags.soundtrackNowPlaying = 2;
+                break;
+            case 0:
+                parameters->flags.soundtrackNowPlaying = 1;
+                break;
+        }
+        Mix_PlayMusic(parameters->soundtracks[parameters->flags.soundtrackNowPlaying].music, 0);
+    }
+    else {
+        int index;
+        if     (parameters->flags.soundtrack == 0) index = 0; //has to be
+        else if(parameters->flags.soundtrack == 1) index = 1; //like this, otherwise
+        else if(parameters->flags.soundtrack == 2) index = 2; //it crashes
+        else return; //impossible, yet somehow it could happen
+        Mix_PlayMusic(parameters->soundtracks[index].music, 0);
+        parameters->flags.soundtrackNowPlaying = parameters->flags.soundtrack;
     }
     Mix_VolumeMusic(parameters->soundtracksVolume);
 }

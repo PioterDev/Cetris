@@ -19,10 +19,19 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile);
  * @brief Loads base tile textures into program parameters.
  * 
  * @param parameters pointer to ProgramParameters struct
- * @param renderer renderer
+ * @param renderer pointer to SDL2's renderer
  * @return SUCCESS on success, FAILURE on failure
  */
 status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer);
+
+/**
+ * @brief Loads digit textures into program parameters.
+ * 
+ * @param parameters pointer to ProgramParameters struct
+ * @param renderer pointer to SDL2's renderer
+ * @return SUCCESS on success, FAILURE on failure 
+ */
+status_t loadDigits(ProgramParameters* parameters, SDL_Renderer* renderer);
 
 /**
  * @brief Loads a soundtrack from specified ID.

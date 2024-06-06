@@ -8,8 +8,9 @@
 #include "tile_queue.h"
 #include "utils.h"
 
-static const char tilesPath[] = "./assets/tiles/";
-static const char audioPath[] = "./assets/audio/";
+static const char tilesPath[]   = "./assets/tiles/";
+static const char digitsPath[]  = "./assets/digits/";
+static const char audioPath[]   = "./assets/audio/";
 
 static const char baseTexturePaths[tileColorAmount][32] = {
     "tile_base_background.png",
@@ -94,13 +95,13 @@ void setParameter(ProgramParameters* parameters, Option key, int value) {
             parameters->baseFallSpeed = value;
             break;
         case SOUNDTRACK:
-            parameters->flags.soundtrack = (abs(value) - 1) % 4; //to ensure it doesn't overflow
+            parameters->flags.soundtrack = value - 1; //to ensure it doesn't overflow
             break;
         case SOUNDTRACK_VOLUME:
-            parameters->soundtracksVolume = value <= 128 ? value << 7 / 100 : 128;
+            parameters->soundtracksVolume = value <= 100 ? value << 7 / 100 : 128;
             break;
         case SFX_VOLUME:
-            parameters->soundEffectsVolume = value <= 128 ? value << 7 / 100 : 128;
+            parameters->soundEffectsVolume = value <= 100 ? value << 7 / 100 : 128;
             break;
     }
 }
@@ -199,6 +200,20 @@ status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer)
         strcpy(pos, baseTexturePaths[i]);
         parameters->baseTextures[i] = loadTexture(path, renderer);
         if(parameters->baseTextures[i] == NULL) return FAILURE; //no need to worry about freeing textures, it's done on exit
+    }
+
+    return SUCCESS;
+}
+
+status_t loadDigits(ProgramParameters* parameters, SDL_Renderer* renderer) {
+    char path[256];
+    strcpy(path, digitsPath);
+    char* pos = path + strlen(digitsPath);
+
+    for(int i = 0; i < 10; i++) {
+        sprintf(pos, "%d.png", i);
+        parameters->digits[i] = loadTexture(path, renderer);
+        if(parameters->digits[i] == NULL) return FAILURE;
     }
 
     return SUCCESS;

@@ -4,6 +4,7 @@
 
 #include <windows.h>
 #include <SDL.h>
+#include <SDL_mixer.h>
 
 #include "deus.h"
 
