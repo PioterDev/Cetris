@@ -4,7 +4,6 @@
 #include "deus.h"
 #include "tiles.h"
 //Used for queueing tiles to spawn [WIP]
-TileQueue* createTileQueue() { return calloc(1, sizeof(TileQueue)); }
 
 status_t enqueueTile(TileQueue* queue, Tile* tile) {
     TileQueueElement* e = malloc(sizeof(TileQueueElement));
@@ -57,11 +56,6 @@ void flushTileQueue(TileQueue* queue) {
         }
         queue->size = 0;
     }
-}
-
-void freeTileQueue(TileQueue* queue) {
-    flushTileQueue(queue);
-    free(queue);
 }
 
 void printTileQueue(TileQueue* queue, FILE* stream) {

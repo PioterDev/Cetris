@@ -3,12 +3,6 @@
 
 
 #include "deus.h"
-/**
- * @brief Creates a TileQueue struct.
- * 
- * @return pointer to TileQueue struct, NULL on allocation error.
- */
-TileQueue* createTileQueue();
 
 /**
  * @brief Adds a given tile to the queue.
@@ -34,13 +28,6 @@ status_t dequeueTile(TileQueue* queue, Tile** toStore);
  * @param queue queue struct
  */
 void flushTileQueue(TileQueue* queue);
-
-/**
- * @brief Frees all queued elements from the queue and the queue itself.
- * 
- * @param queue queue struct
- */
-void freeTileQueue(TileQueue* queue);
 
 /**
  * @brief Prints the size of the queue and every queued element to the given stream.

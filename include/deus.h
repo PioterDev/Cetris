@@ -241,7 +241,7 @@ typedef struct ProgramParameters {
     Size tetrisGridSize;
     Tile* currentTile;
     Tile* heldTile;
-    TileQueue* tileQueue;
+    TileQueue tileQueue;
     Soundtrack soundtracks[soundtracksAmount];
     SoundEffect soundEffects[soundEffectAmount];
     unsigned char soundEffectsVolume; //max is 128

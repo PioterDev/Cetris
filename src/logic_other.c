@@ -752,7 +752,7 @@ void onPlacement(ProgramParameters* parameters) {
 void onGameEnd(ProgramParameters* parameters) {
     freeTile(parameters->currentTile);
     parameters->currentTile = NULL;
-    flushTileQueue(parameters->tileQueue);
+    flushTileQueue(&parameters->tileQueue);
     stopMusic();
     freeMatrix(parameters->tetrisGrid, parameters->tetrisGridSize.height);
     parameters->tetrisGrid = NULL;
@@ -773,7 +773,7 @@ status_t onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer) {
     for(unsigned int i = 0; i < tileQueuedAmount; i++) {
         Tile* tmp = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, parameters->debugLog);
         if(tmp == NULL) return MEMORY_FAILURE;
-        enqueueTile(parameters->tileQueue, tmp);
+        enqueueTile(&parameters->tileQueue, tmp);
     }
     
     loadTileIntoGrid(parameters->tetrisGrid, parameters->currentTile);
@@ -781,6 +781,6 @@ status_t onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer) {
     playMusic(parameters);
     
     parameters->flags.playing = true;
-
+    
     return SUCCESS;
 }

@@ -255,8 +255,7 @@ void freeProgramConfig(ProgramParameters* params) {
             SDL_DestroyTexture(params->baseTextures[i]);
         }
     }
-    freeTileQueue(params->tileQueue);
-    freeMatrix(params->tetrisGrid, params->tetrisGridSize.height);
+    if(params->tetrisGrid != NULL)freeMatrix(params->tetrisGrid, params->tetrisGridSize.height);
     for(int i = 0; i < soundtracksAmount; i++) {
         freeMusic(params->soundtracks[i].music);
     }

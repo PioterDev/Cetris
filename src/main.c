@@ -249,17 +249,6 @@ int main(int argc, char** argv) {
     }
 
 
-    logToStream(generallog, "Attempting to create a tile queue...", LOGLEVEL_INFO);
-    programParameters->tileQueue = createTileQueue();
-    if(programParameters->tileQueue == NULL) {
-        status = MEMORY_FAILURE;
-        sprintf(errormsgBuffer, "Error creating tile queue.");
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
-        goto sdl_destroyrenderer;
-    }
-    logToStream(generallog, "Tile queue successfully created!", LOGLEVEL_INFO);
-
-
 
     logToStream(generallog, "Attempting to create a tiles mutex...", LOGLEVEL_INFO);
     HANDLE tilesMutex = CreateMutex(NULL, TRUE, NULL);
@@ -364,10 +353,10 @@ int main(int argc, char** argv) {
                         onPlacement(programParameters);
                         
                         freeTile(programParameters->currentTile);
-                        dequeueTile(programParameters->tileQueue, &programParameters->currentTile);
+                        dequeueTile(&programParameters->tileQueue, &programParameters->currentTile);
 
                         Tile* tmp = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog);
-                        if(tmp != NULL) enqueueTile(programParameters->tileQueue, tmp);
+                        if(tmp != NULL) enqueueTile(&programParameters->tileQueue, tmp);
                         
                         if(programParameters->currentTile == NULL) {
                             logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
@@ -423,8 +412,8 @@ int main(int argc, char** argv) {
                         onPlacement(programParameters);
                         freeTile(programParameters->currentTile);
 
-                        dequeueTile(programParameters->tileQueue, &programParameters->currentTile);
-                        enqueueTile(programParameters->tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
+                        dequeueTile(&programParameters->tileQueue, &programParameters->currentTile);
+                        enqueueTile(&programParameters->tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
 
                         if(programParameters->currentTile == NULL) {
                             logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
