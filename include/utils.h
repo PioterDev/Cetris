@@ -183,5 +183,13 @@ int Max(int* arr, int n);
  */
 int Min(int* arr, int n);
 
+/**
+ * @brief Checks if `key` is a functional key (Alt/Ctrl).
+ * 
+ * @param key key
+ * @return true if key is SDL's Alt or Ctrl
+ */
+char isFunctionalKey(SDL_Keycode key);
+
 
 #endif

@@ -209,3 +209,7 @@ int Min(int* arr, int n) {
 
     return min;
 }
+
+char isFunctionalKey(SDL_Keycode key) {
+    return (key == SDLK_LALT) || (key == SDLK_RALT) || (key == SDLK_LCTRL) || (key == SDLK_RCTRL);
+}

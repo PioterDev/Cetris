@@ -281,6 +281,9 @@ typedef enum Action {
 } Action;
 
 typedef enum PointsPerAction {
+    POINTS_SOFTDROP = 1,
+    POINTS_HARDDROP,
+    POINTS_COMBO_MULTIPLIER = 50,
     POINTS_SINGLE = 100,
     POINTS_DOUBLE = 300,
     POINTS_TRIPLE = 500,

@@ -34,13 +34,11 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth);
 status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight);
 
 /**
- * @brief 
+ * @brief Immediately drop a tile.
  * 
- * @param tetrisGrid game matrix
- * @param tile tile
- * @param tetrisGridSize Size struct for the matrix size
+ * @param parameters pointer to ProgramParameters struct
  */
-void dropHard(int** tetrisGrid, Tile* tile, const Size tetrisGridSize);
+void dropHard(ProgramParameters* parameters);
 
 
 #endif

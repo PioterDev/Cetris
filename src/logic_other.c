@@ -716,7 +716,7 @@ void onPlacement(ProgramParameters* parameters) {
     for(unsigned int i = parameters->tetrisGridSize.height - 1; i > 0; i--) {
         char isRowFull = true;
         for(unsigned int j = 0; j < parameters->tetrisGridSize.width; j++) {
-            if(parameters->tetrisGrid[i][j] == 0 || parameters->tetrisGrid[i][j] == 127) {
+            if(parameters->tetrisGrid[i][j] == 0 || parameters->tetrisGrid[i][j] == GHOST) {
                 isRowFull = false;
                 lowestFull--;
                 break;
@@ -727,7 +727,7 @@ void onPlacement(ProgramParameters* parameters) {
             break;
         }
     }
-    if(lowestFull == 0)return;
+    if(lowestFull == 0) return;
     int i = lowestFull - 1;
     while(true) {
         char isFull = true;
@@ -747,6 +747,25 @@ void onPlacement(ProgramParameters* parameters) {
     }
     shiftDown(parameters->tetrisGrid, parameters->tetrisGridSize, howManyFull, lowestFull);
     absMatrix(parameters->tetrisGrid, parameters->tetrisGridSize);
+
+    switch(howManyFull) {
+        case 1:
+            parameters->score += POINTS_SINGLE;
+            break;
+        case 2:
+            parameters->score += POINTS_DOUBLE;
+            break;
+        case 3:
+            parameters->score += POINTS_TRIPLE;
+            break;
+        case 4:
+            parameters->score += POINTS_TETRIS;
+            break;
+    }
+    /* freeTile(parameters->currentTile);
+
+    dequeueTile(&parameters->tileQueue, &parameters->currentTile);
+    enqueueTile(&parameters->tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, parameters->debugLog)); */
 }
 
 void onGameEnd(ProgramParameters* parameters) {
@@ -756,7 +775,9 @@ void onGameEnd(ProgramParameters* parameters) {
     stopMusic();
     freeMatrix(parameters->tetrisGrid, parameters->tetrisGridSize.height);
     parameters->tetrisGrid = NULL;
+    parameters->score = 0;
     parameters->flags.playing = false;
+    logToStream(parameters->generallog, "onGameEnd event triggered, ending the game...", LOGLEVEL_INFO);
 }
 
 status_t onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer) {
@@ -781,6 +802,7 @@ status_t onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer) {
     playMusic(parameters);
     
     parameters->flags.playing = true;
+    logToStream(parameters->generallog, "Game started!", LOGLEVEL_INFO);
     
     return SUCCESS;
 }

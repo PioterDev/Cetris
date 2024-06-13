@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     timeBeginPeriod(1);
 
     LARGE_INTEGER timer, frequency;
-    long long tickTimerStart = 0, tickTimerEnd = 0;
+    size_t tickTimerStart = 0, tickTimerEnd = 0;
     QueryPerformanceFrequency(&frequency);
 
     status_t status = SUCCESS; //Exit code
@@ -243,11 +243,10 @@ int main(int argc, char** argv) {
             GridWidth  * programParameters->baseTileSize * 2 < programParameters->screenSize.width) { //scale up
         programParameters->scalingFactor = 1;
         while(
-            GridHeight * programParameters->baseTileSize * (unsigned short)programParameters->scalingFactor < programParameters->screenSize.height ||
-            GridWidth  * programParameters->baseTileSize * (unsigned short)programParameters->scalingFactor < programParameters->screenSize.width
+            GridHeight * programParameters->baseTileSize * 2 *(unsigned short)programParameters->scalingFactor < programParameters->screenSize.height &&
+            GridWidth  * programParameters->baseTileSize * 2 *(unsigned short)programParameters->scalingFactor < programParameters->screenSize.width
         ) {programParameters->scalingFactor++;}
     }
-
 
 
     logToStream(generallog, "Attempting to create a tiles mutex...", LOGLEVEL_INFO);
@@ -328,7 +327,10 @@ int main(int argc, char** argv) {
                     goto exit_start;
                 }
                 case SDL_KEYDOWN: {
+                    SDL_Keycode key = event.key.keysym.sym;
+
                     if(!programParameters->flags.playing) {
+                        if(isFunctionalKey(key)) break;
                         if(onGameStart(programParameters, renderer) != SUCCESS) {
                             programParameters->flags.playing = false;
                             status = MEMORY_FAILURE;
@@ -343,13 +345,11 @@ int main(int argc, char** argv) {
                         }                  
                         break;
                     }
-                    
-                    SDL_Keycode key = event.key.keysym.sym;
                 
-                    if(debugLog != NULL)fprintf(debugLog, "[Key press] %d\n", key);
+                    if(debugLog != NULL) fprintf(debugLog, "[Key press] %d\n", key);
 
                     if(key == programParameters->keymap.dropHard) {
-                        dropHard(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize);
+                        dropHard(programParameters);
                         onPlacement(programParameters);
                         
                         freeTile(programParameters->currentTile);
@@ -397,17 +397,17 @@ int main(int argc, char** argv) {
                 }
             }
         }
-
         if(programParameters->flags.playing) {
             if(!Mix_PlayingMusic()) playMusic(programParameters);
-            long long baseFallSpeed = programParameters->baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
-            if(programParameters->flags.speed == SPEED_DROPSOFT)baseFallSpeed /= 5;
-            else if(programParameters->flags.speed == SPEED_HOLD)baseFallSpeed *= 5;
+            size_t baseFallSpeed = programParameters->baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
+            if(programParameters->flags.speed == SPEED_DROPSOFT)  baseFallSpeed /= 5;
+            else if(programParameters->flags.speed == SPEED_HOLD) baseFallSpeed *= 5;
             tickTimerEnd = timer.QuadPart;
-
+            // fprintf(debugLog, "%lld %lld\n", tickTimerEnd, tickTimerStart);
             if(tickTimerEnd - tickTimerStart > baseFallSpeed) {
                 if(programParameters->currentTile != NULL) {
                     status_t moveStatus = moveDown(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize.height);
+                    // logToStream(debugLog, "[moveDown] Moving tile down", LOGLEVEL_DEBUG);
                     if(moveStatus == FAILURE) {
                         onPlacement(programParameters);
                         freeTile(programParameters->currentTile);
@@ -425,7 +425,7 @@ int main(int argc, char** argv) {
                         programParameters->flags.speed = SPEED_NORMAL;
                     }
                 }
-                tickTimerStart += baseFallSpeed;
+                tickTimerStart = timer.QuadPart;
             }
         }
         

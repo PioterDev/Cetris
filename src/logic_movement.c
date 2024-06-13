@@ -871,12 +871,13 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
     return FAILURE;
 }
 
-//Extremely inefficient, but works for now
-void dropHard(int** tetrisGrid, Tile* tile, const Size tetrisGridSize) {
-    while(moveDown(tetrisGrid, tile, tetrisGridSize.height) == SUCCESS);
+//Inefficient, but works
+void dropHard(ProgramParameters* parameters) {
+    int distance = 0;
+    while(moveDown(parameters->tetrisGrid, parameters->currentTile, parameters->tetrisGridSize.height) == SUCCESS) distance++;
 
-    tile->position.x = -1;
-    tile->position.y = -1;
+    parameters->currentTile->position.x = -1;
+    parameters->currentTile->position.y = -1;
 
-    absMatrix(tetrisGrid, tetrisGridSize);
+    parameters->score += POINTS_HARDDROP * distance;
 }

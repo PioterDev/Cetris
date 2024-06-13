@@ -81,16 +81,21 @@ DWORD WINAPI renderScreen(void* params) {
         }
 
         size_t tmp = programParameters->score;
-        current.x = P.x + GridWidth * current.w;
+        size_t c = 1;
+        int digitCount = 0;
+        if(tmp == 0)digitCount++;
+        while(c <= tmp) { //doing multiplication is faster than division
+            digitCount++;
+            c *= 10;
+        }
+        current.x = P.x + (GridWidth + digitCount - 1) * current.w;
         current.y = P.y + (GridHeight * 3 / 4) * current.h;
         do {
-            int digit = tmp % 10;
-            tmp /= 10;
-            if(SDL_RenderCopy(renderer, digits[digit], NULL, &current)) {
+            if(SDL_RenderCopy(renderer, digits[tmp % 10], NULL, &current)) {
                 logToStream(programParameters->debugLog, "Error rendering digit", LOGLEVEL_ERROR);
             }
-            current.x += current.w;
-
+            tmp /= 10;
+            current.x -= current.w;
         }
         while(tmp > 0);
 
