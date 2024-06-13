@@ -85,17 +85,9 @@ void stopMusic() {
 
 void playMusic(ProgramParameters* parameters) {
     if(parameters->flags.soundtrack == 3) {
-        switch(parameters->flags.soundtrackNowPlaying) {
-            case 2:
-                parameters->flags.soundtrackNowPlaying = 0;
-                break;
-            case 1:
-                parameters->flags.soundtrackNowPlaying = 2;
-                break;
-            case 0:
-                parameters->flags.soundtrackNowPlaying = 1;
-                break;
-        }
+        if     (parameters->flags.soundtrackNowPlaying == 2) parameters->flags.soundtrackNowPlaying = 0; //has to be
+        else if(parameters->flags.soundtrackNowPlaying == 1) parameters->flags.soundtrackNowPlaying = 2; //like this, otherwise
+        else if(parameters->flags.soundtrackNowPlaying == 0) parameters->flags.soundtrackNowPlaying = 1; //it crashes
         Mix_PlayMusic(parameters->soundtracks[parameters->flags.soundtrackNowPlaying].music, 0);
     }
     else {
