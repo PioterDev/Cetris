@@ -1,3 +1,3 @@
-- scoring system
 - ghost tile
 - preview of next tiles
+- T-spin and wall kick logic
