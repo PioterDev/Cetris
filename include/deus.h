@@ -247,6 +247,8 @@ typedef struct ProgramParameters {
     unsigned char soundEffectsVolume; //max is 128
     unsigned char soundtracksVolume;
     size_t score;
+    unsigned int combo;
+    unsigned int level;
 } ProgramParameters;
 
 typedef enum TileLoadingFlags {
@@ -281,6 +283,7 @@ typedef enum Action {
 } Action;
 
 typedef enum PointsPerAction {
+    POINTS_HOLD = -2,
     POINTS_SOFTDROP = 1,
     POINTS_HARDDROP,
     POINTS_COMBO_MULTIPLIER = 50,

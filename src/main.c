@@ -424,6 +424,10 @@ int main(int argc, char** argv) {
                         }
                         programParameters->flags.speed = SPEED_NORMAL;
                     }
+                    else {
+                        if     (programParameters->flags.speed == SPEED_DROPSOFT) programParameters->score += POINTS_SOFTDROP;
+                        else if(programParameters->flags.speed == SPEED_HOLD)     programParameters->score += POINTS_HOLD;
+                    }
                 }
                 tickTimerStart = timer.QuadPart;
             }

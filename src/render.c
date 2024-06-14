@@ -79,25 +79,45 @@ DWORD WINAPI renderScreen(void* params) {
                 }
             }
         }
-
-        size_t tmp = programParameters->score;
+        //combo rendering
+        unsigned int combo = programParameters->combo;
         size_t c = 1;
         int digitCount = 0;
-        if(tmp == 0)digitCount++;
-        while(c <= tmp) { //doing multiplication is faster than division
+        if(combo == 0) digitCount++;
+        while(c <= combo) {
             digitCount++;
             c *= 10;
         }
-        current.x = P.x + (GridWidth + digitCount - 1) * current.w;
-        current.y = P.y + (GridHeight * 3 / 4) * current.h;
+        current.x = P.x + (programParameters->tetrisGridSize.width + digitCount - 1) * current.w;
+        current.y = (P.y - 2 * current.h) + (programParameters->tetrisGridSize.height * 3 / 4) * current.h;
         do {
-            if(SDL_RenderCopy(renderer, digits[tmp % 10], NULL, &current)) {
+            if(SDL_RenderCopy(renderer, digits[combo % 10], NULL, &current)) {
                 logToStream(programParameters->debugLog, "Error rendering digit", LOGLEVEL_ERROR);
             }
-            tmp /= 10;
+            combo /= 10;
             current.x -= current.w;
         }
-        while(tmp > 0);
+        while(combo > 0);
+
+        //score rendering
+        size_t score = programParameters->score;
+        c = 1;
+        digitCount = 0;
+        if(score == 0) digitCount++;
+        while(c <= score) { //doing multiplication is faster than division
+            digitCount++;
+            c *= 10;
+        }
+        current.x = P.x + (programParameters->tetrisGridSize.width + digitCount - 1) * current.w;
+        current.y = P.y + (programParameters->tetrisGridSize.height * 3 / 4) * current.h;
+        do {
+            if(SDL_RenderCopy(renderer, digits[score % 10], NULL, &current)) {
+                logToStream(programParameters->debugLog, "Error rendering digit", LOGLEVEL_ERROR);
+            }
+            score /= 10;
+            current.x -= current.w;
+        }
+        while(score > 0);
 
         //TODO: preview of next tiles
         /* TileQueueElement* queued = programParameters->tileQueue->head;

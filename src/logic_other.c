@@ -727,41 +727,50 @@ void onPlacement(ProgramParameters* parameters) {
             break;
         }
     }
-    if(lowestFull == 0) return;
-    int i = lowestFull - 1;
-    while(true) {
-        char isFull = true;
-        for(unsigned int j = 0; j < parameters->tetrisGridSize.width; j++) {
-            if(parameters->tetrisGrid[i][j] == 0 || parameters->tetrisGrid[i][j] == GHOST) {
-                isFull = false;
-                break;
+    if(lowestFull != 0) {
+        int i = lowestFull - 1;
+        while(true) {
+            char isFull = true;
+            for(unsigned int j = 0; j < parameters->tetrisGridSize.width; j++) {
+                if(parameters->tetrisGrid[i][j] == 0 || parameters->tetrisGrid[i][j] == GHOST) {
+                    isFull = false;
+                    break;
+                }
             }
+            if(!isFull)break;
+            i--;
+            howManyFull++;
         }
-        if(!isFull)break;
-        i--;
-        howManyFull++;
+        for(int i = 0; i < howManyFull; i++) {
+            memset(parameters->tetrisGrid[lowestFull - i], 0, sizeof(parameters->tetrisGrid[lowestFull][0]) * parameters->tetrisGridSize.width);
+        }
+        shiftDown(parameters->tetrisGrid, parameters->tetrisGridSize, howManyFull, lowestFull);
+        absMatrix(parameters->tetrisGrid, parameters->tetrisGridSize); //TODO: make it update only rows where the tile fell
     }
-
-    for(int i = 0; i < howManyFull; i++) {
-        memset(parameters->tetrisGrid[lowestFull - i], 0, sizeof(parameters->tetrisGrid[lowestFull][0]) * parameters->tetrisGridSize.width);
-    }
-    shiftDown(parameters->tetrisGrid, parameters->tetrisGridSize, howManyFull, lowestFull);
-    absMatrix(parameters->tetrisGrid, parameters->tetrisGridSize);
 
     switch(howManyFull) {
+        case 0:
+            parameters->combo = 0;
+            break;
         case 1:
-            parameters->score += POINTS_SINGLE;
+            parameters->score += POINTS_SINGLE * parameters->level;
+            parameters->combo++;
             break;
         case 2:
-            parameters->score += POINTS_DOUBLE;
+            parameters->score += POINTS_DOUBLE * parameters->level;
+            parameters->combo++;
             break;
         case 3:
-            parameters->score += POINTS_TRIPLE;
+            parameters->score += POINTS_TRIPLE * parameters->level;
+            parameters->combo++;
             break;
         case 4:
-            parameters->score += POINTS_TETRIS;
+            parameters->score += POINTS_TETRIS * parameters->level;
+            parameters->combo++;
             break;
     }
+
+    parameters->score += POINTS_COMBO_MULTIPLIER * parameters->combo * parameters->level;
     /* freeTile(parameters->currentTile);
 
     dequeueTile(&parameters->tileQueue, &parameters->currentTile);
@@ -776,6 +785,8 @@ void onGameEnd(ProgramParameters* parameters) {
     freeMatrix(parameters->tetrisGrid, parameters->tetrisGridSize.height);
     parameters->tetrisGrid = NULL;
     parameters->score = 0;
+    parameters->combo = 0;
+    parameters->level = 0;
     parameters->flags.playing = false;
     logToStream(parameters->generallog, "onGameEnd event triggered, ending the game...", LOGLEVEL_INFO);
 }
@@ -801,6 +812,7 @@ status_t onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer) {
 
     playMusic(parameters);
     
+    parameters->level = 1;
     parameters->flags.playing = true;
     logToStream(parameters->generallog, "Game started!", LOGLEVEL_INFO);
     
