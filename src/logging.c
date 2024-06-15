@@ -1,8 +1,11 @@
 #include <stdio.h>
 
 #include "date.h"
+#include "deus.h"
 
-void logToStream(FILE* stream, const char* log, const LogLevel loglevel) {
+char loggingBuffer[loggingBufferSize];
+
+void logToStream(FILE* stream, const LogLevel loglevel, const char* log) {
     if(stream == NULL)return;
     char date[20] = {0};
     char level[8] = {0};
@@ -20,9 +23,11 @@ void logToStream(FILE* stream, const char* log, const LogLevel loglevel) {
             strcpy(level, "Debug");
             break;
         default:
-            strcpy(level, "Info");
+            strcpy(level, "Unknown");
             break;
     }
     ISO8601(date, sizeof(date));
-    fprintf(stream, "[%s] [%s] %s\n", date, level, log);
+    if(log == NULL) fprintf(stream, "[%s] [%s] %s\n", date, level, loggingBuffer);
+    else fprintf(stream, "[%s] [%s] %s\n", date, level, log);
+    fflush(stream);
 }

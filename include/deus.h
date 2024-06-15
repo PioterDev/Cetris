@@ -24,10 +24,13 @@
 
 #define tileColorAmount 8 //7 + background
 #define soundtracksAmount 3
-#define soundEffectAmount 9 //left & right movement, rotations, drop + line clears
+#define soundEffectAmount 9 //left, right and down movement, drop, rotations, line clears
 #define GridHeight 20
 #define GridWidth 10
 #define tileQueuedAmount 4
+#define loggingBufferSize 1024
+
+#define DEBUG //for diagnostic logging, testing, etc.
 
 typedef unsigned long long size_t;
 
@@ -38,6 +41,7 @@ typedef struct Point {
 typedef struct Size {
     unsigned int width, height;
 } Size;
+
 typedef union int32_u {
     int integer;
     char bytes[4];

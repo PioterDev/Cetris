@@ -10,277 +10,16 @@
 #include "logging.h"
 #include "utils.h"
 
-static const char tilesPath[] = "./assets/tiles/"; //not actually used
-
 Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* coordinates, const int flags, FILE* debug) {
     Tile* tile = malloc(sizeof(Tile));
     if(tile == NULL)return NULL;
 
     tile->texture = NULL;
+    #ifdef DEBUG
     if(flags & TILELOAD_NOTEXTURE) {
-        logToStream(debug, "[loadTile] Skipping texture loading", LOGLEVEL_DEBUG);
+        logToStream(debug, LOGLEVEL_DEBUG, "[loadTile] Skipping texture loading");
     }
-    else { //not actally used anywhere, TODO: delete this shit from existence
-        char path[64] = {0};
-        strcat(path, tilesPath);
-        logToStream(debug, path, LOGLEVEL_DEBUG);
-        SDL_Texture* texture = NULL;
-        switch(color) {
-            case AQUA: {
-                switch(shape) {
-                    case BAR: {
-                        strcat(path, "tile_bar_aqua.png");
-                        break;
-                    }
-                    case J: {
-                        strcat(path, "tile_j_aqua.png");
-                        break;
-                    }
-                    case L: {
-                        strcat(path, "tile_l_aqua.png");
-                        break;
-                    }
-                    case S: {
-                        strcat(path, "tile_s_aqua.png");
-                        break;
-                    }
-                    case SQUARE: {
-                        strcat(path, "tile_square_aqua.png");
-                        break;
-                    }
-                    case T: {
-                        strcat(path, "tile_t_aqua.png");
-                        break;
-                    }
-                    case Z: {
-                        strcat(path, "tile_z_aqua.png");
-                        break;
-                    }
-                    default: goto failure;
-                }
-                break;
-            }
-            case BLUE: {
-                switch(shape) {
-                    case BAR: {
-                        strcat(path, "tile_bar_blue.png");
-                        break;
-                    }
-                    case J: {
-                        strcat(path, "tile_j_blue.png");
-                        break;
-                    }
-                    case L: {
-                        strcat(path, "tile_l_blue.png");
-                        break;
-                    }
-                    case S: {
-                        strcat(path, "tile_s_blue.png");
-                        break;
-                    }
-                    case SQUARE: {
-                        strcat(path, "tile_square_blue.png");
-                        break;
-                    }
-                    case T: {
-                        strcat(path, "tile_t_blue.png");
-                        break;
-                    }
-                    case Z: {
-                        strcat(path, "tile_z_blue.png");
-                        break;
-                    }
-                    default: goto failure;
-                }
-                break;
-            }
-            case GREEN: {
-                switch(shape) {
-                    case BAR: {
-                        strcat(path, "tile_bar_green.png");
-                        break;
-                    }
-                    case J: {
-                        strcat(path, "tile_j_green.png");
-                        break;
-                    }
-                    case L: {
-                        strcat(path, "tile_l_green.png");
-                        break;
-                    }
-                    case S: {
-                        strcat(path, "tile_s_green.png");
-                        break;
-                    }
-                    case SQUARE: {
-                        strcat(path, "tile_square_green.png");
-                        break;
-                    }
-                    case T: {
-                        strcat(path, "tile_t_green.png");
-                        break;
-                    }
-                    case Z: {
-                        strcat(path, "tile_z_green.png");
-                        break;
-                    }
-                    default: goto failure;
-                }
-                break;
-            }
-            case MAGENTA: {
-                switch(shape) {
-                    case BAR: {
-                        strcat(path, "tile_bar_magenta.png");
-                        break;
-                    }
-                    case J: {
-                        strcat(path, "tile_j_magenta.png");
-                        break;
-                    }
-                    case L: {
-                        strcat(path, "tile_l_magenta.png");
-                        break;
-                    }
-                    case S: {
-                        strcat(path, "tile_s_magenta.png");
-                        break;
-                    }
-                    case SQUARE: {
-                        strcat(path, "tile_square_magenta.png");
-                        break;
-                    }
-                    case T: {
-                        strcat(path, "tile_t_magenta.png");
-                        break;
-                    }
-                    case Z: {
-                        strcat(path, "tile_z_magenta.png");
-                        break;
-                    }
-                    default: goto failure;
-                }
-                break;
-            }
-            case ORANGE: {
-                switch(shape) {
-                    case BAR: {
-                        strcat(path, "tile_bar_orange.png");
-                        break;
-                    }
-                    case J: {
-                        strcat(path, "tile_j_orange.png");
-                        break;
-                    }
-                    case L: {
-                        strcat(path, "tile_l_orange.png");
-                        break;
-                    }
-                    case S: {
-                        strcat(path, "tile_s_orange.png");
-                        break;
-                    }
-                    case SQUARE: {
-                        strcat(path, "tile_square_orange.png");
-                        break;
-                    }
-                    case T: {
-                        strcat(path, "tile_t_orange.png");
-                        break;
-                    }
-                    case Z: {
-                        strcat(path, "tile_z_orange.png");
-                        break;
-                    }
-                    default: goto failure;
-                }
-                break;
-            }
-            case RED: {
-                switch(shape) {
-                    case BAR: {
-                        strcat(path, "tile_bar_red.png");
-                        break;
-                    }
-                    case J: {
-                        strcat(path, "tile_j_red.png");
-                        break;
-                    }
-                    case L: {
-                        strcat(path, "tile_l_red.png");
-                        break;
-                    }
-                    case S: {
-                        strcat(path, "tile_s_red.png");
-                        break;
-                    }
-                    case SQUARE: {
-                        strcat(path, "tile_square_red.png");
-                        break;
-                    }
-                    case T: {
-                        strcat(path, "tile_t_red.png");
-                        break;
-                    }
-                    case Z: {
-                        strcat(path, "tile_z_red.png");
-                        break;
-                    }
-                    default: goto failure;
-                }
-                break;
-            }
-            case YELLOW: {
-                switch(shape) {
-                    case BAR: {
-                        strcat(path, "tile_bar_yellow.png");
-                        break;
-                    }
-                    case J: {
-                        strcat(path, "tile_j_yellow.png");
-                        break;
-                    }
-                    case L: {
-                        strcat(path, "tile_l_yellow.png");
-                        break;
-                    }
-                    case S: {
-                        strcat(path, "tile_s_yellow.png");
-                        break;
-                    }
-                    case SQUARE: {
-                        strcat(path, "tile_square_yellow.png");
-                        break;
-                    }
-                    case T: {
-                        strcat(path, "tile_t_yellow.png");
-                        break;
-                    }
-                    case Z: {
-                        strcat(path, "tile_z_yellow.png");
-                        break;
-                    }
-                    default: goto failure;
-                }
-                break;
-            }
-            case COLOR_UNKNOWN: {
-                switch(shape) {
-                    case BACKGROUND: {
-                        strcat(path, "tile_background.png");
-                        break;
-                    }
-                    default: goto failure;
-                }
-                break;
-            }
-            default: goto failure;
-        }
-        logToStream(debug, path, LOGLEVEL_DEBUG);
-        texture = loadTextureRect(path, renderer, &tile->rect);
-        if(texture == NULL) goto failure;
-        tile->texture = texture;
-    }
+    #endif
 
     switch(shape) {
         case BAR:
@@ -349,19 +88,18 @@ Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* 
 }
 
 void freeTile(Tile* tile) {
-    if(tile == NULL)return;
-    if(tile->texture != NULL)SDL_DestroyTexture(tile->texture);
+    if(tile == NULL) return;
+    if(tile->texture != NULL) SDL_DestroyTexture(tile->texture);
     free(tile);
-    // tile = NULL;
 }
 
 Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, const int flags, FILE* debug) {
     TileColor color = rand() % (tileColorAmount - 1) + 1;
     TileShape shape = rand() % (tileColorAmount - 1) + 2;
-    char debugMsg[128];
-    sprintf(debugMsg, "[loadTileRandom] Color: %d, Shape: %d", color, shape);
-    logToStream(debug, debugMsg, LOGLEVEL_DEBUG);
-
+    #ifdef DEBUG
+    snprintf(loggingBuffer, loggingBufferSize, "[loadTileRandom] Color: %d, Shape: %d", color, shape);
+    logToStream(debug, LOGLEVEL_DEBUG, NULL);
+    #endif
     return loadTile(renderer, color, shape, coordinates, flags, debug);
 }
 
@@ -380,9 +118,12 @@ void centerTile(Tile* tile, ProgramParameters* programParameters) {
 
 void printTile(Tile* tile, FILE* stream) {
     if(tile == NULL) {
-        fprintf(stream, "Nothing to print\n");
+        logToStream(stream, LOGLEVEL_INFO, "[printTile] Nothing to print");
         return;
     }
-    fprintf(stream, "Tile color: %d\nTile shape: %d\nTile state: %d\n", tile->color, tile->shape, tile->state);
-    fprintf(stream, "Position: (%d, %d)\n", tile->position.x, tile->position.y);
+    snprintf(loggingBuffer, loggingBufferSize, 
+        "Tile color: %d\nTile shape: %d\nTile state: %d\nPosition: (%d, %d)\n", 
+        tile->color, tile->shape, tile->state, tile->position.x, tile->position.y
+    );
+    logToStream(stream, LOGLEVEL_INFO, NULL);
 }

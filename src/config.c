@@ -38,6 +38,18 @@ static const char soundEffectPaths[soundEffectAmount][32] = {
     "Rotate_counterclockwise.mp3" //27 characters, wow
 };
 
+static char bindings[sizeof(Keymap) / sizeof(int)][32] = {
+    "Move left", 
+    "Move right", 
+    "Rotate clockwise", 
+    "Rotate counter-clockwise",
+    "Soft drop", 
+    "Hard drop", 
+    "Hold", 
+    "Pause",
+    "Test"
+};
+
 typedef enum Option {
     MOVELEFT,
     MOVERIGHT,
@@ -56,7 +68,7 @@ typedef enum Option {
     SFX_VOLUME
 } Option;
 
-void setParameter(ProgramParameters* parameters, Option key, int value) {
+void setParameter(ProgramParameters* parameters, Option key, const int value) {
     switch(key) {
         case MOVELEFT:
             parameters->keymap.movePieceLeft = value;
@@ -112,20 +124,22 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
 
     char buf[128] = {0};
     while(fgets(buf, sizeof(buf), configFile)) {
-        if(debugFile != NULL) fprintf(debugFile, "[loadConfig] Read line: %s", buf);
-        
+        #ifdef DEBUG
+        snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Read line: %s", buf);
+        logToStream(debugFile, LOGLEVEL_DEBUG, NULL);
+        #endif
         if(buf[0] == '#')continue; //comment line
         
         buf[strcspn(buf, "\n")] = '\0';
         char key[32] = {0};
         strncpy(key, buf, strcspn(buf, ":"));
 
-
         char* value = strstr(buf, ":") + 1;
         while((value[0] == ' ' || value[0] == '\t') && value[0] != '\n')value++;
-        
-        if(debugFile != NULL) fprintf(debugFile, "[loadConfig] Key: %s, Value: %s\n", key, value);
-
+        #ifdef DEBUG
+        snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Key: %s, Value: %s\n", key, value);
+        logToStream(debugFile, LOGLEVEL_DEBUG, NULL);
+        #endif
         //...so anyway, let's begin this mess
 
         Option option;
@@ -208,7 +222,7 @@ status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer)
 status_t loadDigits(ProgramParameters* parameters, SDL_Renderer* renderer) {
     char path[256];
     strcpy(path, digitsPath);
-    char* pos = path + strlen(digitsPath);
+    char* pos = path + sizeof(digitsPath) - 1;
 
     for(int i = 0; i < 10; i++) {
         sprintf(pos, "%d.png", i);
@@ -269,22 +283,11 @@ void freeProgramConfig(ProgramParameters* params) {
 }
 
 void printKeymap(Keymap* keymap, FILE* stream) {
-    static char bindings[sizeof(Keymap) / sizeof(int)][32] = {
-        "Move left", 
-        "Move right", 
-        "Rotate clockwise", 
-        "Rotate counter-clockwise",
-        "Soft drop", 
-        "Hard drop", 
-        "Hold", 
-        "Pause",
-        "Test"
-    };
     Keymap_array* keymap_array = (Keymap_array*) keymap;
     for(int i = 0; i < (int) (sizeof(Keymap) / sizeof(int)); i++) {
         int32_u current;
         current.integer = keymap_array->keys[i];
-        char buf[16] = {0};
+        char buf[16];
         if((current.integer >= 91 && current.integer <= 126) || (current.integer >= 33 && current.integer <= 64)) { //ASCII
             buf[0] = current.bytes[0];
             buf[1] = '\0';
@@ -296,16 +299,17 @@ void printKeymap(Keymap* keymap, FILE* stream) {
         else if(current.integer == SDLK_SPACE)  strcpy(buf, "Space");
         else if(current.integer == SDLK_ESCAPE) strcpy(buf, "Escape");
         else if(current.integer == SDLK_LSHIFT) strcpy(buf, "LShift");
-        fprintf(stream, "%s key: %s\n", bindings[i], buf);
+        snprintf(loggingBuffer, loggingBufferSize, "%s key: %s\n", bindings[i], buf);
+        logToStream(stream, LOGLEVEL_INFO, NULL);
     }
 }
 
 void printConfig(ProgramParameters* params, FILE* stream) {
-    if(stream == NULL)return;
-    fprintf(stream, "Screen width: %d px\n", params->screenSize.width);
-    fprintf(stream, "Screen height: %d px\n", params->screenSize.height);
-    fprintf(stream, "FPS: %d\n", params->fps);
-    fprintf(stream, "Base fall speed: %d ms\n", params->baseFallSpeed);
-    fprintf(stream, "Scaling factor: %d\n", params->scalingFactor);
+    if(stream == NULL) return;
+    snprintf(loggingBuffer, loggingBufferSize,
+        "Screen width: %d px\nScreen height: %d px\nFPS: %d\nBase fall speed: %d ms\nScaling factor: %d\n",
+        params->screenSize.width, params->screenSize.height, params->fps, params->baseFallSpeed, params->scalingFactor
+    );
+    logToStream(stream, LOGLEVEL_INFO, NULL);
     printKeymap(&params->keymap, stream);
 }

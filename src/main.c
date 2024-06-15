@@ -20,7 +20,6 @@
 #include "tile_queue.h"
 #include "utils.h"
 
-#define DEBUG
 #define TEST
 
 int main(int argc, char** argv) {
@@ -67,13 +66,12 @@ int main(int argc, char** argv) {
 
 
 
-    fprintf(generallog, "\n\nWelcome to <the name has not been yet initialized, but we'll get there soon enough...>!\n\n\n");
-    logToStream(generallog, "Successfully started!", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Successfully started!");
 
 
 
     // start of timer thread //
-    logToStream(generallog, "Attempting to start a high performance clock...", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Attempting to start a high performance clock...");
     loopStatus_t clockStatus = CONTINUE;
     clockThreadParameters clockParameters = {
         &clockStatus,
@@ -86,10 +84,10 @@ int main(int argc, char** argv) {
     if(clockThread == NULL) {
         status = THREAD_START_FAILURE;
         sprintf(errormsgBuffer, "Error starting clock: %ld", GetLastError());
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto close_errorlog;
     }
-    logToStream(generallog, "High performance clock started!", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "High performance clock started!");
     // end of timer thread //
 
 
@@ -98,7 +96,7 @@ int main(int argc, char** argv) {
     if(configFile == NULL) {
         status = FILEOPEN_FAILURE;
         sprintf(errormsgBuffer, "Error opening config file");
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto closeClockThread;
     }
 
@@ -108,7 +106,7 @@ int main(int argc, char** argv) {
     if(programParameters == NULL) {
         status = LOADCONFIG_FAILURE;
         sprintf(errormsgBuffer, "Error loading game config.");
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto close_configfile;
     }
     programParameters->baseTileSize = 0;
@@ -127,17 +125,17 @@ int main(int argc, char** argv) {
     #ifdef TEST
     programParameters->keymap.test = SDLK_w;
     #endif
-    logToStream(generallog, "Loaded configuration file.", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Loaded configuration file.");
 
 
 
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO) != SUCCESS) {
         status = SDL_INIT_FAILURE;
         sprintf(errormsgBuffer, "Error initializing SDL: %s", SDL_GetError());
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto freeConfig;
     }
-    logToStream(generallog, "Initialized SDL.", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Initialized SDL.");
 
 
 
@@ -145,7 +143,7 @@ int main(int argc, char** argv) {
     if(!(IMG_Init(img_flags) & img_flags)) {
         status = IMG_INIT_FAILURE;
         sprintf(errormsgBuffer, "Error initializing SDL_image: %s", IMG_GetError());
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_quit;
     }
 
@@ -154,7 +152,7 @@ int main(int argc, char** argv) {
     if(Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 4, 2048) < 0) {
         status = FAILURE; //TODO: add enum for SDL_mixer failure
         sprintf(errormsgBuffer, "Error initializing SDL_mixer: %s", Mix_GetError());
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto img_quit;
     }
 
@@ -162,71 +160,71 @@ int main(int argc, char** argv) {
     /* if(TTF_Init() != SUCCESS) {
         status = FAILURE;
         sprintf("Error initializing SDL_ttf: %s", TTF_GetError());
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto mix_quit;
     } */
 
-    logToStream(generallog, "Attempting to create a window...", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Attempting to create a window...");
     window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, programParameters->screenSize.width, programParameters->screenSize.height, SDL_WINDOW_SHOWN);
     if(window == NULL) {
         status = SDL_WINDOW_FAILURE;
         sprintf(errormsgBuffer, "Error creating window: %s", SDL_GetError());
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto mix_quit;
     }
-    logToStream(generallog, "Window successfully created!", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Window successfully created!");
 
 
 
-    logToStream(generallog, "Attempting to create a renderer...", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Attempting to create a renderer...");
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if(renderer == NULL) {
         status = SDL_RENDERER_FAILURE;
         sprintf(errormsgBuffer, "Error initializing renderer: %s", SDL_GetError());
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroywindow;
     }
-    logToStream(generallog, "Renderer successfully created!", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Renderer successfully created!");
 
 
 
-    logToStream(generallog, "Attempting to load base tile textures...", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Attempting to load base tile textures...");
     if(loadBaseTextures(programParameters, renderer) != SUCCESS) {
         status = FAILURE;
         sprintf(errormsgBuffer, "Error loading base tile textures.");
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroyrenderer;
     }
-    logToStream(generallog, "Base tile textures successfully loaded!", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Base tile textures successfully loaded!");
 
 
-    logToStream(generallog, "Attempting to load digits...", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Attempting to load digits...");
     if(loadDigits(programParameters, renderer) != SUCCESS) {
         status = FAILURE;
-        sprintf(errormsgBuffer, "Error loading digits.");
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        sprintf(errormsgBuffer, "Error loading digit textures.");
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroyrenderer;
     }
 
 
-    logToStream(generallog, "Attempting to load a soundtrack...", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Attempting to load a soundtrack...");
     if(loadSoundtracks(programParameters) != SUCCESS) {
         status = FAILURE;
         sprintf(errormsgBuffer, "Error loading soundtrack.");
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroyrenderer;
     }
-    logToStream(generallog, "Soundtrack successfully loaded!", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Soundtrack successfully loaded!");
 
 
-    logToStream(generallog, "Attempting to load sound effects...", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Attempting to load sound effects...");
     if(loadSoundEffects(programParameters) != SUCCESS) {
         status = FAILURE;
         sprintf(errormsgBuffer, "Error loading sound effects.");
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroyrenderer;
     }
-    logToStream(generallog, "Sound effects successfully loaded!", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Sound effects successfully loaded!");
 
 
 
@@ -249,28 +247,28 @@ int main(int argc, char** argv) {
     }
 
 
-    logToStream(generallog, "Attempting to create a tiles mutex...", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Attempting to create a tiles mutex...");
     HANDLE tilesMutex = CreateMutex(NULL, TRUE, NULL);
     if(tilesMutex == NULL) {
         status = MUTEX_FAILURE;
         sprintf(errormsgBuffer, "Error initializing tiles mutex: %ld", GetLastError());
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroyrenderer;
     }
-    logToStream(generallog, "Tiles mutex successfully created!", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Tiles mutex successfully created!");
 
 
 
     //start of render thread //
-    logToStream(generallog, "Attempting to create a render thread mutex...", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Attempting to create a render thread mutex...");
     HANDLE renderMutex = CreateMutex(NULL, TRUE, NULL);
     if(renderMutex == NULL) {
         status = MUTEX_FAILURE;
         sprintf(errormsgBuffer, "Error initializing render thread mutex: %ld", GetLastError());
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto closeTilesMutex;
     }
-    logToStream(generallog, "Render thread mutex successfully created!", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Render thread mutex successfully created!");
 
     loopStatus_t renderStatus = CONTINUE;
     
@@ -289,15 +287,15 @@ int main(int argc, char** argv) {
         &backgroundColor
     };
 
-    logToStream(generallog, "Attempting to start render thread...", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Attempting to start render thread...");
     HANDLE renderThread = CreateThread(NULL, 0, renderScreen, &renderParameters, 0, NULL);
     if(renderThread == NULL) {
         status = THREAD_START_FAILURE;
         sprintf(errormsgBuffer, "Error starting render thread: %ld", GetLastError());
-        logToStream(errorlog, errormsgBuffer, LOGLEVEL_ERROR);
+        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto closeRenderMutex;
     }
-    logToStream(generallog, "Render thread is now operational.", LOGLEVEL_INFO);
+    logToStream(generallog, LOGLEVEL_INFO, "Render thread is now operational.");
     //end of render thread //
 
     printConfig(programParameters, debugLog);
@@ -359,7 +357,7 @@ int main(int argc, char** argv) {
                         if(tmp != NULL) enqueueTile(&programParameters->tileQueue, tmp);
                         
                         if(programParameters->currentTile == NULL) {
-                            logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
+                            logToStream(errorlog, LOGLEVEL_ERROR, "Error loading tile");
                         }
                         else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile) == FAILURE) {
                             onGameEnd(programParameters);
@@ -407,7 +405,9 @@ int main(int argc, char** argv) {
             if(tickTimerEnd - tickTimerStart > baseFallSpeed) {
                 if(programParameters->currentTile != NULL) {
                     status_t moveStatus = moveDown(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize.height);
-                    // logToStream(debugLog, "[moveDown] Moving tile down", LOGLEVEL_DEBUG);
+                    #ifdef DEBUG
+                    logToStream(debugLog, LOGLEVEL_DEBUG, "[moveDown] Moving tile down");
+                    #endif
                     if(moveStatus == FAILURE) {
                         onPlacement(programParameters);
                         freeTile(programParameters->currentTile);
@@ -416,7 +416,7 @@ int main(int argc, char** argv) {
                         enqueueTile(&programParameters->tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
 
                         if(programParameters->currentTile == NULL) {
-                            logToStream(errorlog, "Error loading tile", LOGLEVEL_ERROR);
+                            logToStream(errorlog, LOGLEVEL_ERROR, "Error loading tile");
                         }
                         else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile) == FAILURE) { 
                             onGameEnd(programParameters);
@@ -441,7 +441,7 @@ int main(int argc, char** argv) {
 
     exit_start: 
         timeEndPeriod(1);
-        logToStream(generallog, "Exiting...", LOGLEVEL_INFO);
+        logToStream(generallog, LOGLEVEL_INFO, "Exiting...");
 
     closeRenderThread:
         if(renderStatus != STOP)renderStatus = STOP;
@@ -477,7 +477,7 @@ int main(int argc, char** argv) {
     close_errorlog: fclose(errorlog);
 
     close_generallog: 
-        if(status == SUCCESS)logToStream(generallog, "Goodbye!", LOGLEVEL_INFO);
+        if(status == SUCCESS) logToStream(generallog, LOGLEVEL_INFO, "Goodbye!");
         fclose(generallog);
 
     exit:
