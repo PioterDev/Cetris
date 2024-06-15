@@ -6,9 +6,10 @@
 
 #include "deus.h"
 
-status_t itos(int in, int base, char* buf, size_t bufsize) {
-    static char* digits = "0123456789ABCDEF";
-    if(base > 16)return BASEOUTOFRANGE;
+static char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+status_t itos(int in, const unsigned int base, char* buf, const size_t bufsize) {
+    if(base > sizeof(digits) - 1) return BASEOUTOFRANGE;
 
     char tmp[64] = {0};
     unsigned long long i = 0, sign = 0;
@@ -29,7 +30,7 @@ status_t itos(int in, int base, char* buf, size_t bufsize) {
     }
     in = abs(in);
     while(in != 0) {
-        if(i == bufsize - 1)return FAILURE;
+        if(i == bufsize - 1) return FAILURE;
         char digit = in % base;
         tmp[sign + len] = digits[(int)digit];
         i++; len--;
@@ -45,7 +46,7 @@ SDL_Texture* loadTexture(const char* path, SDL_Renderer* renderer) {
     if(surface == NULL) return NULL;
     
     tex = SDL_CreateTextureFromSurface(renderer, surface);
-    if(tex == NULL)return NULL;
+    if(tex == NULL) return NULL;
 
     SDL_FreeSurface(surface);
 
@@ -59,7 +60,7 @@ SDL_Texture* loadTextureRect(const char* path, SDL_Renderer* renderer, SDL_Rect*
     if(surface == NULL) return NULL;
     
     tex = SDL_CreateTextureFromSurface(renderer, surface);
-    if(tex == NULL)return NULL;
+    if(tex == NULL) return NULL;
 
     rect->w = surface->w;
     rect->h = surface->h;
@@ -112,18 +113,16 @@ void freeSound(Mix_Chunk* chunk) {
     Mix_FreeChunk(chunk);
 }
 
-void stopSound(int channel) {
+void stopSound(const int channel) {
     Mix_HaltChannel(channel);
 }
 
-void playSound(SoundEffect* soundEffect, unsigned short volume) {
+void playSound(SoundEffect* soundEffect, const unsigned short volume) {
     Mix_PlayChannel(-1, soundEffect->sound, 0);
     Mix_Volume(-1, volume);
 }
 
-
-
-int** zeroMatrix(Size size) {
+int** zeroMatrix(const Size size) {
     int** matrix = calloc(size.height, sizeof(int*));
     if(matrix == NULL)return NULL;
 
@@ -141,24 +140,24 @@ int** zeroMatrix(Size size) {
     return matrix;
 }
 
-void freeMatrix(int** matrix, int height) {
+void freeMatrix(int** matrix, const int height) {
     for(int i = 0; i < height; i++) {
         free(matrix[i]);
     }
     free(matrix);
 }
 
-void printMatrix(int** matrix, Size size, FILE* stream) {
+void printMatrix(int** matrix, const Size size, FILE* stream) {
     for(unsigned int i = 0; i < size.height; i++) {
         for(unsigned int j = 0; j < size.width; j++) {
-            if(matrix[i][j] < 0)fprintf(stream, "%d ", matrix[i][j]);
+            if(matrix[i][j] < 0) fprintf(stream, "%d ", matrix[i][j]);
             else fprintf(stream, " %d ", matrix[i][j]);
         }
         fprintf(stream, "\n");
     }
 }
 
-void setMatrix(int** matrix, Size size, int value) {
+void setMatrix(int** matrix, const Size size, const int value) {
     for(unsigned int i = 0; i < size.height; i++) {
         for(unsigned int j = 0; j < size.width; j++) {
             matrix[i][j] = value;
@@ -166,15 +165,15 @@ void setMatrix(int** matrix, Size size, int value) {
     }
 }
 
-void absMatrix(int** matrix, Size size) {
+void absMatrix(int** matrix, const Size size) {
     for(unsigned int i = 0; i < size.height; i++) {
         for(unsigned int j = 0; j < size.width; j++) {
-            if(matrix[i][j] < 0)matrix[i][j] = abs(matrix[i][j]);
+            if(matrix[i][j] < 0) matrix[i][j] = abs(matrix[i][j]);
         }
     }
 }
 
-int MaxIndex(int* arr, int n) {
+int MaxIndex(const int* arr, const int n) {
     int maxIndex = 0;
     for(int i = 1; i < n; i++) {
         if(arr[i] > arr[maxIndex])maxIndex = i;
@@ -183,7 +182,7 @@ int MaxIndex(int* arr, int n) {
     return maxIndex;
 }
 
-int MinIndex(int* arr, int n) {
+int MinIndex(const int* arr, const int n) {
     int minIndex = 0;
     for(int i = 1; i < n; i++) {
         if(arr[i] < arr[minIndex])minIndex = i;
@@ -192,7 +191,7 @@ int MinIndex(int* arr, int n) {
     return minIndex;
 }
 
-int Max(int* arr, int n) {
+int Max(const int* arr, const int n) {
     int max = arr[0];
     for(int i = 1; i < n; i++) {
         if(arr[i] > max)max = arr[i];
@@ -201,7 +200,7 @@ int Max(int* arr, int n) {
     return max;
 }
 
-int Min(int* arr, int n) {
+int Min(const int* arr, const int n) {
     int min = arr[0];
     for(int i = 1; i < n; i++) {
         if(arr[i] < min)min = arr[i];
@@ -210,6 +209,6 @@ int Min(int* arr, int n) {
     return min;
 }
 
-char isFunctionalKey(SDL_Keycode key) {
+int isFunctionalKey(const SDL_Keycode key) {
     return (key == SDLK_LALT) || (key == SDLK_RALT) || (key == SDLK_LCTRL) || (key == SDLK_RCTRL);
 }

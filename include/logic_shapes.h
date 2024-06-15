@@ -13,7 +13,7 @@
  * @param positions preallocated array of Point structs, its length has to be set appropiately based on the tile size
  * @return SUCCESS on successfully setting positions, FAILURE on failure
  */
-status_t getPositions(TileState state, Point position, Point* positions);
+status_t getPositions(TileState state, const Point position, Point* positions);
 
 /**
  * @brief Checks if given positions are unoccupied.
@@ -24,7 +24,7 @@ status_t getPositions(TileState state, Point position, Point* positions);
  * @param n number of points to check
  * @return SUCCESS on all free, FAILURE on failure
  */
-status_t checkPositions(int** tetrisGrid, Point* positions, int n);
+status_t checkPositions(int** tetrisGrid, const Point* positions, const int n);
 
 /**
  * @brief Sets the given position to the given value.
@@ -34,7 +34,7 @@ status_t checkPositions(int** tetrisGrid, Point* positions, int n);
  * @param n number of points
  * @param value value to set
  */
-void setPositions(int** tetrisGrid, Point* positions, int n, int value);
+void setPositions(int** tetrisGrid, const Point* positions, const int n, const int value);
 
 /**
  * @brief Returns how much space does the tile occupy in a game matrix.

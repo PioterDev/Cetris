@@ -1,8 +1,7 @@
 #include "deus.h"
 
-
-status_t getPositions(TileState state, Point position, Point* positions) {
-    if(position.x < 0 || position.y < 0)return FAILURE; //to prevent going off bounds
+status_t getPositions(TileState state, const Point position, Point* positions) {
+    if(position.x < 0 || position.y < 0) return FAILURE; //to prevent going off bounds
     switch(state) {
         case BAR_HORIZONTAL_UP:
         case BAR_HORIZONTAL_DOWN: {
@@ -172,15 +171,15 @@ status_t getPositions(TileState state, Point position, Point* positions) {
     return FAILURE;
 }
 
-status_t checkPositions(int** tetrisGrid, Point* positions, int n) {
+status_t checkPositions(int** tetrisGrid, const Point* positions, const int n) {
     for(int i = 0; i < n; i++) {
         int cell = tetrisGrid[positions[i].y][positions[i].x];
-        if(cell != 0 && cell != GHOST)return FAILURE;
+        if(cell != 0 && cell != GHOST) return FAILURE;
     }
     return SUCCESS;
 }
 
-void setPositions(int** tetrisGrid, Point* positions, int n, int value) {
+void setPositions(int** tetrisGrid, const Point* positions, const int n, const int value) {
     for(int i = 0; i < n; i++) {
         tetrisGrid[positions[i].y][positions[i].x] = value;
     }

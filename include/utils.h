@@ -20,7 +20,7 @@
  * FAILURE if conversion fails,
  * SUCCESS if conversion succeeds.
  */
-status_t itos(int in, int base, char* buf, size_t bufsize);
+status_t itos(int in, const unsigned int base, char* buf, const size_t bufsize);
 
 /**
  * @brief Loads an SDL texture.
@@ -85,21 +85,21 @@ Mix_Chunk* loadSound(const char* path);
  * 
  * @param chunk chunk
  */
-void freeSound(Mix_Chunk* chunk);
+void freeSound(const Mix_Chunk* chunk);
 
 /**
  * @brief Stops the sound in a given channel.
  * 
  * @param channel channel ID
  */
-void stopSound(int channel);
+void stopSound(const int channel);
 
 /**
  * @brief Plays a sound effect on any free channel.
  * 
  * @param soundEffect pointer to SoundEffect struct
  */
-void playSound(SoundEffect* soundEffect, unsigned short volume);
+void playSound(const SoundEffect* soundEffect, const unsigned short volume);
 
 
 
@@ -112,7 +112,7 @@ void playSound(SoundEffect* soundEffect, unsigned short volume);
  * @param width width of the matrix
  * @return pointer to the matrix, NULL on allocation error
  */
-int** zeroMatrix(Size size);
+int** zeroMatrix(const Size size);
 
 /**
  * @brief Frees the matrix from memory.
@@ -120,7 +120,7 @@ int** zeroMatrix(Size size);
  * @param matrix matrix
  * @param height height of the matrix
  */
-void freeMatrix(int** matrix, int height);
+void freeMatrix(int** matrix, const int height);
 
 /**
  * @brief Prints given matrix to given stream.
@@ -129,7 +129,7 @@ void freeMatrix(int** matrix, int height);
  * @param size size of the matrix
  * @param stream stream
  */
-void printMatrix(int** matrix, Size size, FILE* stream);
+void printMatrix(int** matrix, const Size size, FILE* stream);
 
 /**
  * @brief Sets all cells in the matrix to given value.
@@ -137,7 +137,7 @@ void printMatrix(int** matrix, Size size, FILE* stream);
  * @param matrix matrix
  * @param size size of the matrix
  */
-void setMatrix(int** matrix, Size size, int value);
+void setMatrix(int** matrix, const Size size, const int value);
 
 /**
  * @brief Replaces all negative values in the matrix to positive ones.
@@ -145,7 +145,7 @@ void setMatrix(int** matrix, Size size, int value);
  * @param matrix matrix
  * @param size size of the matrix
  */
-void absMatrix(int** matrix, Size size);
+void absMatrix(int** matrix, const Size size);
 
 /**
  * @brief Returns the index of the biggest element in an int array.
@@ -154,7 +154,7 @@ void absMatrix(int** matrix, Size size);
  * @param n number of elements
  * @return index to max element
  */
-int MaxIndex(int* arr, int n);
+int MaxIndex(const int* arr, const int n);
 
 /**
  * @brief Returns the index of the smallest element in an int array.
@@ -163,7 +163,7 @@ int MaxIndex(int* arr, int n);
  * @param n number of elements
  * @return index to min element
  */
-int MinIndex(int* arr, int n);
+int MinIndex(const int* arr, const int n);
 
 /**
  * @brief Returns the biggest element in an int array.
@@ -172,7 +172,7 @@ int MinIndex(int* arr, int n);
  * @param n number of elements
  * @return max element 
  */
-int Max(int* arr, int n);
+int Max(const int* arr, const int n);
 
 /**
  * @brief Returns the biggest element in an int array.
@@ -181,7 +181,7 @@ int Max(int* arr, int n);
  * @param n number of elements
  * @return min element
  */
-int Min(int* arr, int n);
+int Min(const int* arr, const int n);
 
 /**
  * @brief Checks if `key` is a functional key (Alt/Ctrl).
@@ -189,7 +189,7 @@ int Min(int* arr, int n);
  * @param key key
  * @return true if key is SDL's Alt or Ctrl
  */
-char isFunctionalKey(SDL_Keycode key);
+int isFunctionalKey(const SDL_Keycode key);
 
 
 #endif
