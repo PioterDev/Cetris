@@ -75,3 +75,5 @@ height        - specifies window height
 fps           - specifies desired FPS
 basefallspeed - base time in miliseconds required for the piece to move down 
 soundtrack    - specifies which soundtrack will be played during the game (1, 2, 3, 4 alternates between all three)
+gridheight    - specifies game matrix height
+gridwidth     - specifies game matrix width

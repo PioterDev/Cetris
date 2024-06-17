@@ -50,6 +50,190 @@ static char bindings[sizeof(Keymap) / sizeof(int)][32] = {
     "Test"
 };
 
+static char keynames[][32] = {
+    //0
+    "Unknown",   //0
+    //1-5
+    "Return",    //13
+    "Escape",    //27
+    "Backspace", //8
+    "Tab",       //9
+    "Space",     //32
+    //6-17
+    "F1", "F2", "F3", "F4", "F5", "F6", //1073741882-1073741893
+    "F7", "F8", "F9", "F10", "F11", "F12", 
+    //18-23
+    "Print Screen", //1073741894
+    "Scroll Lock",
+    "Pause",
+    "Insert",
+    "Home",
+    "Page Up", //1073741899
+    //24
+    "Delete", //127
+    //25-30
+    "End", //1073741901
+    "Page Down",
+    "Right arrow", "Left arrow", "Down arrow", "Up arrow", //1073741906
+    //31-47
+    "Num Lock", //1073741907
+    "Keypad /", "Keypad *", "Keypad -", "Keypad +", "Keypad Enter",
+    "Keypad 1", "Keypad 2", "Keypad 3", "Keypad 4", "Keypad 5",
+    "Keypad 6", "Keypad 7", "Keypad 8", "Keypad 9", "Keypad 0",
+    "Keypad .", //1073741923
+    //48-77
+    "Application", //1073741925
+    "Power",
+    "Keypad ="
+    "F13", "F14", "F15", "F16", "F17", "F18", 
+    "F19", "F20", "F21", "F22", "F23", "F24",
+    "Execute",
+    "Help", "Menu", "Select", "Stop", "Repeat",
+    "Undo", "Cut", "Copy", "Paste", "Find",
+    "Volume up", "Volume down", "Keypad ,",
+    "Keypad =400???", //1073741958
+    //78-89
+    "Alt erase?", //1073741977
+    "Sysrq",
+    "Cancel",
+    "Clear",
+    "Prior",
+    "Backspace the 2nd",
+    "Separator ? ? ?",
+    "Out? Out of what?",
+    "Oper? Operation?",
+    "Clear again? Why?!",
+    "CrSel (whatever this is...)",
+    "ExSel (whatever this is...)", //1073741988
+    //90-135
+    "Keypad 00", //1073742000
+    "Keypad 000",
+    "Thousands separator? Fancy!",
+    "Decimal separator? Calc gaming",
+    "key unit...",
+    "Currency sub-unit? HUH",
+    "Keypad (", "Keypad )", "Keypad {", "Keypad }",
+    "Keypad Tab",
+    "Keypad Backspace",
+    "Keypad A", "Keypad B", "Keypad C",
+    "Keypad D", "Keypad E", "Keypad F",
+    "Keypad XOR",
+    "Keypad Power",
+    "Keypad %",
+    "Keypad <", "Keypad >",
+    "Keypad &", "Keypad &&",
+    "Keypad |", "Keypad ||",
+    "Keypad :", "Keypad #",
+    "Keypad Space",
+    "Keypad @", "Keypad !",
+    "Keypad MemStore, damn", "Keypad MemRecall", "Keypad MemClear, bruh",
+    "Keypad MemAdd", "Keypad MemSubtract",
+    "Keypad MemMultiply", "Keypad MemDivide",
+    "Keypad +/-",
+    "Keypad Clear", "Keypad Clear entry",
+    "Keypad Binary", "Keypad Octal",
+    "Keypad Decimal", "Keypad Hexadecimal", //1073742045
+    //136-143
+    "Left Control", "Left Shift", "Left Alt", "Left GUI Key", //1073742048
+    "Right Control", "Right Shift", "Right Alt", "Right GUI Key", //1073742055
+    //144
+    "Mode key", //1073742081
+    //145-161
+    "Audio next", //1073742082
+    "Audio previous",
+    "Audio stop",
+    "Audio play",
+    "Audio mute",
+    "Media select",
+    "Web",
+    "Mail",
+    "Calculator",
+    "Computer",
+    "American Search",
+    "American Home",
+    "American back",
+    "American forward",
+    "American stop",
+    "Americal refresh",
+    "American bookmarks", //1073742098
+    //162-171
+    "Brightness down", //1073742099
+    "Brightness up",
+    "Toggle display",
+    "Toggle illumination",
+    "Illumination down",
+    "Illumination up",
+    "Eject",
+    "Sleep",
+    "App 1",
+    "App 2", //1073742108
+    //172-173
+    "Audio rewind", //1073742109
+    "Audio fast-forward", //1073742110
+    //174-177
+    "Left soft key", //1073742111
+    "Right soft key",
+    "Call",
+    "End call" //1073742114
+};
+
+/**
+ * @brief Function converting SDL keycodes to their corresponding string indices in the `keynames` variable above.
+ * 
+ * @param key SDL keycode
+ * @return index in `keynames`, -1 if it's an ASCII character
+ */
+static inline int getKeystringIndex(int key) {
+    if((key >= 33 && key <= 64) || (key >= 91 && key <= 126)) return -1; //ASCII character
+    
+    int index = 0;
+    //first check the irregular ones
+    switch(key) {
+        case SDLK_RETURN:
+            index = 1;
+            break;
+        case SDLK_ESCAPE:
+            index = 2;
+            break;
+        case SDLK_BACKSPACE:
+            index = 3;
+            break;
+        case SDLK_TAB:
+            index = 4;
+            break;
+        case SDLK_SPACE:
+            index = 5;
+            break;
+        case SDLK_DELETE:
+            index = 24;
+            break;
+        case SDLK_MODE:
+            index = 144;
+            break;
+        case SDLK_AUDIOREWIND:
+            index = 172;
+            break;
+        case SDLK_AUDIOFASTFORWARD:
+            index = 173;
+            break;
+    }
+    //if the key is not there, check the continous ones
+    if(index == 0) {
+        if(key >= SDLK_F1 && key <= SDLK_F12)                           index = key - SDLK_F1 + 6;
+        else if(key >= SDLK_PRINTSCREEN && key <= SDLK_PAGEUP)          index = key - SDLK_PRINTSCREEN + 18;
+        else if(key >= SDLK_END && key <= SDLK_UP)                      index = key - SDLK_END + 25;
+        else if(key >= SDLK_NUMLOCKCLEAR && key <= SDLK_KP_PERIOD)      index = key - SDLK_NUMLOCKCLEAR + 31;
+        else if(key >= SDLK_APPLICATION && key <= SDLK_KP_EQUALSAS400)  index = key - SDLK_APPLICATION + 48;
+        else if(key >= SDLK_ALTERASE && key <= SDLK_EXSEL)              index = key - SDLK_ALTERASE + 78;
+        else if(key >= SDLK_KP_00 && key <= SDLK_KP_HEXADECIMAL)        index = key - SDLK_KP_00 + 90;
+        else if(key >= SDLK_LCTRL && key <= SDLK_RGUI)                  index = key - SDLK_LCTRL + 136;
+        else if(key >= SDLK_AUDIONEXT && key <= SDLK_AC_BOOKMARKS)      index = key - SDLK_AUDIONEXT + 145;
+        else if(key >= SDLK_BRIGHTNESSDOWN && key <= SDLK_APP2)         index = key - SDLK_BRIGHTNESSDOWN + 162;
+        else if(key >= SDLK_SOFTLEFT && key <= SDLK_ENDCALL)            index = key - SDLK_SOFTLEFT + 174;
+    }
+    return index;
+}
+
 typedef enum Option {
     MOVELEFT,
     MOVERIGHT,
@@ -65,7 +249,9 @@ typedef enum Option {
     BASEFALLSPEED,
     SOUNDTRACK,
     SOUNDTRACK_VOLUME,
-    SFX_VOLUME
+    SFX_VOLUME,
+    GRIDHEIGHT,
+    GRIDWIDTH
 } Option;
 
 void setParameter(ProgramParameters* parameters, Option key, const int value) {
@@ -115,29 +301,34 @@ void setParameter(ProgramParameters* parameters, Option key, const int value) {
         case SFX_VOLUME:
             parameters->soundEffectsVolume = value <= 100 ? value << 7 / 100 : 128;
             break;
+        case GRIDHEIGHT:
+            parameters->gridSize.height = value > 4 ? value : 4;
+            break;
+        case GRIDWIDTH:
+            parameters->gridSize.width = value > 4 ? value : 4;
+            break;
     }
 }
 
-ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
-    ProgramParameters* parameters = calloc(1, sizeof(ProgramParameters));
-    if(parameters == NULL)return NULL;
+status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parameters) {
+    if(parameters == NULL) return MEMORY_FAILURE;
 
     char buf[128] = {0};
     while(fgets(buf, sizeof(buf), configFile)) {
+        buf[strcspn(buf, "\n")] = '\0';
         #ifdef DEBUG
         snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Read line: %s", buf);
         logToStream(debugFile, LOGLEVEL_DEBUG, NULL);
         #endif
         if(buf[0] == '#')continue; //comment line
         
-        buf[strcspn(buf, "\n")] = '\0';
         char key[32] = {0};
         strncpy(key, buf, strcspn(buf, ":"));
 
         char* value = strstr(buf, ":") + 1;
         while((value[0] == ' ' || value[0] == '\t') && value[0] != '\n')value++;
         #ifdef DEBUG
-        snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Key: %s, Value: %s\n", key, value);
+        snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Key: %s, Value: %s", key, value);
         logToStream(debugFile, LOGLEVEL_DEBUG, NULL);
         #endif
         //...so anyway, let's begin this mess
@@ -160,11 +351,29 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
         else if(!strcmp(key, "soundtrack"))                 option = SOUNDTRACK;
         else if(!strcmp(key, "soundtrack_volume"))          option = SOUNDTRACK_VOLUME;
         else if(!strcmp(key, "sfx_volume"))                 option = SFX_VOLUME;
+        else if(!strcmp(key, "gridheight"))                 option = GRIDHEIGHT;
+        else if(!strcmp(key, "gridwidth"))                  option = GRIDWIDTH;
 
         if(strlen(value) == 1) {
+            if(value[0] >= '0' && value[0] <= '9') {
+                switch(option) {
+                    case SCREEN_WIDTH:
+                    case SCREEN_HEIGHT:
+                    case FPS:
+                    case BASEFALLSPEED:
+                    case SOUNDTRACK:
+                    case SOUNDTRACK_VOLUME:
+                    case SFX_VOLUME:
+                    case GRIDHEIGHT:
+                    case GRIDWIDTH:
+                        setParameter(parameters, option, (int)value[0] - '0');
+                        break;
+                    default: setParameter(parameters, option, (int)value[0]);
+                }
+            }
             //ASCII
-            if( (value[0] >= 91 && value[0] <= 126) || (value[0] >= 33 || value[0] <= 64)) {
-                //      <[, `> + <a, z> + <{, ~>    or        <!, /> + <0, 9> + <:, @>
+            //<[, `> + <a, z> + <{, ~> or <!, /> + <0, 9> + <:, @>
+            else if( (value[0] >= '[' && value[0] <= '~') || (value[0] >= '!' || value[0] <= '@')) {
                 setParameter(parameters, option, (int)value[0]);
             }
         }
@@ -174,7 +383,7 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
                 else if(value[2] == '0') setParameter(parameters, option, SDLK_F10);
                 else if(value[2] == '1') setParameter(parameters, option, SDLK_F11);
                 else if(value[2] == '2') setParameter(parameters, option, SDLK_F12);
-                else                     setParameter(parameters, option, SDLK_F13 - 3 + value[2] - '0'); //weird offsetting due to SDL2's internal mapping
+                else                     setParameter(parameters, option, SDLK_F13 - 3 + value[2] - '0'); //weird offsetting due to SDL's internal mapping
             }
             else if(value[1] == '2') {
                 if     (value[2] == '\0')                   setParameter(parameters, option, SDLK_F2);
@@ -195,7 +404,7 @@ ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile) {
         }
     }
 
-    return parameters;
+    return SUCCESS;
 }
 
 status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer) {
@@ -269,7 +478,12 @@ void freeProgramConfig(ProgramParameters* params) {
             SDL_DestroyTexture(params->baseTextures[i]);
         }
     }
-    if(params->tetrisGrid != NULL)freeMatrix(params->tetrisGrid, params->tetrisGridSize.height);
+    for(int i = 0; i < 10; i++) {
+        if(params->digits[i] != NULL) {
+            SDL_DestroyTexture(params->digits[i]);
+        }
+    }
+    if(params->grid != NULL) freeMatrix(params->grid, params->gridSize.height);
     for(int i = 0; i < soundtracksAmount; i++) {
         freeMusic(params->soundtracks[i].music);
     }
@@ -278,38 +492,47 @@ void freeProgramConfig(ProgramParameters* params) {
             freeSound(params->soundEffects[i].sound);
         }
     }
-
-    free(params);
 }
 
 void printKeymap(Keymap* keymap, FILE* stream) {
     Keymap_array* keymap_array = (Keymap_array*) keymap;
     for(int i = 0; i < (int) (sizeof(Keymap) / sizeof(int)); i++) {
-        int32_u current;
-        current.integer = keymap_array->keys[i];
-        char buf[16];
-        if((current.integer >= 91 && current.integer <= 126) || (current.integer >= 33 && current.integer <= 64)) { //ASCII
-            buf[0] = current.bytes[0];
-            buf[1] = '\0';
+        int32_u key;
+        key.integer = keymap_array->keys[i];
+        int index = getKeystringIndex(key.integer);
+        if(index == -1) {
+            snprintf(loggingBuffer, loggingBufferSize, "[printKeymap] %s key: %c", bindings[i], key.bytes[0]);
+            logToStream(stream, LOGLEVEL_INFO, NULL);
         }
-        else if(current.integer == SDLK_LEFT)   strcpy(buf, "Left arrow");
-        else if(current.integer == SDLK_RIGHT)  strcpy(buf, "Right arrow");
-        else if(current.integer == SDLK_UP)     strcpy(buf, "Up arrow");
-        else if(current.integer == SDLK_DOWN)   strcpy(buf, "Down arrow");
-        else if(current.integer == SDLK_SPACE)  strcpy(buf, "Space");
-        else if(current.integer == SDLK_ESCAPE) strcpy(buf, "Escape");
-        else if(current.integer == SDLK_LSHIFT) strcpy(buf, "LShift");
-        snprintf(loggingBuffer, loggingBufferSize, "%s key: %s\n", bindings[i], buf);
-        logToStream(stream, LOGLEVEL_INFO, NULL);
+        else {
+            snprintf(loggingBuffer, loggingBufferSize, "[printKeymap] %s key: %s", bindings[i], keynames[index]);
+            logToStream(stream, LOGLEVEL_INFO, NULL);
+        }
     }
 }
 
 void printConfig(ProgramParameters* params, FILE* stream) {
     if(stream == NULL) return;
-    snprintf(loggingBuffer, loggingBufferSize,
-        "Screen width: %d px\nScreen height: %d px\nFPS: %d\nBase fall speed: %d ms\nScaling factor: %d\n",
-        params->screenSize.width, params->screenSize.height, params->fps, params->baseFallSpeed, params->scalingFactor
-    );
+    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Screen width: %d px", params->screenSize.width);
     logToStream(stream, LOGLEVEL_INFO, NULL);
+
+    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Screen height: %d px", params->screenSize.height);
+    logToStream(stream, LOGLEVEL_INFO, NULL);
+
+    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] FPS: %d", params->fps);
+    logToStream(stream, LOGLEVEL_INFO, NULL);
+
+    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Base fall speed: %d ms", params->baseFallSpeed);
+    logToStream(stream, LOGLEVEL_INFO, NULL);
+
+    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Scaling factor: %d", params->scalingFactor);
+    logToStream(stream, LOGLEVEL_INFO, NULL);
+
+    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Grid height: %d", params->gridSize.height);
+    logToStream(stream, LOGLEVEL_INFO, NULL);
+
+    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Grid width: %d", params->gridSize.width);
+    logToStream(stream, LOGLEVEL_INFO, NULL);
+
     printKeymap(&params->keymap, stream);
 }

@@ -10,9 +10,9 @@
 #include "logging.h"
 #include "utils.h"
 
-Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* coordinates, const int flags, FILE* debug) {
+Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* coordinates, const int gridWidth, const int flags, FILE* debug) {
     Tile* tile = malloc(sizeof(Tile));
-    if(tile == NULL)return NULL;
+    if(tile == NULL) return NULL;
 
     tile->texture = NULL;
     #ifdef DEBUG
@@ -24,37 +24,37 @@ Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* 
     switch(shape) {
         case BAR:
             tile->position.y = 0;
-            tile->position.x = GridWidth / 2 - 2;
+            tile->position.x = (gridWidth >> 1) - 2;
             tile->state = BAR_HORIZONTAL_UP;
             break;
         case J:
             tile->position.y = 2;
-            tile->position.x = GridWidth / 2 - 1;
+            tile->position.x = (gridWidth >> 1) - 1;
             tile->state = J_0;
             break;
         case L:
             tile->position.y = 2;
-            tile->position.x = GridWidth / 2 - 1;
+            tile->position.x = (gridWidth >> 1) - 1;
             tile->state = L_0;
             break;
         case S:
             tile->position.y = 1;
-            tile->position.x = GridWidth / 2 - 1;
+            tile->position.x = (gridWidth >> 1) - 1;
             tile->state = S_0;
             break;
         case SQUARE:
             tile->position.y = 0;
-            tile->position.x = GridWidth / 2 - 1;
+            tile->position.x = (gridWidth >> 1) - 1;
             tile->state = SQR;
             break;
         case T:
             tile->position.y = 1;
-            tile->position.x = GridWidth / 2 - 1;
+            tile->position.x = (gridWidth >> 1) - 1;
             tile->state = T_0;
             break;
         case Z:
             tile->position.y = 1;
-            tile->position.x = GridWidth / 2 - 1;
+            tile->position.x = (gridWidth >> 1) - 1;
             tile->state = Z_0;
             break;
         case BACKGROUND:
@@ -93,14 +93,14 @@ void freeTile(Tile* tile) {
     free(tile);
 }
 
-Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, const int flags, FILE* debug) {
+Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, const int gridWidth, const int flags, FILE* debug) {
     TileColor color = rand() % (tileColorAmount - 1) + 1;
     TileShape shape = rand() % (tileColorAmount - 1) + 2;
     #ifdef DEBUG
     snprintf(loggingBuffer, loggingBufferSize, "[loadTileRandom] Color: %d, Shape: %d", color, shape);
     logToStream(debug, LOGLEVEL_DEBUG, NULL);
     #endif
-    return loadTile(renderer, color, shape, coordinates, flags, debug);
+    return loadTile(renderer, color, shape, coordinates, gridWidth, flags, debug);
 }
 
 void centerTileHorizontally(Tile* tile, ProgramParameters* programParameters) {
