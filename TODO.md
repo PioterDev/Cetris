@@ -1,3 +1,4 @@
 - ghost tile
 - preview of next tiles
 - T-spin and wall kick logic
+- support for custom textures, soundtracks and sound effects

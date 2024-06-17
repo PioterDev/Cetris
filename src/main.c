@@ -115,8 +115,12 @@ int main(int argc, char** argv) {
     programParameters.errorlog = errorlog;
     programParameters.debugLog = debugLog;
 
-    if(programParameters.gridSize.height == 0) programParameters.gridSize.height = GridHeight;
-    if(programParameters.gridSize.width == 0)  programParameters.gridSize.width = GridWidth;
+    if(programParameters.gridSize.height == 0)  programParameters.gridSize.height = GridHeight;
+    if(programParameters.gridSize.width == 0)   programParameters.gridSize.width = GridWidth;
+    if(programParameters.baseFallSpeed == 0)    programParameters.baseFallSpeed = defaultFallSpeed;
+    if(programParameters.fps == 0)              programParameters.fps = 60;
+    if(programParameters.screenSize.height == 0)programParameters.screenSize.height = 720;
+    if(programParameters.screenSize.width == 0) programParameters.screenSize.width = 1280;
     
     #ifdef TEST
     programParameters.keymap.test = SDLK_w;

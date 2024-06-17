@@ -70,10 +70,10 @@ _       is _
 
 Additional options:
 
-width         - specifies window width
-height        - specifies window height
-fps           - specifies desired FPS
-basefallspeed - base time in miliseconds required for the piece to move down 
+width         - specifies window width, defaults to 1280
+height        - specifies window height, defaults to 720
+fps           - specifies desired FPS, defaults to 60
+basefallspeed - base time in miliseconds required for the piece to move down, defaults to 1000
 soundtrack    - specifies which soundtrack will be played during the game (1, 2, 3, 4 alternates between all three)
-gridheight    - specifies game matrix height
-gridwidth     - specifies game matrix width
+gridheight    - specifies game matrix height, defaults to 20
+gridwidth     - specifies game matrix width, defaults to 10

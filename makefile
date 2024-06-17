@@ -6,7 +6,7 @@ SUBSYSTEM = -Wl,-subsystem,windows
 SRCDIR = src
 INCDIR = include
 BUILDDIR = build
-LIBDIR = G:/Projects/CLibs
+LIBDIR = D:/Projects/CLibs
 
 SDLINCLUDE 		= $(LIBDIR)/SDL2/include/SDL2
 SDLIMAGEINCLUDE	= $(LIBDIR)/SDL2_image/include/SDL2
@@ -22,7 +22,7 @@ SDLMIXERLIB 	= $(LIBDIR)/SDL2_mixer/lib
 SRCS = $(wildcard $(SRCDIR)/*.c)
 OBJS = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(filter-out main.c, $(SRCS)))
 #OBJS = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(SRCS))
-EXEC = ./out/Tetris
+EXEC = ./out/Cetris
 
 LIBRARYSDL = SDL2
 LIBRARYSDLMAIN = SDL2main

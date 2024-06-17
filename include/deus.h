@@ -29,6 +29,7 @@
 #define GridWidth 10
 #define tileQueuedAmount 4
 #define loggingBufferSize 1024
+#define defaultFallSpeed 1000
 
 #define DEBUG //for diagnostic logging, testing, etc.
 
