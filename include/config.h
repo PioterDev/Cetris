@@ -11,9 +11,10 @@
  * 
  * @param configFile stream to config file
  * @param debugFile stream to debug file, NULL if not needed
- * @return pointer to ProgramParameters struct, NULL on error 
+ * @param parameters pointer to ProgramParameters struct
+ * @return SUCCESS on success, MEMORY_FAILURE on invalid arguments
  */
-ProgramParameters* loadConfig(FILE* configFile, FILE* debugFile);
+status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parameters);
 
 /**
  * @brief Loads base tile textures into program parameters.

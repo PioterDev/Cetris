@@ -101,29 +101,25 @@ int main(int argc, char** argv) {
     }
 
 
-
-    ProgramParameters* programParameters = loadConfig(configFile, debugLog);
-    if(programParameters == NULL) {
+    ProgramParameters programParameters = {};
+    if(loadConfig(configFile, debugLog, &programParameters) != SUCCESS) {
         status = LOADCONFIG_FAILURE;
         sprintf(errormsgBuffer, "Error loading game config.");
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto close_configfile;
     }
-    programParameters->baseTileSize = 0;
-    programParameters->scalingFactor = 0;
+    programParameters.clockFrequency = &frequency;
+    programParameters.timer = &timer;
     
-    programParameters->clockFrequency = &frequency;
-    programParameters->timer = &timer;
-    
-    programParameters->generallog = generallog;
-    programParameters->errorlog = errorlog;
-    programParameters->debugLog = debugLog;
+    programParameters.generallog = generallog;
+    programParameters.errorlog = errorlog;
+    programParameters.debugLog = debugLog;
 
-    programParameters->tetrisGridSize.height = GridHeight;
-    programParameters->tetrisGridSize.width = GridWidth;
+    if(programParameters.gridSize.height == 0) programParameters.gridSize.height = GridHeight;
+    if(programParameters.gridSize.width == 0)  programParameters.gridSize.width = GridWidth;
     
     #ifdef TEST
-    programParameters->keymap.test = SDLK_w;
+    programParameters.keymap.test = SDLK_w;
     #endif
     logToStream(generallog, LOGLEVEL_INFO, "Loaded configuration file.");
 
@@ -165,7 +161,7 @@ int main(int argc, char** argv) {
     } */
 
     logToStream(generallog, LOGLEVEL_INFO, "Attempting to create a window...");
-    window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, programParameters->screenSize.width, programParameters->screenSize.height, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Cetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, programParameters.screenSize.width, programParameters.screenSize.height, SDL_WINDOW_SHOWN);
     if(window == NULL) {
         status = SDL_WINDOW_FAILURE;
         sprintf(errormsgBuffer, "Error creating window: %s", SDL_GetError());
@@ -189,7 +185,7 @@ int main(int argc, char** argv) {
 
 
     logToStream(generallog, LOGLEVEL_INFO, "Attempting to load base tile textures...");
-    if(loadBaseTextures(programParameters, renderer) != SUCCESS) {
+    if(loadBaseTextures(&programParameters, renderer) != SUCCESS) {
         status = FAILURE;
         sprintf(errormsgBuffer, "Error loading base tile textures.");
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
@@ -199,7 +195,7 @@ int main(int argc, char** argv) {
 
 
     logToStream(generallog, LOGLEVEL_INFO, "Attempting to load digits...");
-    if(loadDigits(programParameters, renderer) != SUCCESS) {
+    if(loadDigits(&programParameters, renderer) != SUCCESS) {
         status = FAILURE;
         sprintf(errormsgBuffer, "Error loading digit textures.");
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
@@ -208,7 +204,7 @@ int main(int argc, char** argv) {
 
 
     logToStream(generallog, LOGLEVEL_INFO, "Attempting to load a soundtrack...");
-    if(loadSoundtracks(programParameters) != SUCCESS) {
+    if(loadSoundtracks(&programParameters) != SUCCESS) {
         status = FAILURE;
         sprintf(errormsgBuffer, "Error loading soundtrack.");
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
@@ -218,7 +214,7 @@ int main(int argc, char** argv) {
 
 
     logToStream(generallog, LOGLEVEL_INFO, "Attempting to load sound effects...");
-    if(loadSoundEffects(programParameters) != SUCCESS) {
+    if(loadSoundEffects(&programParameters) != SUCCESS) {
         status = FAILURE;
         sprintf(errormsgBuffer, "Error loading sound effects.");
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
@@ -229,21 +225,21 @@ int main(int argc, char** argv) {
 
 
     //dynamic calculation of by how much should everything be scaled
-    if( GridHeight * programParameters->baseTileSize > programParameters->screenSize.height || 
-        GridWidth * programParameters->baseTileSize > programParameters->screenSize.width) { //scale down
-        programParameters->scalingFactor = -1;
+    if( programParameters.gridSize.height * programParameters.baseTileSize > programParameters.screenSize.height || 
+        programParameters.gridSize.width * programParameters.baseTileSize > programParameters.screenSize.width) { //scale down
+        programParameters.scalingFactor = -1;
         while(
-            GridHeight * programParameters->baseTileSize / abs(programParameters->scalingFactor) > programParameters->screenSize.height ||
-            GridWidth * programParameters->baseTileSize / abs(programParameters->scalingFactor) > programParameters->screenSize.width
-        ) {programParameters->scalingFactor--;}
+            programParameters.gridSize.height * programParameters.baseTileSize / abs(programParameters.scalingFactor) > programParameters.screenSize.height ||
+            programParameters.gridSize.width * programParameters.baseTileSize / abs(programParameters.scalingFactor) > programParameters.screenSize.width
+        ) {programParameters.scalingFactor--;}
     }
-    else if(GridHeight * programParameters->baseTileSize * 2 < programParameters->screenSize.height || 
-            GridWidth  * programParameters->baseTileSize * 2 < programParameters->screenSize.width) { //scale up
-        programParameters->scalingFactor = 1;
+    else if(programParameters.gridSize.height * programParameters.baseTileSize * 2 < programParameters.screenSize.height || 
+            programParameters.gridSize.width  * programParameters.baseTileSize * 2 < programParameters.screenSize.width) { //scale up
+        programParameters.scalingFactor = 1;
         while(
-            GridHeight * programParameters->baseTileSize * 2 *(unsigned short)programParameters->scalingFactor < programParameters->screenSize.height &&
-            GridWidth  * programParameters->baseTileSize * 2 *(unsigned short)programParameters->scalingFactor < programParameters->screenSize.width
-        ) {programParameters->scalingFactor++;}
+            programParameters.gridSize.height * programParameters.baseTileSize * 2 *(unsigned short)programParameters.scalingFactor < programParameters.screenSize.height &&
+            programParameters.gridSize.width  * programParameters.baseTileSize * 2 *(unsigned short)programParameters.scalingFactor < programParameters.screenSize.width
+        ) {programParameters.scalingFactor++;}
     }
 
 
@@ -282,7 +278,7 @@ int main(int argc, char** argv) {
         &renderStatus, 
         renderMutex, 
         tilesMutex,
-        programParameters,
+        &programParameters,
         renderer,
         &backgroundColor
     };
@@ -298,9 +294,9 @@ int main(int argc, char** argv) {
     logToStream(generallog, LOGLEVEL_INFO, "Render thread is now operational.");
     //end of render thread //
 
-    printConfig(programParameters, debugLog);
+    printConfig(&programParameters, debugLog);
 
-    programParameters->flags.running = true;
+    programParameters.flags.running = true;
     SDL_Event event;
 
     ReleaseMutex(tilesMutex);
@@ -308,13 +304,13 @@ int main(int argc, char** argv) {
 
     tickTimerStart = tickTimerEnd = timer.QuadPart;
 
-    while(programParameters->flags.running) { //main game loop
+    while(programParameters.flags.running) { //main game loop
         WaitForSingleObject(tilesMutex, INFINITE);
         while(SDL_PollEvent(&event)) {
             switch(event.type) { //this section *can* be optimized and moved into its own function, 
                 case SDL_QUIT: { //but for now, input processing will be here
-                    if(Mix_PlayingMusic()) stopMusic();
-                    programParameters->flags.running = false;
+                    if(programParameters.flags.playing) onGameEnd(&programParameters);
+                    programParameters.flags.running = false;
                     renderStatus = STOP;
 
                     ReleaseMutex(tilesMutex);
@@ -327,10 +323,10 @@ int main(int argc, char** argv) {
                 case SDL_KEYDOWN: {
                     SDL_Keycode key = event.key.keysym.sym;
 
-                    if(!programParameters->flags.playing) {
+                    if(!programParameters.flags.playing) {
                         if(isFunctionalKey(key)) break;
-                        if(onGameStart(programParameters, renderer) != SUCCESS) {
-                            programParameters->flags.playing = false;
+                        if(onGameStart(&programParameters, renderer) != SUCCESS) {
+                            programParameters.flags.playing = false;
                             status = MEMORY_FAILURE;
                             renderStatus = STOP;
 
@@ -344,89 +340,92 @@ int main(int argc, char** argv) {
                         break;
                     }
                 
-                    if(debugLog != NULL) fprintf(debugLog, "[Key press] %d\n", key);
+                    if(debugLog != NULL) {
+                        snprintf(loggingBuffer, loggingBufferSize, "[Key press] %d", key);
+                        logToStream(debugLog, LOGLEVEL_DEBUG, NULL);
+                    }
 
-                    if(key == programParameters->keymap.dropHard) {
-                        dropHard(programParameters);
-                        onPlacement(programParameters);
+                    if(key == programParameters.keymap.dropHard) {
+                        dropHard(&programParameters);
+                        onPlacement(&programParameters);
                         
-                        freeTile(programParameters->currentTile);
-                        dequeueTile(&programParameters->tileQueue, &programParameters->currentTile);
+                        freeTile(programParameters.currentTile);
+                        dequeueTile(&programParameters.tileQueue, &programParameters.currentTile);
 
-                        Tile* tmp = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog);
-                        if(tmp != NULL) enqueueTile(&programParameters->tileQueue, tmp);
+                        Tile* tmp = loadTileRandom(renderer, NULL, programParameters.gridSize.width, TILELOAD_NOTEXTURE, debugLog);
+                        if(tmp != NULL) enqueueTile(&programParameters.tileQueue, tmp);
                         
-                        if(programParameters->currentTile == NULL) {
+                        if(programParameters.currentTile == NULL) {
                             logToStream(errorlog, LOGLEVEL_ERROR, "Error loading tile");
                         }
-                        else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile) == FAILURE) {
-                            onGameEnd(programParameters);
+                        else if(loadTileIntoGrid(programParameters.grid, programParameters.currentTile) == FAILURE) {
+                            onGameEnd(&programParameters);
                             //FIXME: after game end, a tile STILL somehow falls
                         }
-                        programParameters->flags.speed = SPEED_NORMAL;
+                        programParameters.flags.speed = SPEED_NORMAL;
                     }
 
-                    else if(key == programParameters->keymap.movePieceLeft)  moveLeft(programParameters->tetrisGrid, programParameters->currentTile);
+                    else if(key == programParameters.keymap.movePieceLeft)  moveLeft(programParameters.grid, programParameters.currentTile);
 
-                    else if(key == programParameters->keymap.movePieceRight) moveRight(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize.width);
+                    else if(key == programParameters.keymap.movePieceRight) moveRight(programParameters.grid, programParameters.currentTile, programParameters.gridSize.width);
                     
-                    else if(key == programParameters->keymap.dropSoft) programParameters->flags.speed = SPEED_DROPSOFT;
+                    else if(key == programParameters.keymap.dropSoft) programParameters.flags.speed = SPEED_DROPSOFT;
 
-                    else if(key == programParameters->keymap.rotateClockwise) {
-                        rotateClockwise(programParameters->tetrisGrid, programParameters->currentTile);
-                        playSound(&programParameters->soundEffects[ACTION_ROTATECLOCKWISE], programParameters->soundEffectsVolume);
+                    else if(key == programParameters.keymap.rotateClockwise) {
+                        rotateClockwise(programParameters.grid, programParameters.currentTile);
+                        playSound(&programParameters.soundEffects[ACTION_ROTATECLOCKWISE], programParameters.soundEffectsVolume);
                     }
                     
-                    else if(key == programParameters->keymap.rotateCounterClockwise) {
-                        rotateCounterClockwise(programParameters->tetrisGrid, programParameters->currentTile);
-                        playSound(&programParameters->soundEffects[ACTION_ROTATECOUNTERCLOCKWISE], programParameters->soundEffectsVolume);
+                    else if(key == programParameters.keymap.rotateCounterClockwise) {
+                        rotateCounterClockwise(programParameters.grid, programParameters.currentTile);
+                        playSound(&programParameters.soundEffects[ACTION_ROTATECOUNTERCLOCKWISE], programParameters.soundEffectsVolume);
                     }
                         
-                    else if(key == programParameters->keymap.hold) programParameters->flags.speed = SPEED_HOLD;
+                    else if(key == programParameters.keymap.hold) programParameters.flags.speed = SPEED_HOLD;
 
                     break;
                 }
                 case SDL_KEYUP: {
-                    if( event.key.keysym.sym == programParameters->keymap.dropSoft ||
-                        event.key.keysym.sym == programParameters->keymap.hold) {
-                        programParameters->flags.speed = SPEED_NORMAL;
+                    if( event.key.keysym.sym == programParameters.keymap.dropSoft ||
+                        event.key.keysym.sym == programParameters.keymap.hold) {
+                        programParameters.flags.speed = SPEED_NORMAL;
                     }
                     break;
                 }
             }
         }
-        if(programParameters->flags.playing) {
-            if(!Mix_PlayingMusic()) playMusic(programParameters);
-            size_t baseFallSpeed = programParameters->baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
-            if(programParameters->flags.speed == SPEED_DROPSOFT)  baseFallSpeed /= 5;
-            else if(programParameters->flags.speed == SPEED_HOLD) baseFallSpeed *= 5;
+        if(programParameters.flags.playing) {
+            if(!Mix_PlayingMusic()) playMusic(&programParameters);
+            size_t baseFallSpeed = programParameters.baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
+            if(programParameters.flags.speed == SPEED_DROPSOFT)  baseFallSpeed /= 5;
+            else if(programParameters.flags.speed == SPEED_HOLD) baseFallSpeed *= 5;
             tickTimerEnd = timer.QuadPart;
             // fprintf(debugLog, "%lld %lld\n", tickTimerEnd, tickTimerStart);
             if(tickTimerEnd - tickTimerStart > baseFallSpeed) {
-                if(programParameters->currentTile != NULL) {
-                    status_t moveStatus = moveDown(programParameters->tetrisGrid, programParameters->currentTile, programParameters->tetrisGridSize.height);
+                if(programParameters.currentTile != NULL) {
+                    status_t moveStatus = moveDown(programParameters.grid, programParameters.currentTile, programParameters.gridSize.height);
                     #ifdef DEBUG
                     logToStream(debugLog, LOGLEVEL_DEBUG, "[moveDown] Moving tile down");
                     #endif
                     if(moveStatus == FAILURE) {
-                        onPlacement(programParameters);
-                        freeTile(programParameters->currentTile);
+                        onPlacement(&programParameters);
+                        freeTile(programParameters.currentTile);
 
-                        dequeueTile(&programParameters->tileQueue, &programParameters->currentTile);
-                        enqueueTile(&programParameters->tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, debugLog));
+                        dequeueTile(&programParameters.tileQueue, &programParameters.currentTile);
+                        enqueueTile(&programParameters.tileQueue, loadTileRandom(renderer, NULL, programParameters.gridSize.width, TILELOAD_NOTEXTURE, debugLog));
 
-                        if(programParameters->currentTile == NULL) {
+                        if(programParameters.currentTile == NULL) {
                             logToStream(errorlog, LOGLEVEL_ERROR, "Error loading tile");
                         }
-                        else if(loadTileIntoGrid(programParameters->tetrisGrid, programParameters->currentTile) == FAILURE) { 
-                            onGameEnd(programParameters);
+                        else if(loadTileIntoGrid(programParameters.grid, programParameters.currentTile) == FAILURE) { 
+                            onGameEnd(&programParameters);
                             //TODO: expand functionality on end of the game
                         }
-                        programParameters->flags.speed = SPEED_NORMAL;
+                        programParameters.flags.speed = SPEED_NORMAL;
                     }
                     else {
-                        if     (programParameters->flags.speed == SPEED_DROPSOFT) programParameters->score += POINTS_SOFTDROP;
-                        else if(programParameters->flags.speed == SPEED_HOLD)     programParameters->score += POINTS_HOLD;
+                        if     (programParameters.flags.speed == SPEED_DROPSOFT) programParameters.score += POINTS_SOFTDROP;
+                        else if(programParameters.flags.speed == SPEED_HOLD)     programParameters.score += POINTS_HOLD;
                     }
                 }
                 tickTimerStart = timer.QuadPart;
@@ -465,7 +464,7 @@ int main(int argc, char** argv) {
     sdl_quit: SDL_Quit();
 
     freeConfig:
-        freeProgramConfig(programParameters);
+        freeProgramConfig(&programParameters);
 
     close_configfile: fclose(configFile);
 

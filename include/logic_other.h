@@ -7,17 +7,17 @@
 /**
  * @brief Loads the tile, given its "focal point", to the game matrix.
  * 
- * @param tetrisGrid game matrix
+ * @param grid game matrix
  * @param tile tile
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t loadTileIntoGrid(int** tetrisGrid, const Tile* tile);
+status_t loadTileIntoGrid(int** grid, const Tile* tile);
 
 /**
  * @brief 
  * 
- * @param tetrisGrid 
- * @param tetrisGridSize size of the game matrix
+ * @param grid 
+ * @param gridSize size of the game matrix
  * @param score pointer to score variable, meant to be incremenented based on how many rows were cleared 
  */
 void onPlacement(ProgramParameters* parameters);

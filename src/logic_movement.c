@@ -5,7 +5,7 @@
 //There is kind of no way to make these functions shorter,
 //as every case is a bit different and there are a lot of them.
 
-status_t moveLeft(int** tetrisGrid, Tile* tile) {
+status_t moveLeft(int** grid, Tile* tile) {
     if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
@@ -13,10 +13,10 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
     switch(tile->state) {
         case BAR_HORIZONTAL_UP:
         case BAR_HORIZONTAL_DOWN: {
-            if(x > 0 && tetrisGrid[y][x - 1] == 0) {
-                tetrisGrid[y][x - 1] = -1 * tile->color;
+            if(x > 0 && grid[y][x - 1] == 0) {
+                grid[y][x - 1] = -1 * tile->color;
 
-                tetrisGrid[y][x + 3] = 0;
+                grid[y][x + 3] = 0;
 
                 tile->position.x--;
                 return SUCCESS;
@@ -25,16 +25,16 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
         }
         case BAR_VERTICAL_LEFT:
         case BAR_VERTICAL_RIGHT: {
-            if(x > 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y + 1][x - 1] == 0 && tetrisGrid[y + 2][x - 1] == 0 && tetrisGrid[y + 3][x - 1] == 0) {
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x - 1] = -1 * tile->color;
-                tetrisGrid[y + 2][x - 1] = -1 * tile->color;
-                tetrisGrid[y + 3][x - 1] = -1 * tile->color;
+            if(x > 0 && grid[y][x - 1] == 0 && grid[y + 1][x - 1] == 0 && grid[y + 2][x - 1] == 0 && grid[y + 3][x - 1] == 0) {
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y + 1][x - 1] = -1 * tile->color;
+                grid[y + 2][x - 1] = -1 * tile->color;
+                grid[y + 3][x - 1] = -1 * tile->color;
 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y + 1][x] = 0;
-                tetrisGrid[y + 2][x] = 0;
-                tetrisGrid[y + 3][x] = 0;
+                grid[y]    [x] = 0;
+                grid[y + 1][x] = 0;
+                grid[y + 2][x] = 0;
+                grid[y + 3][x] = 0;
                 
                 tile->position.x--;
                 return SUCCESS;
@@ -42,14 +42,14 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case J_0: {
-            if(x > 0 && tetrisGrid[y - 2][x] == 0 && tetrisGrid[y - 1][x] == 0 && tetrisGrid[y][x - 1] == 0) {
-                tetrisGrid[y - 2][x]     = -1 * tile->color;
-                tetrisGrid[y - 1][x]     = -1 * tile->color;
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
+            if(x > 0 && grid[y - 2][x] == 0 && grid[y - 1][x] == 0 && grid[y][x - 1] == 0) {
+                grid[y - 2][x]     = -1 * tile->color;
+                grid[y - 1][x]     = -1 * tile->color;
+                grid[y]    [x - 1] = -1 * tile->color;
 
-                tetrisGrid[y - 2][x + 1] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
-                tetrisGrid[y]    [x + 1] = 0;
+                grid[y - 2][x + 1] = 0;
+                grid[y - 1][x + 1] = 0;
+                grid[y]    [x + 1] = 0;
 
                 tile->position.x--;
                 return SUCCESS;
@@ -57,12 +57,12 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case J_90: {
-            if(x > 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y + 1][x - 1] == 0) {
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x - 1] = -1 * tile->color;
+            if(x > 0 && grid[y][x - 1] == 0 && grid[y + 1][x - 1] == 0) {
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y + 1][x - 1] = -1 * tile->color;
                 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x + 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x + 2] = 0;
 
                 tile->position.x--;
                 return SUCCESS;
@@ -70,14 +70,14 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case J_180: {
-            if(x > 1 && tetrisGrid[y][x - 2] == 0 && tetrisGrid[y + 1][x - 2] == 0 && tetrisGrid[y + 2][x - 2] == 0) {
-                tetrisGrid[y]    [x - 2] = -1 * tile->color;
-                tetrisGrid[y + 1][x - 2] = -1 * tile->color;
-                tetrisGrid[y + 2][x - 2] = -1 * tile->color;
+            if(x > 1 && grid[y][x - 2] == 0 && grid[y + 1][x - 2] == 0 && grid[y + 2][x - 2] == 0) {
+                grid[y]    [x - 2] = -1 * tile->color;
+                grid[y + 1][x - 2] = -1 * tile->color;
+                grid[y + 2][x - 2] = -1 * tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x - 1] = 0;
-                tetrisGrid[y + 2][x - 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x - 1] = 0;
+                grid[y + 2][x - 1] = 0;
                 
                 tile->position.x--;
                 return SUCCESS;
@@ -85,12 +85,12 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case J_270: {
-            if(x > 2 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y - 1][x - 3] == 0) {
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x - 3] = -1 * tile->color;
+            if(x > 2 && grid[y][x - 1] == 0 && grid[y - 1][x - 3] == 0) {
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y - 1][x - 3] = -1 * tile->color;
 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y - 1][x] = 0;
+                grid[y]    [x] = 0;
+                grid[y - 1][x] = 0;
                 
                 tile->position.x--;
                 return SUCCESS;
@@ -98,14 +98,14 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case L_0: {
-            if(x > 1 && tetrisGrid[y - 2][x - 2] == 0 && tetrisGrid[y - 1][x - 2] == 0 && tetrisGrid[y][x - 2] == 0) {
-                tetrisGrid[y - 2][x - 2] = -1 * tile->color;
-                tetrisGrid[y - 1][x - 2] = -1 * tile->color;
-                tetrisGrid[y]    [x - 2] = -1 * tile->color;
+            if(x > 1 && grid[y - 2][x - 2] == 0 && grid[y - 1][x - 2] == 0 && grid[y][x - 2] == 0) {
+                grid[y - 2][x - 2] = -1 * tile->color;
+                grid[y - 1][x - 2] = -1 * tile->color;
+                grid[y]    [x - 2] = -1 * tile->color;
 
-                tetrisGrid[y - 2][x - 1] = 0;
-                tetrisGrid[y - 1][x - 1] = 0;
-                tetrisGrid[y][x] = 0;
+                grid[y - 2][x - 1] = 0;
+                grid[y - 1][x - 1] = 0;
+                grid[y][x] = 0;
 
                 tile->position.x--;
                 return SUCCESS;
@@ -113,12 +113,12 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case L_90: {
-            if(x > 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y - 1][x - 1] == 0) {
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x - 1] = -1 * tile->color;
+            if(x > 0 && grid[y][x - 1] == 0 && grid[y - 1][x - 1] == 0) {
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y - 1][x - 1] = -1 * tile->color;
                 
-                tetrisGrid[y - 1][x + 2] = 0;
-                tetrisGrid[y]    [x]     = 0;
+                grid[y - 1][x + 2] = 0;
+                grid[y]    [x]     = 0;
                 
                 tile->position.x--;
                 return SUCCESS;
@@ -126,14 +126,14 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case L_180: {
-            if(x > 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 2][x] == 0) {
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 2][x]     = -1 * tile->color;
+            if(x > 0 && grid[y][x - 1] == 0 && grid[y + 1][x] == 0 && grid[y + 2][x] == 0) {
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y + 2][x]     = -1 * tile->color;
                 
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
-                tetrisGrid[y + 2][x + 1] = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y + 1][x + 1] = 0;
+                grid[y + 2][x + 1] = 0;
             
                 tile->position.x--;
                 return SUCCESS;
@@ -141,12 +141,12 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case L_270: {
-            if(x > 2 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y + 1][x - 3] == 0) {
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x - 3] = -1 * tile->color;
+            if(x > 2 && grid[y][x - 1] == 0 && grid[y + 1][x - 3] == 0) {
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y + 1][x - 3] = -1 * tile->color;
                 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y + 1][x] = 0;
+                grid[y]    [x] = 0;
+                grid[y + 1][x] = 0;
 
                 tile->position.x--;
                 return SUCCESS;
@@ -155,12 +155,12 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
         }
         case S_0:
         case S_180: {
-            if(x > 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y -1][x] == 0) {
-                tetrisGrid[y][x - 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x] = -1 * tile->color;
+            if(x > 0 && grid[y][x - 1] == 0 && grid[y -1][x] == 0) {
+                grid[y][x - 1] = -1 * tile->color;
+                grid[y - 1][x] = -1 * tile->color;
 
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y - 1][x + 2] = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y - 1][x + 2] = 0;
             
                 tile->position.x--;
                 return SUCCESS;
@@ -169,14 +169,14 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
         }
         case S_90:
         case S_270: {
-            if(x > 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y + 1][x - 1] == 0 && tetrisGrid[y + 2][x] == 0) {
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x - 1] = -1 * tile->color;
-                tetrisGrid[y + 2][x]     = -1 * tile->color;
+            if(x > 0 && grid[y][x - 1] == 0 && grid[y + 1][x - 1] == 0 && grid[y + 2][x] == 0) {
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y + 1][x - 1] = -1 * tile->color;
+                grid[y + 2][x]     = -1 * tile->color;
 
-                tetrisGrid[y][x] = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
-                tetrisGrid[y + 2][x + 1] = 0;
+                grid[y][x] = 0;
+                grid[y + 1][x + 1] = 0;
+                grid[y + 2][x + 1] = 0;
                 
                 tile->position.x--;
                 return SUCCESS;
@@ -184,12 +184,12 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case SQR: {
-            if(x > 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y + 1][x - 1] == 0) {
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x - 1] = -1 * tile->color;
+            if(x > 0 && grid[y][x - 1] == 0 && grid[y + 1][x - 1] == 0) {
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y + 1][x - 1] = -1 * tile->color;
                 
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y + 1][x + 1] = 0;
 
                 tile->position.x--;
                 return SUCCESS;
@@ -197,12 +197,12 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case T_0: {
-            if(x > 1 && tetrisGrid[y - 1][x - 2] == 0 && tetrisGrid[y][x - 1] == 0) {
-                tetrisGrid[y - 1][x - 2] = -1 * tile->color;
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
+            if(x > 1 && grid[y - 1][x - 2] == 0 && grid[y][x - 1] == 0) {
+                grid[y - 1][x - 2] = -1 * tile->color;
+                grid[y]    [x - 1] = -1 * tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y - 1][x + 1] = 0;
 
                 tile->position.x--;
                 return SUCCESS;
@@ -210,14 +210,14 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case T_90: {
-            if(x > 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y - 1][x] == 0 && tetrisGrid[y + 1][x] == 0) {
-                tetrisGrid[y][x - 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x] = -1 * tile->color;
-                tetrisGrid[y + 1][x] = -1 * tile->color;
+            if(x > 0 && grid[y][x - 1] == 0 && grid[y - 1][x] == 0 && grid[y + 1][x] == 0) {
+                grid[y][x - 1] = -1 * tile->color;
+                grid[y - 1][x] = -1 * tile->color;
+                grid[y + 1][x] = -1 * tile->color;
 
-                tetrisGrid[y - 1][x + 1] = 0;
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
+                grid[y - 1][x + 1] = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y + 1][x + 1] = 0;
             
                 tile->position.x--;
                 return SUCCESS;
@@ -225,12 +225,12 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case T_180: {
-            if(x > 1 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y + 1][x - 2] == 0) {
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x - 2] = -1 * tile->color;
+            if(x > 1 && grid[y][x - 1] == 0 && grid[y + 1][x - 2] == 0) {
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y + 1][x - 2] = -1 * tile->color;
 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
+                grid[y]    [x] = 0;
+                grid[y + 1][x + 1] = 0;
                 
                 tile->position.x--;
                 return SUCCESS;           
@@ -238,14 +238,14 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
             break;
         }
         case T_270: {
-            if(x > 1 && tetrisGrid[y - 1][x - 2] == 0 && tetrisGrid[y][x - 2] == 0 && tetrisGrid[y + 1][x - 2] == 0) {
-                tetrisGrid[y - 1][x - 2] = -1 * tile->color;
-                tetrisGrid[y]    [x - 2] = -1 * tile->color;
-                tetrisGrid[y + 1][x - 2] = -1 * tile->color;
+            if(x > 1 && grid[y - 1][x - 2] == 0 && grid[y][x - 2] == 0 && grid[y + 1][x - 2] == 0) {
+                grid[y - 1][x - 2] = -1 * tile->color;
+                grid[y]    [x - 2] = -1 * tile->color;
+                grid[y + 1][x - 2] = -1 * tile->color;
 
-                tetrisGrid[y - 1][x - 1] = 0;
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x - 1] = 0;
+                grid[y - 1][x - 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x - 1] = 0;
 
                 tile->position.x--;
                 return SUCCESS;
@@ -255,12 +255,12 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
 
         case Z_0:
         case Z_180: {
-            if(x > 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y + 1][x] == 0) {
-                tetrisGrid[y][x - 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x] = -1 * tile->color;
+            if(x > 0 && grid[y][x - 1] == 0 && grid[y + 1][x] == 0) {
+                grid[y][x - 1] = -1 * tile->color;
+                grid[y + 1][x] = -1 * tile->color;
 
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y + 1][x + 2] = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y + 1][x + 2] = 0;
 
                 tile->position.x--;
                 return SUCCESS;
@@ -269,14 +269,14 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
         }
         case Z_90:
         case Z_270: {
-            if(x > 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y + 1][x - 1] == 0 && tetrisGrid[y - 1][x] == 0) {
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x - 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x]     = -1 * tile->color;
+            if(x > 0 && grid[y][x - 1] == 0 && grid[y + 1][x - 1] == 0 && grid[y - 1][x] == 0) {
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y + 1][x - 1] = -1 * tile->color;
+                grid[y - 1][x]     = -1 * tile->color;
 
-                tetrisGrid[y + 1][x] = 0;
-                tetrisGrid[y][x + 1] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
+                grid[y + 1][x] = 0;
+                grid[y][x + 1] = 0;
+                grid[y - 1][x + 1] = 0;
                 
                 tile->position.x--;
                 return SUCCESS;
@@ -288,7 +288,7 @@ status_t moveLeft(int** tetrisGrid, Tile* tile) {
     return FAILURE;
 }
 
-status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
+status_t moveRight(int** grid, Tile* tile, const int gridWidth) {
     if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
@@ -296,10 +296,10 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
     switch(tile->state) {
         case BAR_HORIZONTAL_UP:
         case BAR_HORIZONTAL_DOWN: {
-            if(x < tetrisGridWidth - 4 && tetrisGrid[y][x + 4] == 0) {
-                tetrisGrid[y][x + 4] = -1 * tile->color;
+            if(x < gridWidth - 4 && grid[y][x + 4] == 0) {
+                grid[y][x + 4] = -1 * tile->color;
 
-                tetrisGrid[y][x] = 0;
+                grid[y][x] = 0;
 
                 tile->position.x++;
                 return SUCCESS;
@@ -308,16 +308,16 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
         }
         case BAR_VERTICAL_LEFT:
         case BAR_VERTICAL_RIGHT: {
-            if(x < tetrisGridWidth - 1 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y + 1][x + 1] == 0 && tetrisGrid[y + 2][x + 1] == 0 && tetrisGrid[y + 3][x + 1] == 0) {
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 1] = -1 * tile->color;
-                tetrisGrid[y + 2][x + 1] = -1 * tile->color;
-                tetrisGrid[y + 3][x + 1] = -1 * tile->color;
+            if(x < gridWidth - 1 && grid[y][x + 1] == 0 && grid[y + 1][x + 1] == 0 && grid[y + 2][x + 1] == 0 && grid[y + 3][x + 1] == 0) {
+                grid[y]    [x + 1] = -1 * tile->color;
+                grid[y + 1][x + 1] = -1 * tile->color;
+                grid[y + 2][x + 1] = -1 * tile->color;
+                grid[y + 3][x + 1] = -1 * tile->color;
 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y + 1][x] = 0;
-                tetrisGrid[y + 2][x] = 0;
-                tetrisGrid[y + 3][x] = 0;
+                grid[y]    [x] = 0;
+                grid[y + 1][x] = 0;
+                grid[y + 2][x] = 0;
+                grid[y + 3][x] = 0;
                 
                 tile->position.x++;
                 return SUCCESS;
@@ -325,14 +325,14 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case J_0: {
-            if(x < tetrisGridWidth - 2 && tetrisGrid[y - 2][x + 2] == 0 && tetrisGrid[y - 1][x + 2] == 0 && tetrisGrid[y][x + 2] == 0) {
-                tetrisGrid[y - 2][x + 2] = -1 * tile->color;
-                tetrisGrid[y - 1][x + 2] = -1 * tile->color;
-                tetrisGrid[y]    [x + 2] = -1 * tile->color;
+            if(x < gridWidth - 2 && grid[y - 2][x + 2] == 0 && grid[y - 1][x + 2] == 0 && grid[y][x + 2] == 0) {
+                grid[y - 2][x + 2] = -1 * tile->color;
+                grid[y - 1][x + 2] = -1 * tile->color;
+                grid[y]    [x + 2] = -1 * tile->color;
 
-                tetrisGrid[y - 2][x + 1] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
-                tetrisGrid[y]    [x]     = 0;
+                grid[y - 2][x + 1] = 0;
+                grid[y - 1][x + 1] = 0;
+                grid[y]    [x]     = 0;
 
                 tile->position.x++;
                 return SUCCESS;
@@ -340,12 +340,12 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case J_90: {
-            if(x < tetrisGridWidth - 3 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y + 1][x + 3] == 0) {
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 3] = -1 * tile->color;
+            if(x < gridWidth - 3 && grid[y][x + 1] == 0 && grid[y + 1][x + 3] == 0) {
+                grid[y]    [x + 1] = -1 * tile->color;
+                grid[y + 1][x + 3] = -1 * tile->color;
                 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y + 1][x] = 0;
+                grid[y]    [x] = 0;
+                grid[y + 1][x] = 0;
 
                 tile->position.x++;
                 return SUCCESS;
@@ -353,14 +353,14 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case J_180: {
-            if(x < tetrisGridWidth - 1 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 2][x] == 0) {
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 2][x]     = -1 * tile->color;
+            if(x < gridWidth - 1 && grid[y][x + 1] == 0 && grid[y + 1][x] == 0 && grid[y + 2][x] == 0) {
+                grid[y]    [x + 1] = -1 * tile->color;
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y + 2][x]     = -1 * tile->color;
 
-                tetrisGrid[y]    [x - 1] = 0;
-                tetrisGrid[y + 1][x - 1] = 0;
-                tetrisGrid[y + 2][x - 1] = 0;
+                grid[y]    [x - 1] = 0;
+                grid[y + 1][x - 1] = 0;
+                grid[y + 2][x - 1] = 0;
                 
                 tile->position.x++;
                 return SUCCESS;
@@ -368,12 +368,12 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case J_270: {
-            if(x < tetrisGridWidth - 1 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y - 1][x + 1] == 0) {
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x + 1] = -1 * tile->color;
+            if(x < gridWidth - 1 && grid[y][x + 1] == 0 && grid[y - 1][x + 1] == 0) {
+                grid[y]    [x + 1] = -1 * tile->color;
+                grid[y - 1][x + 1] = -1 * tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y - 1][x - 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y - 1][x - 2] = 0;
                 
                 tile->position.x++;
                 return SUCCESS;
@@ -381,14 +381,14 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case L_0: {
-            if(x < tetrisGridWidth - 1 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y - 1][x] == 0 && tetrisGrid[y - 2][x] == 0) {
-                tetrisGrid[y][x + 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x] = -1 * tile->color;
-                tetrisGrid[y - 2][x] = -1 * tile->color;
+            if(x < gridWidth - 1 && grid[y][x + 1] == 0 && grid[y - 1][x] == 0 && grid[y - 2][x] == 0) {
+                grid[y][x + 1] = -1 * tile->color;
+                grid[y - 1][x] = -1 * tile->color;
+                grid[y - 2][x] = -1 * tile->color;
 
-                tetrisGrid[y - 2][x - 1] = 0;
-                tetrisGrid[y - 1][x - 1] = 0;
-                tetrisGrid[y]    [x - 1] = 0;
+                grid[y - 2][x - 1] = 0;
+                grid[y - 1][x - 1] = 0;
+                grid[y]    [x - 1] = 0;
 
                 tile->position.x++;
                 return SUCCESS;
@@ -396,12 +396,12 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case L_90: {
-            if(x < tetrisGridWidth - 3 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y - 1][x + 3] == 0) {
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x + 3] = -1 * tile->color;
+            if(x < gridWidth - 3 && grid[y][x + 1] == 0 && grid[y - 1][x + 3] == 0) {
+                grid[y]    [x + 1] = -1 * tile->color;
+                grid[y - 1][x + 3] = -1 * tile->color;
                 
-                tetrisGrid[y - 1][x] = 0;
-                tetrisGrid[y]    [x] = 0;
+                grid[y - 1][x] = 0;
+                grid[y]    [x] = 0;
                 
                 tile->position.x++;
                 return SUCCESS;
@@ -409,14 +409,14 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case L_180: {
-            if(x < tetrisGridWidth - 2 && tetrisGrid[y][x + 2] == 0 && tetrisGrid[y + 1][x + 2] == 0 && tetrisGrid[y + 2][x + 2] == 0) {
-                tetrisGrid[y]    [x + 2] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 2] = -1 * tile->color;
-                tetrisGrid[y + 2][x + 2] = -1 * tile->color;
+            if(x < gridWidth - 2 && grid[y][x + 2] == 0 && grid[y + 1][x + 2] == 0 && grid[y + 2][x + 2] == 0) {
+                grid[y]    [x + 2] = -1 * tile->color;
+                grid[y + 1][x + 2] = -1 * tile->color;
+                grid[y + 2][x + 2] = -1 * tile->color;
                 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
-                tetrisGrid[y + 2][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x + 1] = 0;
+                grid[y + 2][x + 1] = 0;
             
                 tile->position.x++;
                 return SUCCESS;
@@ -424,12 +424,12 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case L_270: {
-            if(x < tetrisGridWidth - 1 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y + 1][x + 1] == 0) {
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 1] = -1 * tile->color;
+            if(x < gridWidth - 1 && grid[y][x + 1] == 0 && grid[y + 1][x + 1] == 0) {
+                grid[y]    [x + 1] = -1 * tile->color;
+                grid[y + 1][x + 1] = -1 * tile->color;
                 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x - 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x - 2] = 0;
 
                 tile->position.x++;
                 return SUCCESS;
@@ -438,12 +438,12 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
         }
         case S_0:
         case S_180: {
-            if(x < tetrisGridWidth - 3 && tetrisGrid[y][x + 2] == 0 && tetrisGrid[y - 1][x + 3] == 0) {
-                tetrisGrid[y]    [x + 2] = -1 * tile->color;
-                tetrisGrid[y - 1][x + 3] = -1 * tile->color;
+            if(x < gridWidth - 3 && grid[y][x + 2] == 0 && grid[y - 1][x + 3] == 0) {
+                grid[y]    [x + 2] = -1 * tile->color;
+                grid[y - 1][x + 3] = -1 * tile->color;
 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
+                grid[y]    [x] = 0;
+                grid[y - 1][x + 1] = 0;
             
                 tile->position.x++;
                 return SUCCESS;
@@ -452,14 +452,14 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
         }
         case S_90:
         case S_270: {
-            if(x < tetrisGridWidth - 2 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y + 1][x + 2] == 0 && tetrisGrid[y + 2][x + 2] == 0) {
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 2] = -1 * tile->color;
-                tetrisGrid[y + 2][x + 2]     = -1 * tile->color;
+            if(x < gridWidth - 2 && grid[y][x + 1] == 0 && grid[y + 1][x + 2] == 0 && grid[y + 2][x + 2] == 0) {
+                grid[y]    [x + 1] = -1 * tile->color;
+                grid[y + 1][x + 2] = -1 * tile->color;
+                grid[y + 2][x + 2]     = -1 * tile->color;
 
-                tetrisGrid[y][x] = 0;
-                tetrisGrid[y + 1][x] = 0;
-                tetrisGrid[y + 2][x + 1] = 0;
+                grid[y][x] = 0;
+                grid[y + 1][x] = 0;
+                grid[y + 2][x + 1] = 0;
                 
                 tile->position.x++;
                 return SUCCESS;
@@ -467,12 +467,12 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case SQR: {
-            if(x < tetrisGridWidth - 2 && tetrisGrid[y][x + 2] == 0 && tetrisGrid[y + 1][x + 2] == 0) {
-                tetrisGrid[y]    [x + 2] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 2] = -1 * tile->color;
+            if(x < gridWidth - 2 && grid[y][x + 2] == 0 && grid[y + 1][x + 2] == 0) {
+                grid[y]    [x + 2] = -1 * tile->color;
+                grid[y + 1][x + 2] = -1 * tile->color;
                 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y + 1][x] = 0;
+                grid[y]    [x] = 0;
+                grid[y + 1][x] = 0;
 
                 tile->position.x++;
                 return SUCCESS;
@@ -480,12 +480,12 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case T_0: {
-            if(x < tetrisGridWidth - 2 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y - 1][x + 2] == 0) {
-                tetrisGrid[y][x + 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x + 2] = -1 * tile->color;
+            if(x < gridWidth - 2 && grid[y][x + 1] == 0 && grid[y - 1][x + 2] == 0) {
+                grid[y][x + 1] = -1 * tile->color;
+                grid[y - 1][x + 2] = -1 * tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y - 1][x - 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y - 1][x - 1] = 0;
 
                 tile->position.x++;
                 return SUCCESS;
@@ -493,14 +493,14 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case T_90: {
-            if(x < tetrisGridWidth - 2 && tetrisGrid[y - 1][x + 2] == 0 && tetrisGrid[y][x + 2] == 0 && tetrisGrid[y + 1][x + 2] == 0) {
-                tetrisGrid[y - 1][x + 2] = -1 * tile->color;
-                tetrisGrid[y]    [x + 2] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 2] = -1 * tile->color;
+            if(x < gridWidth - 2 && grid[y - 1][x + 2] == 0 && grid[y][x + 2] == 0 && grid[y + 1][x + 2] == 0) {
+                grid[y - 1][x + 2] = -1 * tile->color;
+                grid[y]    [x + 2] = -1 * tile->color;
+                grid[y + 1][x + 2] = -1 * tile->color;
 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
+                grid[y]    [x] = 0;
+                grid[y - 1][x + 1] = 0;
+                grid[y + 1][x + 1] = 0;
             
                 tile->position.x++;
                 return SUCCESS;
@@ -508,12 +508,12 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case T_180: {
-            if(x < tetrisGridWidth - 2 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y + 1][x + 2] == 0) {
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 2] = -1 * tile->color;
+            if(x < gridWidth - 2 && grid[y][x + 1] == 0 && grid[y + 1][x + 2] == 0) {
+                grid[y]    [x + 1] = -1 * tile->color;
+                grid[y + 1][x + 2] = -1 * tile->color;
 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y + 1][x - 1] = 0;
+                grid[y]    [x] = 0;
+                grid[y + 1][x - 1] = 0;
                 
                 tile->position.x++;
                 return SUCCESS;           
@@ -521,14 +521,14 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
             break;
         }
         case T_270: {
-            if(x < tetrisGridWidth - 1 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y - 1][x] == 0 && tetrisGrid[y + 1][x] == 0) {
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y - 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
+            if(x < gridWidth - 1 && grid[y][x + 1] == 0 && grid[y - 1][x] == 0 && grid[y + 1][x] == 0) {
+                grid[y]    [x + 1] = -1 * tile->color;
+                grid[y - 1][x]     = -1 * tile->color;
+                grid[y + 1][x]     = -1 * tile->color;
 
-                tetrisGrid[y - 1][x - 1] = 0;
-                tetrisGrid[y]    [x - 1] = 0;
-                tetrisGrid[y + 1][x - 1] = 0;
+                grid[y - 1][x - 1] = 0;
+                grid[y]    [x - 1] = 0;
+                grid[y + 1][x - 1] = 0;
 
                 tile->position.x++;
                 return SUCCESS;
@@ -538,12 +538,12 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
 
         case Z_0:
         case Z_180: {
-            if(x < tetrisGridWidth - 3 && tetrisGrid[y + 1][x + 3] == 0 && tetrisGrid[y][x + 2] == 0) {
-                tetrisGrid[y + 1][x + 3] = -1 * tile->color;
-                tetrisGrid[y]    [x + 2] = -1 * tile->color;
+            if(x < gridWidth - 3 && grid[y + 1][x + 3] == 0 && grid[y][x + 2] == 0) {
+                grid[y + 1][x + 3] = -1 * tile->color;
+                grid[y]    [x + 2] = -1 * tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x + 1] = 0;
 
                 tile->position.x++;
                 return SUCCESS;
@@ -552,14 +552,14 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
         }
         case Z_90:
         case Z_270: {
-            if(x < tetrisGridWidth - 2 && tetrisGrid[y][x + 2] == 0 && tetrisGrid[y - 1][x + 2] == 0 && tetrisGrid[y + 1][x + 1] == 0) {
-                tetrisGrid[y]    [x + 2] = -1 * tile->color;
-                tetrisGrid[y - 1][x + 2] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 1] = -1 * tile->color;
+            if(x < gridWidth - 2 && grid[y][x + 2] == 0 && grid[y - 1][x + 2] == 0 && grid[y + 1][x + 1] == 0) {
+                grid[y]    [x + 2] = -1 * tile->color;
+                grid[y - 1][x + 2] = -1 * tile->color;
+                grid[y + 1][x + 1] = -1 * tile->color;
 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y + 1][x] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
+                grid[y]    [x] = 0;
+                grid[y + 1][x] = 0;
+                grid[y - 1][x + 1] = 0;
                 
                 tile->position.x++;
                 return SUCCESS;
@@ -571,7 +571,7 @@ status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth) {
     return FAILURE;
 }
 
-status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
+status_t moveDown(int** grid, Tile* tile, const int gridHeight) {
     if(tile == NULL)return MEMORY_FAILURE;
     int x = tile->position.x;
     int y = tile->position.y;
@@ -579,16 +579,16 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
     switch(tile->state) {
         case BAR_HORIZONTAL_UP:
         case BAR_HORIZONTAL_DOWN: {
-            if(y < tetrisGridHeight - 1 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 1][x + 1] == 0 && tetrisGrid[y + 1][x + 2] == 0 && tetrisGrid[y + 1][x + 3] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 1][x + 1] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 2] = -1 * tile->color;
-                tetrisGrid[y + 1][x + 3] = -1 * tile->color;
+            if(y < gridHeight - 1 && grid[y + 1][x] == 0 && grid[y + 1][x + 1] == 0 && grid[y + 1][x + 2] == 0 && grid[y + 1][x + 3] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y + 1][x + 1] = -1 * tile->color;
+                grid[y + 1][x + 2] = -1 * tile->color;
+                grid[y + 1][x + 3] = -1 * tile->color;
 
-                tetrisGrid[y][x] = 0;
-                tetrisGrid[y][x + 1] = 0;
-                tetrisGrid[y][x + 2] = 0;
-                tetrisGrid[y][x + 3] = 0;
+                grid[y][x] = 0;
+                grid[y][x + 1] = 0;
+                grid[y][x + 2] = 0;
+                grid[y][x + 3] = 0;
 
                 tile->position.y++;
                 return SUCCESS;
@@ -597,10 +597,10 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
         }
         case BAR_VERTICAL_LEFT:
         case BAR_VERTICAL_RIGHT: {
-            if(y < tetrisGridHeight - 4 && tetrisGrid[y + 4][x] == 0) {
-                tetrisGrid[y + 4][x] = -1 * tile->color;
+            if(y < gridHeight - 4 && grid[y + 4][x] == 0) {
+                grid[y + 4][x] = -1 * tile->color;
 
-                tetrisGrid[y][x] = 0;
+                grid[y][x] = 0;
 
                 tile->position.y++;
 
@@ -609,12 +609,12 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case J_0: {
-            if(y < tetrisGridHeight - 1 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 1][x + 1] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 1][x + 1] = -1 * tile->color;
+            if(y < gridHeight - 1 && grid[y + 1][x] == 0 && grid[y + 1][x + 1] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y + 1][x + 1] = -1 * tile->color;
 
-                tetrisGrid[y][x]         = 0;
-                tetrisGrid[y - 2][x + 1] = 0;
+                grid[y][x]         = 0;
+                grid[y - 2][x + 1] = 0;
 
                 tile->position.y++;
 
@@ -623,14 +623,14 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case J_90: {
-            if(y < tetrisGridHeight - 2 && tetrisGrid[y + 2][x] == 0 && tetrisGrid[y + 2][x + 1] == 0 && tetrisGrid[y + 2][x + 2] == 0) {
-                tetrisGrid[y + 2][x]     = -1 * tile->color;
-                tetrisGrid[y + 2][x + 1] = -1 * tile->color;
-                tetrisGrid[y + 2][x + 2] = -1 * tile->color;
+            if(y < gridHeight - 2 && grid[y + 2][x] == 0 && grid[y + 2][x + 1] == 0 && grid[y + 2][x + 2] == 0) {
+                grid[y + 2][x]     = -1 * tile->color;
+                grid[y + 2][x + 1] = -1 * tile->color;
+                grid[y + 2][x + 2] = -1 * tile->color;
 
-                tetrisGrid[y][x]         = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
-                tetrisGrid[y + 1][x + 2] = 0;
+                grid[y][x]         = 0;
+                grid[y + 1][x + 1] = 0;
+                grid[y + 1][x + 2] = 0;
 
                 tile->position.y++;
 
@@ -639,12 +639,12 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case J_180: {
-            if(y < tetrisGridHeight - 3 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 3][x - 1] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 3][x - 1] = -1 * tile->color;
+            if(y < gridHeight - 3 && grid[y + 1][x] == 0 && grid[y + 3][x - 1] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y + 3][x - 1] = -1 * tile->color;
 
-                tetrisGrid[y][x]     = 0;
-                tetrisGrid[y][x - 1] = 0;
+                grid[y][x]     = 0;
+                grid[y][x - 1] = 0;
 
                 tile->position.y++;
 
@@ -653,14 +653,14 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case J_270: {
-            if(y < tetrisGridHeight - 1 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y][x - 2] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y]    [x - 2] = -1 * tile->color;
+            if(y < gridHeight - 1 && grid[y + 1][x] == 0 && grid[y][x - 1] == 0 && grid[y][x - 2] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y]    [x - 2] = -1 * tile->color;
 
-                tetrisGrid[y - 1][x - 2] = 0;
-                tetrisGrid[y - 1][x - 1] = 0;
-                tetrisGrid[y - 1][x]     = 0;
+                grid[y - 1][x - 2] = 0;
+                grid[y - 1][x - 1] = 0;
+                grid[y - 1][x]     = 0;
 
                 tile->position.y++;
 
@@ -669,12 +669,12 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case L_0: {
-            if(y < tetrisGridHeight - 1 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 1][x - 1] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 1][x - 1] = -1 * tile->color;
+            if(y < gridHeight - 1 && grid[y + 1][x] == 0 && grid[y + 1][x - 1] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y + 1][x - 1] = -1 * tile->color;
 
-                tetrisGrid[y][x]         = 0;
-                tetrisGrid[y - 2][x - 1] = 0;
+                grid[y][x]         = 0;
+                grid[y - 2][x - 1] = 0;
 
                 tile->position.y++;
 
@@ -683,14 +683,14 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case L_90: {
-            if(y < tetrisGridHeight - 1 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y][x + 1] == 0 && tetrisGrid[y][x + 2] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
-                tetrisGrid[y]    [x + 2] = -1 * tile->color;
+            if(y < gridHeight - 1 && grid[y + 1][x] == 0 && grid[y][x + 1] == 0 && grid[y][x + 2] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y]    [x + 1] = -1 * tile->color;
+                grid[y]    [x + 2] = -1 * tile->color;
 
-                tetrisGrid[y - 1][x] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
-                tetrisGrid[y - 1][x + 2] = 0;
+                grid[y - 1][x] = 0;
+                grid[y - 1][x + 1] = 0;
+                grid[y - 1][x + 2] = 0;
 
                 tile->position.y++;
 
@@ -699,12 +699,12 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case L_180: {
-            if(y < tetrisGridHeight - 3 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 3][x + 1] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 3][x + 1] = -1 * tile->color;
+            if(y < gridHeight - 3 && grid[y + 1][x] == 0 && grid[y + 3][x + 1] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y + 3][x + 1] = -1 * tile->color;
 
-                tetrisGrid[y][x]     = 0;
-                tetrisGrid[y][x + 1] = 0;
+                grid[y][x]     = 0;
+                grid[y][x + 1] = 0;
 
                 tile->position.y++;
 
@@ -713,14 +713,14 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case L_270: {
-            if(y < tetrisGridHeight - 2 && tetrisGrid[y + 2][x] == 0 && tetrisGrid[y + 2][x - 1] == 0 && tetrisGrid[y + 2][x - 2] == 0) {
-                tetrisGrid[y + 2][x]     = -1 * tile->color;
-                tetrisGrid[y + 2][x - 1] = -1 * tile->color;
-                tetrisGrid[y + 2][x - 2] = -1 * tile->color;
+            if(y < gridHeight - 2 && grid[y + 2][x] == 0 && grid[y + 2][x - 1] == 0 && grid[y + 2][x - 2] == 0) {
+                grid[y + 2][x]     = -1 * tile->color;
+                grid[y + 2][x - 1] = -1 * tile->color;
+                grid[y + 2][x - 2] = -1 * tile->color;
 
-                tetrisGrid[y + 1][x - 2] = 0;
-                tetrisGrid[y + 1][x - 1] = 0;
-                tetrisGrid[y][x] = 0;
+                grid[y + 1][x - 2] = 0;
+                grid[y + 1][x - 1] = 0;
+                grid[y][x] = 0;
 
                 tile->position.y++;
 
@@ -730,14 +730,14 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
         }
         case S_0:
         case S_180: {
-            if(y < tetrisGridHeight - 1 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 1][x + 1] == 0 && tetrisGrid[y][x + 2] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 1][x + 1] = -1 * tile->color;
-                tetrisGrid[y]    [x + 2] = -1 * tile->color;
+            if(y < gridHeight - 1 && grid[y + 1][x] == 0 && grid[y + 1][x + 1] == 0 && grid[y][x + 2] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y + 1][x + 1] = -1 * tile->color;
+                grid[y]    [x + 2] = -1 * tile->color;
 
-                tetrisGrid[y][x] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
-                tetrisGrid[y - 1][x + 2] = 0;
+                grid[y][x] = 0;
+                grid[y - 1][x + 1] = 0;
+                grid[y - 1][x + 2] = 0;
 
                 tile->position.y++;
 
@@ -747,12 +747,12 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
         }
         case S_90:
         case S_270: {
-            if(y < tetrisGridHeight - 3 && tetrisGrid[y + 2][x] == 0 && tetrisGrid[y + 3][x + 1] == 0) {
-                tetrisGrid[y + 2][x]     = -1 * tile->color;
-                tetrisGrid[y + 3][x + 1] = -1 * tile->color;
+            if(y < gridHeight - 3 && grid[y + 2][x] == 0 && grid[y + 3][x + 1] == 0) {
+                grid[y + 2][x]     = -1 * tile->color;
+                grid[y + 3][x + 1] = -1 * tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x + 1] = 0;
             
                 tile->position.y++;
 
@@ -761,12 +761,12 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case SQR: {
-            if(y < tetrisGridHeight - 2 && tetrisGrid[y + 2][x] == 0 && tetrisGrid[y + 2][x + 1] == 0) {
-                tetrisGrid[y + 2][x]     = -1 * tile->color;
-                tetrisGrid[y + 2][x + 1] = -1 * tile->color;
+            if(y < gridHeight - 2 && grid[y + 2][x] == 0 && grid[y + 2][x + 1] == 0) {
+                grid[y + 2][x]     = -1 * tile->color;
+                grid[y + 2][x + 1] = -1 * tile->color;
 
-                tetrisGrid[y][x]     = 0;
-                tetrisGrid[y][x + 1] = 0;
+                grid[y][x]     = 0;
+                grid[y][x + 1] = 0;
             
                 tile->position.y++;
 
@@ -775,14 +775,14 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case T_0: {
-            if(y < tetrisGridHeight - 1 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y][x - 1] == 0 && tetrisGrid[y][x + 1] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y]    [x - 1] = -1 * tile->color;
-                tetrisGrid[y]    [x + 1] = -1 * tile->color;
+            if(y < gridHeight - 1 && grid[y + 1][x] == 0 && grid[y][x - 1] == 0 && grid[y][x + 1] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y]    [x - 1] = -1 * tile->color;
+                grid[y]    [x + 1] = -1 * tile->color;
 
-                tetrisGrid[y - 1][x - 1] = 0;
-                tetrisGrid[y - 1][x]     = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
+                grid[y - 1][x - 1] = 0;
+                grid[y - 1][x]     = 0;
+                grid[y - 1][x + 1] = 0;
             
                 tile->position.y++;
 
@@ -791,12 +791,12 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case T_90: {
-            if(y < tetrisGridHeight - 2 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 2][x + 1] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 2][x + 1] = -1 * tile->color;
+            if(y < gridHeight - 2 && grid[y + 1][x] == 0 && grid[y + 2][x + 1] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y + 2][x + 1] = -1 * tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y - 1][x + 1] = 0;
             
                 tile->position.y++;
 
@@ -805,14 +805,14 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case T_180: {
-            if(y < tetrisGridHeight - 2 && tetrisGrid[y + 2][x - 1] == 0 && tetrisGrid[y + 2][x] == 0 && tetrisGrid[y + 2][x + 1] == 0) {
-                tetrisGrid[y + 2][x - 1] = -1 * tile->color;
-                tetrisGrid[y + 2][x]     = -1 * tile->color;
-                tetrisGrid[y + 2][x + 1] = -1 * tile->color;
+            if(y < gridHeight - 2 && grid[y + 2][x - 1] == 0 && grid[y + 2][x] == 0 && grid[y + 2][x + 1] == 0) {
+                grid[y + 2][x - 1] = -1 * tile->color;
+                grid[y + 2][x]     = -1 * tile->color;
+                grid[y + 2][x + 1] = -1 * tile->color;
 
-                tetrisGrid[y + 1][x - 1] = 0;
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
+                grid[y + 1][x - 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x + 1] = 0;
             
                 tile->position.y++;
 
@@ -821,12 +821,12 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
             break;
         }
         case T_270: {
-            if(y < tetrisGridHeight - 2 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 2][x - 1] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 2][x - 1] = -1 * tile->color;
+            if(y < gridHeight - 2 && grid[y + 1][x] == 0 && grid[y + 2][x - 1] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y + 2][x - 1] = -1 * tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y - 1][x - 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y - 1][x - 1] = 0;
             
                 tile->position.y++;
 
@@ -836,14 +836,14 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
         }
         case Z_0:
         case Z_180: {
-            if(y < tetrisGridHeight - 2 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 2][x + 1] == 0 && tetrisGrid[y + 2][x + 2] == 0) {
-                tetrisGrid[y + 1][x]     = -1 * tile->color;
-                tetrisGrid[y + 2][x + 1] = -1 * tile->color;
-                tetrisGrid[y + 2][x + 2] = -1 * tile->color;
+            if(y < gridHeight - 2 && grid[y + 1][x] == 0 && grid[y + 2][x + 1] == 0 && grid[y + 2][x + 2] == 0) {
+                grid[y + 1][x]     = -1 * tile->color;
+                grid[y + 2][x + 1] = -1 * tile->color;
+                grid[y + 2][x + 2] = -1 * tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y + 1][x + 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y + 1][x + 2] = 0;
             
                 tile->position.y++;
 
@@ -853,12 +853,12 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
         }
         case Z_90:
         case Z_270: {
-            if(y < tetrisGridHeight - 2 && tetrisGrid[y + 2][x] == 0 && tetrisGrid[y + 1][x + 1] == 0) {
-                tetrisGrid[y + 2][x]     = -1 * tile->color;
-                tetrisGrid[y + 1][x + 1] = -1 * tile->color;
+            if(y < gridHeight - 2 && grid[y + 2][x] == 0 && grid[y + 1][x + 1] == 0) {
+                grid[y + 2][x]     = -1 * tile->color;
+                grid[y + 1][x + 1] = -1 * tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y - 1][x + 1] = 0;
 
                 tile->position.y++;
 
@@ -874,7 +874,7 @@ status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
 //Inefficient, but works
 void dropHard(ProgramParameters* parameters) {
     int distance = 0;
-    while(moveDown(parameters->tetrisGrid, parameters->currentTile, parameters->tetrisGridSize.height) == SUCCESS) distance++;
+    while(moveDown(parameters->grid, parameters->currentTile, parameters->gridSize.height) == SUCCESS) distance++;
 
     parameters->currentTile->position.x = -1;
     parameters->currentTile->position.y = -1;
@@ -886,7 +886,7 @@ void dropHard(ProgramParameters* parameters) {
  * FIXME: rewrite this shit from scratch
  * nah, I'm too lazy
  */
-/* status_t dropHardOld(int** tetrisGrid, Tile* tile, const int tetrisGridHeight, FILE* debug) {
+/* status_t dropHardOld(int** grid, Tile* tile, const int gridHeight, FILE* debug) {
     //Convention is as follows:
     //(x, y) point to left-most square of the current tile.
     //If there are multiple, it points to the top-most one.
@@ -895,332 +895,332 @@ void dropHard(ProgramParameters* parameters) {
     int y = tile->position.y;
     switch(tile->shape) {
         case BAR: {
-            if(tetrisGrid[y][x + 1] == -1 * tile->color) {
+            if(grid[y][x + 1] == -1 * tile->color) {
                 //[][][][]
                 int z[4] = {y + 1, y + 1, y + 1, y + 1};
  
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
-                while(z[2] < tetrisGridHeight && tetrisGrid[z[2]][x + 2] == 0)z[2]++;
-                while(z[3] < tetrisGridHeight && tetrisGrid[z[3]][x + 3] == 0)z[3]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x + 1] == 0)z[1]++;
+                while(z[2] < gridHeight && grid[z[2]][x + 2] == 0)z[2]++;
+                while(z[3] < gridHeight && grid[z[3]][x + 3] == 0)z[3]++;
 
                 int min = Min(z, 4);
                 min--;
 
-                tetrisGrid[min][x]     = tile->color;
-                tetrisGrid[min][x + 1] = tile->color;
-                tetrisGrid[min][x + 2] = tile->color;
-                tetrisGrid[min][x + 3] = tile->color;
+                grid[min][x]     = tile->color;
+                grid[min][x + 1] = tile->color;
+                grid[min][x + 2] = tile->color;
+                grid[min][x + 3] = tile->color;
                 
-                tetrisGrid[y][x]     = 0;
-                tetrisGrid[y][x + 1] = 0;
-                tetrisGrid[y][x + 2] = 0;
-                tetrisGrid[y][x + 3] = 0;
+                grid[y][x]     = 0;
+                grid[y][x + 1] = 0;
+                grid[y][x + 2] = 0;
+                grid[y][x + 3] = 0;
             }
-            else if(tetrisGrid[y + 1][x] == -1 * tile->color) {
+            else if(grid[y + 1][x] == -1 * tile->color) {
                 //[]
                 //[]
                 //[]
                 //[]
                 int z = y + 4;
-                while(z < tetrisGridHeight && tetrisGrid[z][x] == 0)z++;
+                while(z < gridHeight && grid[z][x] == 0)z++;
                 z--;
 
-                tetrisGrid[z]    [x] = tile->color;
-                tetrisGrid[z + 1][x] = tile->color;
-                tetrisGrid[z + 2][x] = tile->color;
-                tetrisGrid[z + 3][x] = tile->color;
+                grid[z]    [x] = tile->color;
+                grid[z + 1][x] = tile->color;
+                grid[z + 2][x] = tile->color;
+                grid[z + 3][x] = tile->color;
 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y + 1][x] = 0;
-                tetrisGrid[y + 2][x] = 0;
-                tetrisGrid[y + 3][x] = 0;
+                grid[y]    [x] = 0;
+                grid[y + 1][x] = 0;
+                grid[y + 2][x] = 0;
+                grid[y + 3][x] = 0;
             }
             break;
         }
         case J: {
-            if(tetrisGrid[y][x + 1] == -1 * tile->color) {
+            if(grid[y][x + 1] == -1 * tile->color) {
                 //  []
                 //  []
                 //[][]
                 int z[2] = {y + 1, y + 1};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x + 1] == 0)z[1]++;
 
                 int min = z[0] < z[1] ? z[0] : z[1];
                 min--;
 
-                tetrisGrid[min]     [x]     = tile->color;
-                tetrisGrid[min]     [x + 1] = tile->color;
-                tetrisGrid[min - 1] [x + 1] = tile->color;
-                tetrisGrid[min - 2] [x + 1] = tile->color;
+                grid[min]     [x]     = tile->color;
+                grid[min]     [x + 1] = tile->color;
+                grid[min - 1] [x + 1] = tile->color;
+                grid[min - 2] [x + 1] = tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
-                tetrisGrid[y - 2][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y - 1][x + 1] = 0;
+                grid[y - 2][x + 1] = 0;
             }
-            else if(tetrisGrid[y][x - 1] == -1 * tile->color) {
+            else if(grid[y][x - 1] == -1 * tile->color) {
                 //[][]
                 //[]
                 //[]
                 int z[2] = {y + 1, y + 3};
         
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x - 1] == 0)z[1]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x - 1] == 0)z[1]++;
 
                 if(z[0] < z[1]) {
                     z[0]--;
 
-                    tetrisGrid[z[0]]    [x]     = tile->color;
-                    tetrisGrid[z[0]]    [x - 1] = tile->color;
-                    tetrisGrid[z[0] + 1][x - 1] = tile->color;
-                    tetrisGrid[z[0] + 2][x - 1] = tile->color;
+                    grid[z[0]]    [x]     = tile->color;
+                    grid[z[0]]    [x - 1] = tile->color;
+                    grid[z[0] + 1][x - 1] = tile->color;
+                    grid[z[0] + 2][x - 1] = tile->color;
                 }
                 else if(z[1] < z[0]) {
                     z[1]--;
 
-                    tetrisGrid[z[1]]    [x - 1] = tile->color;
-                    tetrisGrid[z[1] - 1][x - 1] = tile->color;
-                    tetrisGrid[z[1] - 2][x - 1] = tile->color;
-                    tetrisGrid[z[1] - 2][x]     = tile->color;
+                    grid[z[1]]    [x - 1] = tile->color;
+                    grid[z[1] - 1][x - 1] = tile->color;
+                    grid[z[1] - 2][x - 1] = tile->color;
+                    grid[z[1] - 2][x]     = tile->color;
                 }
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y]    [x - 1] = 0;
-                tetrisGrid[y - 1][x - 1] = 0;
-                tetrisGrid[y - 2][x - 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y]    [x - 1] = 0;
+                grid[y - 1][x - 1] = 0;
+                grid[y - 2][x - 1] = 0;
             }
-            else if(tetrisGrid[y + 1][x] == -1 * tile->color) {
+            else if(grid[y + 1][x] == -1 * tile->color) {
                 //[]
                 //[][][]
                 int z[3] = {y + 2, y + 2, y + 2};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
-                while(z[2] < tetrisGridHeight && tetrisGrid[z[2]][x + 2] == 0)z[2]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x + 1] == 0)z[1]++;
+                while(z[2] < gridHeight && grid[z[2]][x + 2] == 0)z[2]++;
 
                 int min = Min(z, 3);
                 min--;
 
-                tetrisGrid[min - 1] [x] = tile->color;
-                tetrisGrid[min]     [x] = tile->color;
-                tetrisGrid[min]     [x] = tile->color;
-                tetrisGrid[min]     [x] = tile->color;
+                grid[min - 1] [x] = tile->color;
+                grid[min]     [x] = tile->color;
+                grid[min]     [x] = tile->color;
+                grid[min]     [x] = tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x]     = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
-                tetrisGrid[y + 1][x + 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x]     = 0;
+                grid[y + 1][x + 1] = 0;
+                grid[y + 1][x + 2] = 0;
             }
-            else if(tetrisGrid[y - 1][x] == -1 * tile->color) {
+            else if(grid[y - 1][x] == -1 * tile->color) {
                 //[][][]
                 //    []
                 int z[3] = {y + 1, y + 1, y + 1};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x - 1] == 0)z[1]++;
-                while(z[2] < tetrisGridHeight && tetrisGrid[z[2]][x - 2] == 0)z[2]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x - 1] == 0)z[1]++;
+                while(z[2] < gridHeight && grid[z[2]][x - 2] == 0)z[2]++;
                 
                 int minIndex = MinIndex(z, 3);
                 if(minIndex == 0) {
                     z[0]--;
 
-                    tetrisGrid[z[0]]    [x]     = tile->color;
-                    tetrisGrid[z[0] - 1][x]     = tile->color;
-                    tetrisGrid[z[0] - 1][x - 1] = tile->color;
-                    tetrisGrid[z[0] - 1][x - 2] = tile->color;
+                    grid[z[0]]    [x]     = tile->color;
+                    grid[z[0] - 1][x]     = tile->color;
+                    grid[z[0] - 1][x - 1] = tile->color;
+                    grid[z[0] - 1][x - 2] = tile->color;
                 }
                 else {
                     z[minIndex]--;
 
-                    tetrisGrid[z[minIndex] + 1][x]     = tile->color;
-                    tetrisGrid[z[minIndex]]    [x]     = tile->color;
-                    tetrisGrid[z[minIndex]]    [x - 1] = tile->color;
-                    tetrisGrid[z[minIndex]]    [x - 2] = tile->color;
+                    grid[z[minIndex] + 1][x]     = tile->color;
+                    grid[z[minIndex]]    [x]     = tile->color;
+                    grid[z[minIndex]]    [x - 1] = tile->color;
+                    grid[z[minIndex]]    [x - 2] = tile->color;
                 }
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y - 1][x]     = 0;
-                tetrisGrid[y - 1][x - 1] = 0;
-                tetrisGrid[y - 1][x - 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y - 1][x]     = 0;
+                grid[y - 1][x - 1] = 0;
+                grid[y - 1][x - 2] = 0;
             }
             break;
         }
         case L: {
-            if(tetrisGrid[y][x - 1] == -1 * tile->color) {
+            if(grid[y][x - 1] == -1 * tile->color) {
                 //[]
                 //[]
                 //[][]
                 int z[2] = {y + 1, y + 1};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x - 1] == 0)z[1]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x - 1] == 0)z[1]++;
 
                 int min = z[0] < z[1] ? z[0] : z[1];
                 min--;
 
-                tetrisGrid[min]     [x]     = tile->color;
-                tetrisGrid[min]     [x - 1] = tile->color;
-                tetrisGrid[min - 1] [x - 1] = tile->color;
-                tetrisGrid[min - 2] [x - 1] = tile->color;
+                grid[min]     [x]     = tile->color;
+                grid[min]     [x - 1] = tile->color;
+                grid[min - 1] [x - 1] = tile->color;
+                grid[min - 2] [x - 1] = tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y]    [x - 1] = 0;
-                tetrisGrid[y - 1][x - 1] = 0;
-                tetrisGrid[y - 2][x - 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y]    [x - 1] = 0;
+                grid[y - 1][x - 1] = 0;
+                grid[y - 2][x - 1] = 0;
             }
-            else if(tetrisGrid[y][x + 1] == -1 * tile->color) {
+            else if(grid[y][x + 1] == -1 * tile->color) {
                 //[][]
                 //  []
                 //  []
                 int z[2] = {y + 1, y + 3};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x + 1] == 0)z[1]++;
 
                 if(z[0] < z[1]) {
                     z[0]--;
 
-                    tetrisGrid[z[0]]    [x]     = tile->color;
-                    tetrisGrid[z[0]]    [x + 1] = tile->color;
-                    tetrisGrid[z[0] + 1][x + 1] = tile->color;
-                    tetrisGrid[z[0] + 2][x + 1] = tile->color;
+                    grid[z[0]]    [x]     = tile->color;
+                    grid[z[0]]    [x + 1] = tile->color;
+                    grid[z[0] + 1][x + 1] = tile->color;
+                    grid[z[0] + 2][x + 1] = tile->color;
                 }
                 else if(z[1] < z[0]) {
                     z[1]--;
 
-                    tetrisGrid[z[1]]    [x + 1] = tile->color;
-                    tetrisGrid[z[1] - 1][x + 1] = tile->color;
-                    tetrisGrid[z[1] - 2][x + 1] = tile->color;
-                    tetrisGrid[z[1] - 2][x]     = tile->color;
+                    grid[z[1]]    [x + 1] = tile->color;
+                    grid[z[1] - 1][x + 1] = tile->color;
+                    grid[z[1] - 2][x + 1] = tile->color;
+                    grid[z[1] - 2][x]     = tile->color;
                 }
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
-                tetrisGrid[y + 2][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y + 1][x + 1] = 0;
+                grid[y + 2][x + 1] = 0;
             }
-            else if(tetrisGrid[y - 1][x] == -1 * tile->color) {
+            else if(grid[y - 1][x] == -1 * tile->color) {
                 //[][][]
                 //[]
                 int z[3] = {y + 1, y, y};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
-                while(z[2] < tetrisGridHeight && tetrisGrid[z[2]][x + 2] == 0)z[2]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x + 1] == 0)z[1]++;
+                while(z[2] < gridHeight && grid[z[2]][x + 2] == 0)z[2]++;
 
                 int minIndex = MinIndex(z, 3);
                 if(minIndex == 0) {
                     z[0]--;
 
-                    tetrisGrid[z[0]]    [x]     = tile->color;
-                    tetrisGrid[z[0] - 1][x]     = tile->color;
-                    tetrisGrid[z[0] - 1][x + 1] = tile->color;
-                    tetrisGrid[z[0] - 1][x + 2] = tile->color;
+                    grid[z[0]]    [x]     = tile->color;
+                    grid[z[0] - 1][x]     = tile->color;
+                    grid[z[0] - 1][x + 1] = tile->color;
+                    grid[z[0] - 1][x + 2] = tile->color;
                 }
                 else {
                     z[minIndex]--;
 
-                    tetrisGrid[z[minIndex] + 1] [x]     = tile->color;
-                    tetrisGrid[z[minIndex]]     [x]     = tile->color;
-                    tetrisGrid[z[minIndex]]     [x + 1] = tile->color;
-                    tetrisGrid[z[minIndex]]     [x + 2] = tile->color;
+                    grid[z[minIndex] + 1] [x]     = tile->color;
+                    grid[z[minIndex]]     [x]     = tile->color;
+                    grid[z[minIndex]]     [x + 1] = tile->color;
+                    grid[z[minIndex]]     [x + 2] = tile->color;
                 }
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y - 1][x]     = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
-                tetrisGrid[y - 1][x + 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y - 1][x]     = 0;
+                grid[y - 1][x + 1] = 0;
+                grid[y - 1][x + 2] = 0;
             }
-            else if(tetrisGrid[y + 1][x] == -1 * tile->color) {
+            else if(grid[y + 1][x] == -1 * tile->color) {
                 //    []
                 //[][][]
                 int z[3] = {y + 2, y + 2, y + 2};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x - 1] == 0)z[1]++;
-                while(z[2] < tetrisGridHeight && tetrisGrid[z[2]][x - 2] == 0)z[2]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x - 1] == 0)z[1]++;
+                while(z[2] < gridHeight && grid[z[2]][x - 2] == 0)z[2]++;
 
                 int min = Min(z, 3);
                 min--;
 
-                tetrisGrid[min - 1][x]     = tile->color;
-                tetrisGrid[min]    [x]     = tile->color;
-                tetrisGrid[min]    [x - 1] = tile->color;
-                tetrisGrid[min]    [x - 2] = tile->color;
+                grid[min - 1][x]     = tile->color;
+                grid[min]    [x]     = tile->color;
+                grid[min]    [x - 1] = tile->color;
+                grid[min]    [x - 2] = tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x]     = 0;
-                tetrisGrid[y + 1][x - 1] = 0;
-                tetrisGrid[y + 1][x - 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x]     = 0;
+                grid[y + 1][x - 1] = 0;
+                grid[y + 1][x - 2] = 0;
             }
             break;
         }
         case S: {
-            if(tetrisGrid[y][x + 1] == -1 * tile->color) {
+            if(grid[y][x + 1] == -1 * tile->color) {
                 //  [][]
                 //[][]
                 int z[3] = {y + 1, y + 1, y};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
-                while(z[2] < tetrisGridHeight && tetrisGrid[z[2]][x + 2] == 0)z[2]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x + 1] == 0)z[1]++;
+                while(z[2] < gridHeight && grid[z[2]][x + 2] == 0)z[2]++;
 
                 int min = Min(z, 3);
                 if(min == z[2]) {
                     min--;
 
-                    tetrisGrid[min]    [x + 2] = tile->color; //upper right one
-                    tetrisGrid[min]    [x + 1] = tile->color;
-                    tetrisGrid[min + 1][x + 1] = tile->color;
-                    tetrisGrid[min + 1][x]     = tile->color;
+                    grid[min]    [x + 2] = tile->color; //upper right one
+                    grid[min]    [x + 1] = tile->color;
+                    grid[min + 1][x + 1] = tile->color;
+                    grid[min + 1][x]     = tile->color;
                 }
                 else {
                     min--;
 
-                    tetrisGrid[min]    [x]     = tile->color;
-                    tetrisGrid[min]    [x + 1] = tile->color;
-                    tetrisGrid[min - 1][x + 1] = tile->color;
-                    tetrisGrid[min - 1][x + 2] = tile->color;
+                    grid[min]    [x]     = tile->color;
+                    grid[min]    [x + 1] = tile->color;
+                    grid[min - 1][x + 1] = tile->color;
+                    grid[min - 1][x + 2] = tile->color;
                 }
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
-                tetrisGrid[y - 1][x + 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y - 1][x + 1] = 0;
+                grid[y - 1][x + 2] = 0;
             }
-            else if(tetrisGrid[y + 1][x] == -1 * tile->color) {
+            else if(grid[y + 1][x] == -1 * tile->color) {
                 //[]
                 //[][]
                 //  []
                 int z[2] = {y + 3, y + 3};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x + 1] == 0)z[1]++;
 
                 if(z[0] < z[1]) {
                     z[0]--;
 
-                    tetrisGrid[z[0] + 1][x + 1] = tile->color; //bottom one
-                    tetrisGrid[z[0]]    [x + 1] = tile->color;
-                    tetrisGrid[z[0]]    [x]     = tile->color;
-                    tetrisGrid[z[0] - 1][x]     = tile->color;
+                    grid[z[0] + 1][x + 1] = tile->color; //bottom one
+                    grid[z[0]]    [x + 1] = tile->color;
+                    grid[z[0]]    [x]     = tile->color;
+                    grid[z[0] - 1][x]     = tile->color;
                 }
                 else if(z[1] < z[0]) {
                     z[1]--;
 
-                    tetrisGrid[z[1]]    [x + 1] = tile->color;
-                    tetrisGrid[z[1] - 1][x + 1] = tile->color;
-                    tetrisGrid[z[1] - 1][x]     = tile->color;
-                    tetrisGrid[z[1] - 2][x]     = tile->color;
+                    grid[z[1]]    [x + 1] = tile->color;
+                    grid[z[1] - 1][x + 1] = tile->color;
+                    grid[z[1] - 1][x]     = tile->color;
+                    grid[z[1] - 2][x]     = tile->color;
                 }
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x]     = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
-                tetrisGrid[y + 2][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x]     = 0;
+                grid[y + 1][x + 1] = 0;
+                grid[y + 2][x + 1] = 0;
             }
             break;
         }
@@ -1229,194 +1229,194 @@ void dropHard(ProgramParameters* parameters) {
             //[][]
             int z[2] = {y + 2, y + 2};
 
-            while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-            while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
+            while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+            while(z[1] < gridHeight && grid[z[1]][x + 1] == 0)z[1]++;
 
             int min = z[0] < z[1] ? z[0] : z[1];
             min--;
 
-            tetrisGrid[min]    [x]      = tile->color;
-            tetrisGrid[min]    [x + 1]  = tile->color;
-            tetrisGrid[min - 1][x]      = tile->color;
-            tetrisGrid[min - 1][x + 1]  = tile->color;
+            grid[min]    [x]      = tile->color;
+            grid[min]    [x + 1]  = tile->color;
+            grid[min - 1][x]      = tile->color;
+            grid[min - 1][x + 1]  = tile->color;
 
-            tetrisGrid[y]    [x]     = 0;
-            tetrisGrid[y]    [x + 1] = 0;
-            tetrisGrid[y + 1][x]     = 0;
-            tetrisGrid[y + 1][x + 1] = 0;
+            grid[y]    [x]     = 0;
+            grid[y]    [x + 1] = 0;
+            grid[y + 1][x]     = 0;
+            grid[y + 1][x + 1] = 0;
             break;
         }
         case T: {
-            if(tetrisGrid[y][x - 1] == -1 * tile->color) {
+            if(grid[y][x - 1] == -1 * tile->color) {
                 //[]
                 //[][]
                 //[]
                 int z[2] = {y + 2, y + 1};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x - 1] == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x]     == 0)z[1]++;
+                while(z[0] < gridHeight && grid[z[0]][x - 1] == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x]     == 0)z[1]++;
 
                 if(z[0] < z[1]) {
                     z[0]--;
-                    tetrisGrid[z[0]]    [x - 1] = tile->color;
-                    tetrisGrid[z[0] - 1][x - 1] = tile->color;
-                    tetrisGrid[z[0] - 1][x]     = tile->color;
-                    tetrisGrid[z[0] - 2][x - 1] = tile->color;
+                    grid[z[0]]    [x - 1] = tile->color;
+                    grid[z[0] - 1][x - 1] = tile->color;
+                    grid[z[0] - 1][x]     = tile->color;
+                    grid[z[0] - 2][x - 1] = tile->color;
                 }
                 else if(z[1] < z[0]) {
                     z[1]--;
 
-                    tetrisGrid[z[1] + 1][x - 1] = tile->color;
-                    tetrisGrid[z[1]]    [x - 1] = tile->color;
-                    tetrisGrid[z[1]]    [x]     = tile->color;
-                    tetrisGrid[z[1] - 1][x - 1] = tile->color;
+                    grid[z[1] + 1][x - 1] = tile->color;
+                    grid[z[1]]    [x - 1] = tile->color;
+                    grid[z[1]]    [x]     = tile->color;
+                    grid[z[1] - 1][x - 1] = tile->color;
                 }
                 
-                tetrisGrid[y + 1][x - 1] = 0;
-                tetrisGrid[y]    [x - 1] = 0;
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y - 1][x - 1] = 0;
+                grid[y + 1][x - 1] = 0;
+                grid[y]    [x - 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y - 1][x - 1] = 0;
             }
-            else if(tetrisGrid[y][x + 1] == -1 * tile->color) {
+            else if(grid[y][x + 1] == -1 * tile->color) {
                 //  []
                 //[][]
                 //  []
                 int z[2] = {y + 2, y + 1};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x + 1] == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x]     == 0)z[1]++;
+                while(z[0] < gridHeight && grid[z[0]][x + 1] == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x]     == 0)z[1]++;
                 
                 if(z[0] < z[1]) {
                     z[0]--;
 
-                    tetrisGrid[z[0]]    [x + 1] = tile->color;
-                    tetrisGrid[z[0] - 1][x + 1] = tile->color;
-                    tetrisGrid[z[0] - 1][x]     = tile->color;
-                    tetrisGrid[z[0] - 2][x + 1] = tile->color;
+                    grid[z[0]]    [x + 1] = tile->color;
+                    grid[z[0] - 1][x + 1] = tile->color;
+                    grid[z[0] - 1][x]     = tile->color;
+                    grid[z[0] - 2][x + 1] = tile->color;
                 }
                 else if(z[1] < z[0]) {
                     z[1]--;
 
-                    tetrisGrid[z[1] + 1][x + 1] = tile->color;
-                    tetrisGrid[z[1]]    [x + 1] = tile->color;
-                    tetrisGrid[z[1]]    [x]     = tile->color;
-                    tetrisGrid[z[1] - 1][x + 1] = tile->color;
+                    grid[z[1] + 1][x + 1] = tile->color;
+                    grid[z[1]]    [x + 1] = tile->color;
+                    grid[z[1]]    [x]     = tile->color;
+                    grid[z[1] - 1][x + 1] = tile->color;
                 }
                 
-                tetrisGrid[y + 1][x + 1] = 0;
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
+                grid[y + 1][x + 1] = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y - 1][x + 1] = 0;
             }
-            else if(tetrisGrid[y - 1][x] == -1 * tile->color) {
+            else if(grid[y - 1][x] == -1 * tile->color) {
                 //[][][]
                 //  []
                 int z[3] = {y, y + 1, y};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x - 1] == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x]     == 0)z[1]++;
-                while(z[2] < tetrisGridHeight && tetrisGrid[z[2]][x + 1] == 0)z[2]++;
+                while(z[0] < gridHeight && grid[z[0]][x - 1] == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x]     == 0)z[1]++;
+                while(z[2] < gridHeight && grid[z[2]][x + 1] == 0)z[2]++;
 
                 int min = Min(z, 3);
                 min--;
 
-                tetrisGrid[min]    [x]     = tile->color;
-                tetrisGrid[min - 1][x - 1] = tile->color;
-                tetrisGrid[min - 1][x]     = tile->color;
-                tetrisGrid[min - 1][x + 1] = tile->color;
+                grid[min]    [x]     = tile->color;
+                grid[min - 1][x - 1] = tile->color;
+                grid[min - 1][x]     = tile->color;
+                grid[min - 1][x + 1] = tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y - 1][x - 1] = 0;
-                tetrisGrid[y - 1][x]     = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y - 1][x - 1] = 0;
+                grid[y - 1][x]     = 0;
+                grid[y - 1][x + 1] = 0;
             }
-            else if(tetrisGrid[y + 1][x] == -1 * tile->color) {
+            else if(grid[y + 1][x] == -1 * tile->color) {
                 //  []
                 //[][][]
                 int z[3] = {y + 2, y + 2, y + 2};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x - 1] == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x]     == 0)z[1]++;
-                while(z[2] < tetrisGridHeight && tetrisGrid[z[2]][x + 1] == 0)z[2]++;
+                while(z[0] < gridHeight && grid[z[0]][x - 1] == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x]     == 0)z[1]++;
+                while(z[2] < gridHeight && grid[z[2]][x + 1] == 0)z[2]++;
 
                 int min = Min(z, 3);
                 min--;
 
-                tetrisGrid[min - 1][x]     = tile->color;
-                tetrisGrid[min]    [x]     = tile->color;
-                tetrisGrid[min]    [x - 1] = tile->color;
-                tetrisGrid[min]    [x + 1] = tile->color;
+                grid[min - 1][x]     = tile->color;
+                grid[min]    [x]     = tile->color;
+                grid[min]    [x - 1] = tile->color;
+                grid[min]    [x + 1] = tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x - 1] = 0;
-                tetrisGrid[y + 1][x]     = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x - 1] = 0;
+                grid[y + 1][x]     = 0;
+                grid[y + 1][x + 1] = 0;
             }
             break;
         }
         case Z: {
-            if(tetrisGrid[y][x + 1] == -1 * tile->color) {
+            if(grid[y][x + 1] == -1 * tile->color) {
                 //[][]
                 //  [][]
                 int z[3] = {y + 1, y + 1, y + 1};
                 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
-                while(z[2] < tetrisGridHeight && tetrisGrid[z[2]][x + 2] == 0)z[2]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x + 1] == 0)z[1]++;
+                while(z[2] < gridHeight && grid[z[2]][x + 2] == 0)z[2]++;
 
                 int min = Min(z, 3);
                 if(min == z[0]) {
                     min--;
 
-                    tetrisGrid[min]    [x]     = tile->color; //upper left one
-                    tetrisGrid[min]    [x + 1] = tile->color;
-                    tetrisGrid[min + 1][x + 1] = tile->color;
-                    tetrisGrid[min + 1][x + 2] = tile->color;
+                    grid[min]    [x]     = tile->color; //upper left one
+                    grid[min]    [x + 1] = tile->color;
+                    grid[min + 1][x + 1] = tile->color;
+                    grid[min + 1][x + 2] = tile->color;
                 }
                 else {
                     min--;
 
-                    tetrisGrid[min]    [x + 2] = tile->color; //bottom right one
-                    tetrisGrid[min]    [x + 1] = tile->color;
-                    tetrisGrid[min - 1][x + 1] = tile->color;
-                    tetrisGrid[min - 1][x]     = tile->color;
+                    grid[min]    [x + 2] = tile->color; //bottom right one
+                    grid[min]    [x + 1] = tile->color;
+                    grid[min - 1][x + 1] = tile->color;
+                    grid[min - 1][x]     = tile->color;
                 }
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
-                tetrisGrid[y + 1][x + 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y + 1][x + 1] = 0;
+                grid[y + 1][x + 2] = 0;
             }
-            else if(tetrisGrid[y + 1][x] == -1 * tile->color) {
+            else if(grid[y + 1][x] == -1 * tile->color) {
                 //  []
                 //[][]
                 //[]
                 int z[2] = {y + 2, y + 1};
 
-                while(z[0] < tetrisGridHeight && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
+                while(z[0] < gridHeight && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight && grid[z[1]][x + 1] == 0)z[1]++;
 
                 if(z[0] < z[1]) {
                     z[0]--;
 
-                    tetrisGrid[z[0]]    [x]     = tile->color; //bottom one
-                    tetrisGrid[z[0] - 1][x]     = tile->color;
-                    tetrisGrid[z[0] - 1][x + 1] = tile->color;
-                    tetrisGrid[z[0] - 2][x + 1] = tile->color;
+                    grid[z[0]]    [x]     = tile->color; //bottom one
+                    grid[z[0] - 1][x]     = tile->color;
+                    grid[z[0] - 1][x + 1] = tile->color;
+                    grid[z[0] - 2][x + 1] = tile->color;
                 }
                 else if(z[1] < z[0]) {
                     z[1]--;
 
-                    tetrisGrid[z[1]]    [x]     = tile->color;
-                    tetrisGrid[z[1]]    [x + 1] = tile->color;
-                    tetrisGrid[z[1] - 1][x + 1] = tile->color;
-                    tetrisGrid[z[1] + 1][x]     = tile->color;
+                    grid[z[1]]    [x]     = tile->color;
+                    grid[z[1]]    [x + 1] = tile->color;
+                    grid[z[1] - 1][x + 1] = tile->color;
+                    grid[z[1] + 1][x]     = tile->color;
                 }
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x]     = 0;
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x]     = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y - 1][x + 1] = 0;
             }
             break;
         }
@@ -1431,31 +1431,31 @@ void dropHard(ProgramParameters* parameters) {
 //set appropiate values in the matrix.
 //...gonna have to rewrite dropHard from scratch. Eh.
 /*
-status_t dropHard(char** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
+status_t dropHard(char** grid, Tile* tile, const int gridHeight) {
     int x = tile->position.x;
     int y = tile->position.y;
     switch(tile->state) {
         case BAR_HORIZONTAL_UP:
         case BAR_HORIZONTAL_DOWN: {
-            if(y < tetrisGridHeight - 1 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 1][x + 1] == 0 && tetrisGrid[y + 1][x + 2] == 0 && tetrisGrid[y + 1][x + 3] == 0) {
+            if(y < gridHeight - 1 && grid[y + 1][x] == 0 && grid[y + 1][x + 1] == 0 && grid[y + 1][x + 2] == 0 && grid[y + 1][x + 3] == 0) {
                 int z[4] = {y + 1, y + 1, y + 1, y + 1};
             
-                while(z[0] < tetrisGridHeight - 1 && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight - 1 && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
-                while(z[2] < tetrisGridHeight - 1 && tetrisGrid[z[2]][x + 2] == 0)z[2]++;
-                while(z[3] < tetrisGridHeight - 1 && tetrisGrid[z[3]][x + 3] == 0)z[3]++;
+                while(z[0] < gridHeight - 1 && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight - 1 && grid[z[1]][x + 1] == 0)z[1]++;
+                while(z[2] < gridHeight - 1 && grid[z[2]][x + 2] == 0)z[2]++;
+                while(z[3] < gridHeight - 1 && grid[z[3]][x + 3] == 0)z[3]++;
             
                 int min = Min(z, 4);
 
-                tetrisGrid[min][x]     = tile->color;
-                tetrisGrid[min][x + 1] = tile->color;
-                tetrisGrid[min][x + 2] = tile->color;
-                tetrisGrid[min][x + 3] = tile->color;
+                grid[min][x]     = tile->color;
+                grid[min][x + 1] = tile->color;
+                grid[min][x + 2] = tile->color;
+                grid[min][x + 3] = tile->color;
                 
-                tetrisGrid[y][x]     = 0;
-                tetrisGrid[y][x + 1] = 0;
-                tetrisGrid[y][x + 2] = 0;
-                tetrisGrid[y][x + 3] = 0;
+                grid[y][x]     = 0;
+                grid[y][x + 1] = 0;
+                grid[y][x + 2] = 0;
+                grid[y][x + 3] = 0;
 
                 goto success;
             }
@@ -1463,86 +1463,86 @@ status_t dropHard(char** tetrisGrid, Tile* tile, const int tetrisGridHeight) {
         }
         case BAR_VERTICAL_LEFT:
         case BAR_VERTICAL_RIGHT: {
-            if(y < tetrisGridHeight - 4 && tetrisGrid[y + 4][x] == 0) {
+            if(y < gridHeight - 4 && grid[y + 4][x] == 0) {
                 int z = y + 4;
-                while(z < tetrisGridHeight - 1 && tetrisGrid[z][x] == 0)z++;
+                while(z < gridHeight - 1 && grid[z][x] == 0)z++;
 
-                tetrisGrid[z]    [x] = tile->color;
-                tetrisGrid[z - 1][x] = tile->color;
-                tetrisGrid[z - 2][x] = tile->color;
-                tetrisGrid[z - 3][x] = tile->color;
+                grid[z]    [x] = tile->color;
+                grid[z - 1][x] = tile->color;
+                grid[z - 2][x] = tile->color;
+                grid[z - 3][x] = tile->color;
 
-                tetrisGrid[y]    [x] = 0;
-                tetrisGrid[y + 1][x] = 0;
-                tetrisGrid[y + 2][x] = 0;
-                tetrisGrid[y + 3][x] = 0;
+                grid[y]    [x] = 0;
+                grid[y + 1][x] = 0;
+                grid[y + 2][x] = 0;
+                grid[y + 3][x] = 0;
 
                 goto success;
             }
             break;
         }
         case J_0: {
-            if(y < tetrisGridHeight - 1 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 1][x + 1] == 0) {
+            if(y < gridHeight - 1 && grid[y + 1][x] == 0 && grid[y + 1][x + 1] == 0) {
                 int z[2] = {y + 1, y + 1};
 
-                while(z[0] < tetrisGridHeight - 1 && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight - 1 && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
+                while(z[0] < gridHeight - 1 && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight - 1 && grid[z[1]][x + 1] == 0)z[1]++;
 
                 int min = z[0] < z[1] ? z[0] : z[1];
 
-                tetrisGrid[min]     [x]     = tile->color;
-                tetrisGrid[min]     [x + 1] = tile->color;
-                tetrisGrid[min - 1] [x + 1] = tile->color;
-                tetrisGrid[min - 2] [x + 1] = tile->color;
+                grid[min]     [x]     = tile->color;
+                grid[min]     [x + 1] = tile->color;
+                grid[min - 1] [x + 1] = tile->color;
+                grid[min - 2] [x + 1] = tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y]    [x + 1] = 0;
-                tetrisGrid[y - 1][x + 1] = 0;
-                tetrisGrid[y - 2][x + 1] = 0;
+                grid[y]    [x]     = 0;
+                grid[y]    [x + 1] = 0;
+                grid[y - 1][x + 1] = 0;
+                grid[y - 2][x + 1] = 0;
 
                 goto success;
             }
             break;
         }
         case J_90: {
-            if(y < tetrisGridHeight - 2 && tetrisGrid[y + 2][x] == 0 && tetrisGrid[y + 2][x + 1] == 0 && tetrisGrid[y + 2][x + 2] == 0) {
+            if(y < gridHeight - 2 && grid[y + 2][x] == 0 && grid[y + 2][x + 1] == 0 && grid[y + 2][x + 2] == 0) {
                 int z[3] = {y + 2, y + 2, y + 2};
 
-                while(z[0] < tetrisGridHeight - 1 && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight - 1 && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
-                while(z[2] < tetrisGridHeight - 1 && tetrisGrid[z[2]][x + 2] == 0)z[1]++;
+                while(z[0] < gridHeight - 1 && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight - 1 && grid[z[1]][x + 1] == 0)z[1]++;
+                while(z[2] < gridHeight - 1 && grid[z[2]][x + 2] == 0)z[1]++;
 
                 int min = Min(z, 3);
 
-                tetrisGrid[min]    [x]     = tile->color;
-                tetrisGrid[min]    [x + 1] = tile->color;
-                tetrisGrid[min]    [x + 2] = tile->color;
-                tetrisGrid[min - 1][x]     = tile->color;
+                grid[min]    [x]     = tile->color;
+                grid[min]    [x + 1] = tile->color;
+                grid[min]    [x + 2] = tile->color;
+                grid[min - 1][x]     = tile->color;
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x]     = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
-                tetrisGrid[y + 1][x + 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x]     = 0;
+                grid[y + 1][x + 1] = 0;
+                grid[y + 1][x + 2] = 0;
 
                 goto success;
             }
             break;
         }
         case J_180: {
-            if(y < tetrisGridHeight - 3 && tetrisGrid[y + 1][x] == 0 && tetrisGrid[y + 3][x - 1] == 0) {
+            if(y < gridHeight - 3 && grid[y + 1][x] == 0 && grid[y + 3][x - 1] == 0) {
                 int z[2] = {y + 1, y + 3};
 
-                while(z[0] < tetrisGridHeight - 1 && tetrisGrid[z[0]][x]     == 0)z[0]++;
-                while(z[1] < tetrisGridHeight - 1 && tetrisGrid[z[1]][x + 1] == 0)z[1]++;
+                while(z[0] < gridHeight - 1 && grid[z[0]][x]     == 0)z[0]++;
+                while(z[1] < gridHeight - 1 && grid[z[1]][x + 1] == 0)z[1]++;
 
                 if(z[0] < z[1]) {
-                    tetrisGrid[z[0]][x]
+                    grid[z[0]][x]
                 }
 
-                tetrisGrid[y]    [x]     = 0;
-                tetrisGrid[y + 1][x]     = 0;
-                tetrisGrid[y + 1][x + 1] = 0;
-                tetrisGrid[y + 1][x + 2] = 0;
+                grid[y]    [x]     = 0;
+                grid[y + 1][x]     = 0;
+                grid[y + 1][x + 1] = 0;
+                grid[y + 1][x + 2] = 0;
             }
         }
         default: return FAILURE;

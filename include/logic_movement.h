@@ -7,31 +7,31 @@
 /**
  * @brief Moves the tile one square left.
  * 
- * @param tetrisGrid game matrix
+ * @param grid game matrix
  * @param tile tile
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t moveLeft(int** tetrisGrid, Tile* tile);
+status_t moveLeft(int** grid, Tile* tile);
 
 /**
  * @brief Moves the tile one square right.
  * 
- * @param tetrisGrid game matrix
+ * @param grid game matrix
  * @param tile tile
- * @param tetrisGridHeight height of the game matrix
+ * @param gridHeight height of the game matrix
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t moveRight(int** tetrisGrid, Tile* tile, const int tetrisGridWidth);
+status_t moveRight(int** grid, Tile* tile, const int gridWidth);
 
 /**
  * @brief Moves the tile one square down.
  * 
- * @param tetrisGrid game matrix
+ * @param grid game matrix
  * @param tile tile
- * @param tetrisGridHeight height of the game matrix
+ * @param gridHeight height of the game matrix
  * @return SUCCESS on success, FAILURE on failure 
  */
-status_t moveDown(int** tetrisGrid, Tile* tile, const int tetrisGridHeight);
+status_t moveDown(int** grid, Tile* tile, const int gridHeight);
 
 /**
  * @brief Immediately drop a tile.
@@ -43,21 +43,21 @@ void dropHard(ProgramParameters* parameters);
 /**
  * @brief Hard drop functionality. Uses moveDown.
  * 
- * @param tetrisGrid game matrix
+ * @param grid game matrix
  * @param tile tile
  * @return status 
  */
-//status_t dropHard(char** tetrisGrid, Tile* tile);
+//status_t dropHard(char** grid, Tile* tile);
 
 /**
  * @brief Hard drop functionality.
  * 
- * @param tetrisGrid game matrix
+ * @param grid game matrix
  * @param tile tile
- * @param tetrisGridHeight height of the game matrix 
+ * @param gridHeight height of the game matrix 
  * @return SUCCESS on success, FAILURE on failure
  */
-//status_t dropHardOld(char** tetrisGrid, Tile* tile, const int tetrisGridHeight, FILE* debug);
+//status_t dropHardOld(char** grid, Tile* tile, const int gridHeight, FILE* debug);
 
 
 #endif

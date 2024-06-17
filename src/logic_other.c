@@ -8,34 +8,34 @@
 #include "tile_queue.h"
 #include "utils.h"
 
-status_t loadTileIntoGrid(int** tetrisGrid, const Tile* tile) {
-    if(tile == NULL)return MEMORY_FAILURE;
+status_t loadTileIntoGrid(int** grid, const Tile* tile) {
+    if(tile == NULL) return MEMORY_FAILURE;
     int n = getOccupiedAmount(tile->state);
-    if(n == -1)return FAILURE;
+    if(n == -1) return FAILURE;
     Point positions[n];
     if(getPositions(tile->state, tile->position, positions) == FAILURE) return FAILURE;
-    if(checkPositions(tetrisGrid, positions, n) == FAILURE) return FAILURE;
-    setPositions(tetrisGrid, positions, n, -1 * tile->color);
+    if(checkPositions(grid, positions, n) == FAILURE) return FAILURE;
+    setPositions(grid, positions, n, -1 * tile->color);
     return SUCCESS;
 }
 
-static inline void shiftDown(int** tetrisGrid, const Size tetrisGridSize, const int n, const int startHeight) {
+static inline void shiftDown(int** grid, const Size gridSize, const int n, const int startHeight) {
     for(int i = startHeight; i > n - 1; i--) {
-        for(unsigned int j = 0; j < tetrisGridSize.width; j++) {
-            tetrisGrid[i][j] = tetrisGrid[i - n][j];
+        for(unsigned int j = 0; j < gridSize.width; j++) {
+            grid[i][j] = grid[i - n][j];
         }
     }
     for(int i = 0; i < n; i++) {
-        memset(tetrisGrid[i], 0, sizeof(tetrisGrid[i][0]) * tetrisGridSize.width);
+        memset(grid[i], 0, sizeof(grid[i][0]) * gridSize.width);
     }
 }
 
 void onPlacement(ProgramParameters* parameters) {
-    int howManyFull = 0, lowestFull = parameters->tetrisGridSize.height - 1;
-    for(unsigned int i = parameters->tetrisGridSize.height - 1; i > 0; i--) {
+    int howManyFull = 0, lowestFull = parameters->gridSize.height - 1;
+    for(unsigned int i = parameters->gridSize.height - 1; i > 0; i--) {
         char isRowFull = true;
-        for(unsigned int j = 0; j < parameters->tetrisGridSize.width; j++) {
-            if(parameters->tetrisGrid[i][j] == 0 || parameters->tetrisGrid[i][j] == GHOST) {
+        for(unsigned int j = 0; j < parameters->gridSize.width; j++) {
+            if(parameters->grid[i][j] == 0 || parameters->grid[i][j] == GHOST) {
                 isRowFull = false;
                 lowestFull--;
                 break;
@@ -49,9 +49,9 @@ void onPlacement(ProgramParameters* parameters) {
     if(lowestFull != 0) {
         int i = lowestFull - 1;
         while(true) {
-            char isFull = true;
-            for(unsigned int j = 0; j < parameters->tetrisGridSize.width; j++) {
-                if(parameters->tetrisGrid[i][j] == 0 || parameters->tetrisGrid[i][j] == GHOST) {
+            int isFull = true;
+            for(unsigned int j = 0; j < parameters->gridSize.width; j++) {
+                if(parameters->grid[i][j] == 0 || parameters->grid[i][j] == GHOST) {
                     isFull = false;
                     break;
                 }
@@ -61,10 +61,10 @@ void onPlacement(ProgramParameters* parameters) {
             howManyFull++;
         }
         for(int i = 0; i < howManyFull; i++) {
-            memset(parameters->tetrisGrid[lowestFull - i], 0, sizeof(parameters->tetrisGrid[lowestFull][0]) * parameters->tetrisGridSize.width);
+            memset(parameters->grid[lowestFull - i], 0, sizeof(parameters->grid[lowestFull][0]) * parameters->gridSize.width);
         }
-        shiftDown(parameters->tetrisGrid, parameters->tetrisGridSize, howManyFull, lowestFull);
-        absMatrix(parameters->tetrisGrid, parameters->tetrisGridSize); //TODO: make it update only rows where the tile fell
+        shiftDown(parameters->grid, parameters->gridSize, howManyFull, lowestFull);
+        absMatrix(parameters->grid, parameters->gridSize); //TODO: make it update only rows where the tile fell
     }
 
     switch(howManyFull) {
@@ -84,7 +84,7 @@ void onPlacement(ProgramParameters* parameters) {
             parameters->combo++;
             break;
         case 4:
-            parameters->score += POINTS_TETRIS * parameters->level;
+            parameters->score += POINTS_QUAD * parameters->level;
             parameters->combo++;
             break;
     }
@@ -97,37 +97,41 @@ void onPlacement(ProgramParameters* parameters) {
 }
 
 void onGameEnd(ProgramParameters* parameters) {
-    freeTile(parameters->currentTile);
-    parameters->currentTile = NULL;
+    logToStream(parameters->generallog, LOGLEVEL_INFO, "onGameEnd event triggered, ending the game...");
+    if(parameters->currentTile != NULL) {
+        freeTile(parameters->currentTile);
+        parameters->currentTile = NULL;
+    }
+    if(parameters->heldTile != NULL) {
+        freeTile(parameters->heldTile);
+        parameters->heldTile = NULL;
+    }
     flushTileQueue(&parameters->tileQueue);
     stopMusic();
-    freeMatrix(parameters->tetrisGrid, parameters->tetrisGridSize.height);
-    parameters->tetrisGrid = NULL;
-    parameters->score = 0;
-    parameters->combo = 0;
-    parameters->level = 0;
+    freeMatrix(parameters->grid, parameters->gridSize.height);
+    parameters->grid = NULL;
+    parameters->score = parameters->combo = parameters->level = 0;
     parameters->flags.playing = false;
-    logToStream(parameters->generallog, LOGLEVEL_INFO, "onGameEnd event triggered, ending the game...");
 }
 
 status_t onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer) {
     logToStream(parameters->generallog, LOGLEVEL_INFO, "Attempting to create a game matrix...");
-    parameters->tetrisGrid = zeroMatrix(parameters->tetrisGridSize);
-    if(parameters->tetrisGrid == NULL) {
+    parameters->grid = zeroMatrix(parameters->gridSize);
+    if(parameters->grid == NULL) {
         logToStream(parameters->errorlog, LOGLEVEL_ERROR, "Error allocating memory for the game matrix.");
         return MEMORY_FAILURE;
     }
     logToStream(parameters->generallog, LOGLEVEL_INFO, "Game matrix successfully created!");
 
-    parameters->currentTile = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, parameters->debugLog);
+    parameters->currentTile = loadTileRandom(renderer, NULL, parameters->gridSize.width, TILELOAD_NOTEXTURE, parameters->debugLog);
     if(parameters->currentTile == NULL) return MEMORY_FAILURE;
     for(unsigned int i = 0; i < tileQueuedAmount; i++) {
-        Tile* tmp = loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, parameters->debugLog);
+        Tile* tmp = loadTileRandom(renderer, NULL, parameters->gridSize.width, TILELOAD_NOTEXTURE, parameters->debugLog);
         if(tmp == NULL) return MEMORY_FAILURE;
         enqueueTile(&parameters->tileQueue, tmp);
     }
     
-    loadTileIntoGrid(parameters->tetrisGrid, parameters->currentTile);
+    loadTileIntoGrid(parameters->grid, parameters->currentTile);
 
     playMusic(parameters);
     

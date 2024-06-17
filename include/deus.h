@@ -241,15 +241,15 @@ typedef struct ProgramParameters {
     FILE* debugLog;
     SDL_Texture* baseTextures[tileColorAmount];
     SDL_Texture* digits[10];
-    int** tetrisGrid;
-    Size tetrisGridSize;
+    int** grid;
+    Size gridSize;
     Tile* currentTile;
     Tile* heldTile;
     TileQueue tileQueue;
     Soundtrack soundtracks[soundtracksAmount];
     SoundEffect soundEffects[soundEffectAmount];
     unsigned char soundEffectsVolume; //max is 128
-    unsigned char soundtracksVolume;
+    unsigned char soundtracksVolume; //same here
     size_t score;
     unsigned int combo;
     unsigned int level;
@@ -294,7 +294,7 @@ typedef enum PointsPerAction {
     POINTS_SINGLE = 100,
     POINTS_DOUBLE = 300,
     POINTS_TRIPLE = 500,
-    POINTS_TETRIS = 800
+    POINTS_QUAD = 800
 } PointsPerAction;
 
 

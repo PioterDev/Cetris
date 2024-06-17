@@ -15,10 +15,11 @@
  * @param color color of the tile
  * @param shape shape of the tile
  * @param coordinates pointer to Point struct of the tile
+ * @param gridWidth width of the game matrix
  * @param flags flags for loading the tile, please refer to the TileLoadingFlags enum
  * @return pointer to Tile struct, NULL on error
  */
-Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* coordinates, const int flags, FILE* debug);
+Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* coordinates, const int gridWidth, const int flags, FILE* debug);
 
 /**
  * @brief Frees the given tile from memory.
@@ -32,11 +33,12 @@ void freeTile(Tile* tile);
  * 
  * @param renderer renderer
  * @param coordinates pointer to Point struct of the tile
+ * @param gridWidth width of the game matrix
  * @param flags flags for loading the tile, please refer to the TileLoadingFlags enum
  * @param debug debug stream, optional
  * @return pointer to Tile struct, NULL on error
  */
-Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, const int flags, FILE* debug);
+Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, const int gridWidth, const int flags, FILE* debug);
 
 void centerTileHorizontally(Tile* tile, ProgramParameters* programParameters);
 

@@ -19,22 +19,22 @@ status_t getPositions(TileState state, const Point position, Point* positions);
  * @brief Checks if given positions are unoccupied.
  * Used in conjunction with `getPositions`.
  * 
- * @param tetrisGrid game matrix
+ * @param grid game matrix
  * @param positions preallocated array of Point structs, its positions can't be negative.
  * @param n number of points to check
  * @return SUCCESS on all free, FAILURE on failure
  */
-status_t checkPositions(int** tetrisGrid, const Point* positions, const int n);
+status_t checkPositions(int** grid, const Point* positions, const int n);
 
 /**
  * @brief Sets the given position to the given value.
  * 
- * @param tetrisGrid game matrix
+ * @param grid game matrix
  * @param positions preallocated array of Point structs, its positions can't be negative
  * @param n number of points
  * @param value value to set
  */
-void setPositions(int** tetrisGrid, const Point* positions, const int n, const int value);
+void setPositions(int** grid, const Point* positions, const int n, const int value);
 
 /**
  * @brief Returns how much space does the tile occupy in a game matrix.

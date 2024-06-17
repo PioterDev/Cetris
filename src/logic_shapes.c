@@ -171,17 +171,17 @@ status_t getPositions(TileState state, const Point position, Point* positions) {
     return FAILURE;
 }
 
-status_t checkPositions(int** tetrisGrid, const Point* positions, const int n) {
+status_t checkPositions(int** grid, const Point* positions, const int n) {
     for(int i = 0; i < n; i++) {
-        int cell = tetrisGrid[positions[i].y][positions[i].x];
+        int cell = grid[positions[i].y][positions[i].x];
         if(cell != 0 && cell != GHOST) return FAILURE;
     }
     return SUCCESS;
 }
 
-void setPositions(int** tetrisGrid, const Point* positions, const int n, const int value) {
+void setPositions(int** grid, const Point* positions, const int n, const int value) {
     for(int i = 0; i < n; i++) {
-        tetrisGrid[positions[i].y][positions[i].x] = value;
+        grid[positions[i].y][positions[i].x] = value;
     }
 }
 

@@ -53,13 +53,15 @@ DWORD WINAPI renderScreen(void* params) {
             current.h = baseTileSize / abs(scalingFactor);
         }
 
-        P.x = (programParameters->screenSize.width >> 1) - ((GridWidth * current.w) >> 1); //the x coordinate of a top-left corner of the game matrix
-        if(programParameters->tetrisGrid != NULL) {
-            for(unsigned int i = 0; i < programParameters->tetrisGridSize.height; i++) {
-                for(unsigned int j = 0; j < programParameters->tetrisGridSize.width; j++) {
-                    int color = programParameters->tetrisGrid[i][j];
-                    if(color == GHOST) continue; //TODO: ghost
-                    if(color < 0) color = abs(color);
+        P.x = (programParameters->screenSize.width >> 1) - ((programParameters->gridSize.width * current.w) >> 1); //the x coordinate of a top-left corner of the game matrix
+        if(programParameters->grid != NULL) {
+            for(unsigned int i = 0; i < programParameters->gridSize.height; i++) {
+                for(unsigned int j = 0; j < programParameters->gridSize.width; j++) {
+                    int color = programParameters->grid[i][j];
+                    if(color == GHOST) {
+                        continue; //TODO: ghost
+                    }
+                    else if(color < 0) color = abs(color);
                     current.y = P.y + i * current.h;
                     current.x = P.x + j * current.w;
                     if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current) != 0) {
@@ -69,8 +71,8 @@ DWORD WINAPI renderScreen(void* params) {
             }
         }
         else {
-            for(unsigned int i = 0; i < programParameters->tetrisGridSize.height; i++) {
-                for(unsigned int j = 0; j < programParameters->tetrisGridSize.width; j++) {
+            for(unsigned int i = 0; i < programParameters->gridSize.height; i++) {
+                for(unsigned int j = 0; j < programParameters->gridSize.width; j++) {
                     current.y = P.y + i * current.h;
                     current.x = P.x + j * current.w;
                     if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current) != 0) {
@@ -88,8 +90,8 @@ DWORD WINAPI renderScreen(void* params) {
             digitCount++;
             c *= 10;
         }
-        current.x = P.x + (programParameters->tetrisGridSize.width + digitCount - 1) * current.w;
-        current.y = (P.y - 2 * current.h) + (programParameters->tetrisGridSize.height * 3 / 4) * current.h;
+        current.x = P.x + (programParameters->gridSize.width + digitCount - 1) * current.w;
+        current.y = (P.y - 2 * current.h) + (programParameters->gridSize.height * 3 / 4) * current.h;
         do {
             if(SDL_RenderCopy(renderer, digits[combo % 10], NULL, &current)) {
                 logToStream(programParameters->debugLog, LOGLEVEL_ERROR, "Error rendering digit");
@@ -108,8 +110,8 @@ DWORD WINAPI renderScreen(void* params) {
             digitCount++;
             c *= 10;
         }
-        current.x = P.x + (programParameters->tetrisGridSize.width + digitCount - 1) * current.w;
-        current.y = P.y + (programParameters->tetrisGridSize.height * 3 / 4) * current.h;
+        current.x = P.x + (programParameters->gridSize.width + digitCount - 1) * current.w;
+        current.y = P.y + (programParameters->gridSize.height * 3 / 4) * current.h;
         do {
             if(SDL_RenderCopy(renderer, digits[score % 10], NULL, &current)) {
                 logToStream(programParameters->debugLog, LOGLEVEL_ERROR, "Error rendering digit");
@@ -132,7 +134,7 @@ DWORD WINAPI renderScreen(void* params) {
         }
         
         ReleaseMutex(parameters->tilesMutex);
-
+        
         //formula: [ticks per second (probably 10^7) / FPS - time elapsed for input processing]
         delta = frameTime - (end - start) - overhead;
         delta = delta * 1000 / frequency;
