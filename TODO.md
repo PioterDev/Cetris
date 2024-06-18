@@ -1,3 +1,4 @@
+- rewriting the onPlacement function checks for full rows (it only checks one row)
 - ghost tile
 - preview of next tiles
 - T-spin and wall kick logic
