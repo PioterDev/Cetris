@@ -11,17 +11,14 @@ DWORD WINAPI renderScreen(void* params) {
     renderThreadParameters* parameters = params;
     ProgramParameters* programParameters = parameters->programParameters;
     
-    LARGE_INTEGER* timer = programParameters->timer;
-    
     SDL_Renderer* renderer = parameters->renderer;
     SDL_Texture** baseTextures = programParameters->baseTextures;
     SDL_Texture** digits = programParameters->digits;
     Point P;
     P.y = 0;
 
-    long long frequency = programParameters->clockFrequency->QuadPart;
-    long long start = 0, end = 0, delta = 0, frameTime = 0;
-    long long overhead = 0; //if the thread sleeps for too long in one iteration, make it sleep shorter in another iteration
+    LARGE_INTEGER start, end;
+    long long frequency = programParameters->clockFrequency->QuadPart, delta = 0, frameTime = 0, overhead = 0; //if the thread sleeps for too long in one iteration, make it sleep shorter in another iteration
     Color* backgroundColor = parameters->backgroundColor;
     int baseTileSize = 0;
     short scalingFactor = 0;
@@ -29,12 +26,12 @@ DWORD WINAPI renderScreen(void* params) {
     
 
     while(true) {
-        if(*(parameters->renderStatus) == STOP)break;
+        if(*(parameters->renderStatus) == STOP) break;
 
         WaitForSingleObject(parameters->renderMutex, INFINITE);
         WaitForSingleObject(parameters->tilesMutex, INFINITE);
         
-        start = timer->QuadPart;
+        QueryPerformanceCounter(&start);
 
         frameTime = frequency / programParameters->fps;
         baseTileSize = programParameters->baseTileSize;
@@ -127,22 +124,19 @@ DWORD WINAPI renderScreen(void* params) {
             
         } */
 
-        end = timer->QuadPart;
-        if(end - start == 0) {
-            Sleep(1);
-            end = timer->QuadPart;
-        }
+        QueryPerformanceCounter(&end);
         
         ReleaseMutex(parameters->tilesMutex);
         
         //formula: [ticks per second (probably 10^7) / FPS - time elapsed for input processing]
-        delta = frameTime - (end - start) - overhead;
+        delta = frameTime - (end.QuadPart - start.QuadPart) - overhead;
         delta = delta * 1000 / frequency;
         if(delta > 0) Sleep(delta);
 
         SDL_RenderPresent(renderer);
-        
-        overhead = timer->QuadPart - start - frameTime;
+
+        QueryPerformanceCounter(&end);
+        overhead = end.QuadPart - start.QuadPart - frameTime;
     
         ReleaseMutex(parameters->renderMutex);
     }

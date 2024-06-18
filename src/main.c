@@ -9,7 +9,6 @@
 #include <SDL_mixer.h>
 // #include <SDL_ttf.h>
 
-#include "clock_thread.h"
 #include "config.h"
 #include "date.h"
 #include "logging.h"
@@ -20,14 +19,11 @@
 #include "tile_queue.h"
 #include "utils.h"
 
-#define TEST
-
 int main(int argc, char** argv) {
     srand(time(NULL));
     timeBeginPeriod(1);
 
-    LARGE_INTEGER timer, frequency;
-    size_t tickTimerStart = 0, tickTimerEnd = 0;
+    LARGE_INTEGER frequency, timerStart, timerEnd;
     QueryPerformanceFrequency(&frequency);
 
     status_t status = SUCCESS; //Exit code
@@ -70,68 +66,42 @@ int main(int argc, char** argv) {
 
 
 
-    // start of timer thread //
-    logToStream(generallog, LOGLEVEL_INFO, "Attempting to start a high performance clock...");
-    loopStatus_t clockStatus = CONTINUE;
-    clockThreadParameters clockParameters = {
-        &clockStatus,
-        &timer
-    };
-
-
-
-    HANDLE clockThread = CreateThread(NULL, 0, highPerformanceClockThread, &clockParameters, 0, NULL);;
-    if(clockThread == NULL) {
-        status = THREAD_START_FAILURE;
-        sprintf(errormsgBuffer, "Error starting clock: %ld", GetLastError());
-        logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
-        goto close_errorlog;
-    }
-    logToStream(generallog, LOGLEVEL_INFO, "High performance clock started!");
-    // end of timer thread //
-
-
-
     FILE* configFile = fopen("./config/config.cfg", "r");
     if(configFile == NULL) {
         status = FILEOPEN_FAILURE;
-        sprintf(errormsgBuffer, "Error opening config file");
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error opening config file");
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
-        goto closeClockThread;
+        goto close_errorlog;
     }
 
 
     ProgramParameters programParameters = {};
     if(loadConfig(configFile, debugLog, &programParameters) != SUCCESS) {
         status = LOADCONFIG_FAILURE;
-        sprintf(errormsgBuffer, "Error loading game config.");
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error loading game config.");
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto close_configfile;
     }
     programParameters.clockFrequency = &frequency;
-    programParameters.timer = &timer;
     
     programParameters.generallog = generallog;
     programParameters.errorlog = errorlog;
     programParameters.debugLog = debugLog;
 
-    if(programParameters.gridSize.height == 0)  programParameters.gridSize.height = GridHeight;
-    if(programParameters.gridSize.width == 0)   programParameters.gridSize.width = GridWidth;
-    if(programParameters.baseFallSpeed == 0)    programParameters.baseFallSpeed = defaultFallSpeed;
-    if(programParameters.fps == 0)              programParameters.fps = 60;
-    if(programParameters.screenSize.height == 0)programParameters.screenSize.height = 720;
-    if(programParameters.screenSize.width == 0) programParameters.screenSize.width = 1280;
+    if(programParameters.gridSize.height == 0)   programParameters.gridSize.height = GridHeight;
+    if(programParameters.gridSize.width == 0)    programParameters.gridSize.width = GridWidth;
+    if(programParameters.baseFallSpeed == 0)     programParameters.baseFallSpeed = defaultFallSpeed;
+    if(programParameters.fps == 0)               programParameters.fps = 60;
+    if(programParameters.screenSize.height == 0) programParameters.screenSize.height = 720;
+    if(programParameters.screenSize.width == 0)  programParameters.screenSize.width = 1280;
     
-    #ifdef TEST
-    programParameters.keymap.test = SDLK_w;
-    #endif
     logToStream(generallog, LOGLEVEL_INFO, "Loaded configuration file.");
 
 
 
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO) != SUCCESS) {
         status = SDL_INIT_FAILURE;
-        sprintf(errormsgBuffer, "Error initializing SDL: %s", SDL_GetError());
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error initializing SDL: %s", SDL_GetError());
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto freeConfig;
     }
@@ -142,7 +112,7 @@ int main(int argc, char** argv) {
     int img_flags = IMG_INIT_PNG | IMG_INIT_JPG;
     if(!(IMG_Init(img_flags) & img_flags)) {
         status = IMG_INIT_FAILURE;
-        sprintf(errormsgBuffer, "Error initializing SDL_image: %s", IMG_GetError());
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error initializing SDL_image: %s", IMG_GetError());
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_quit;
     }
@@ -150,8 +120,8 @@ int main(int argc, char** argv) {
 
 
     if(Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 4, 2048) < 0) {
-        status = FAILURE; //TODO: add enum for SDL_mixer failure
-        sprintf(errormsgBuffer, "Error initializing SDL_mixer: %s", Mix_GetError());
+        status = MIX_OPEN_FAILURE;
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error initializing SDL_mixer: %s", Mix_GetError());
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto img_quit;
     }
@@ -159,7 +129,7 @@ int main(int argc, char** argv) {
 
     /* if(TTF_Init() != SUCCESS) {
         status = FAILURE;
-        sprintf("Error initializing SDL_ttf: %s", TTF_GetError());
+        snprintf("Error initializsizeof(errormsgBuffer), ing SDL_ttf: %s", TTF_GetError());
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto mix_quit;
     } */
@@ -168,7 +138,7 @@ int main(int argc, char** argv) {
     window = SDL_CreateWindow("Cetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, programParameters.screenSize.width, programParameters.screenSize.height, SDL_WINDOW_SHOWN);
     if(window == NULL) {
         status = SDL_WINDOW_FAILURE;
-        sprintf(errormsgBuffer, "Error creating window: %s", SDL_GetError());
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error creating window: %s", SDL_GetError());
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto mix_quit;
     }
@@ -180,7 +150,7 @@ int main(int argc, char** argv) {
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if(renderer == NULL) {
         status = SDL_RENDERER_FAILURE;
-        sprintf(errormsgBuffer, "Error initializing renderer: %s", SDL_GetError());
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error initializing renderer: %s", SDL_GetError());
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroywindow;
     }
@@ -191,7 +161,7 @@ int main(int argc, char** argv) {
     logToStream(generallog, LOGLEVEL_INFO, "Attempting to load base tile textures...");
     if(loadBaseTextures(&programParameters, renderer) != SUCCESS) {
         status = FAILURE;
-        sprintf(errormsgBuffer, "Error loading base tile textures.");
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error loading base tile textures.");
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroyrenderer;
     }
@@ -201,7 +171,7 @@ int main(int argc, char** argv) {
     logToStream(generallog, LOGLEVEL_INFO, "Attempting to load digits...");
     if(loadDigits(&programParameters, renderer) != SUCCESS) {
         status = FAILURE;
-        sprintf(errormsgBuffer, "Error loading digit textures.");
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error loading digit textures.");
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroyrenderer;
     }
@@ -210,7 +180,7 @@ int main(int argc, char** argv) {
     logToStream(generallog, LOGLEVEL_INFO, "Attempting to load a soundtrack...");
     if(loadSoundtracks(&programParameters) != SUCCESS) {
         status = FAILURE;
-        sprintf(errormsgBuffer, "Error loading soundtrack.");
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error loading soundtrack.");
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroyrenderer;
     }
@@ -220,7 +190,7 @@ int main(int argc, char** argv) {
     logToStream(generallog, LOGLEVEL_INFO, "Attempting to load sound effects...");
     if(loadSoundEffects(&programParameters) != SUCCESS) {
         status = FAILURE;
-        sprintf(errormsgBuffer, "Error loading sound effects.");
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error loading sound effects.");
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroyrenderer;
     }
@@ -241,8 +211,8 @@ int main(int argc, char** argv) {
             programParameters.gridSize.width  * programParameters.baseTileSize * 2 < programParameters.screenSize.width) { //scale up
         programParameters.scalingFactor = 1;
         while(
-            programParameters.gridSize.height * programParameters.baseTileSize * 2 *(unsigned short)programParameters.scalingFactor < programParameters.screenSize.height &&
-            programParameters.gridSize.width  * programParameters.baseTileSize * 2 *(unsigned short)programParameters.scalingFactor < programParameters.screenSize.width
+            programParameters.gridSize.height * programParameters.baseTileSize * 2 * (unsigned short)programParameters.scalingFactor < programParameters.screenSize.height &&
+            programParameters.gridSize.width  * programParameters.baseTileSize * 2 * (unsigned short)programParameters.scalingFactor < programParameters.screenSize.width
         ) {programParameters.scalingFactor++;}
     }
 
@@ -251,7 +221,7 @@ int main(int argc, char** argv) {
     HANDLE tilesMutex = CreateMutex(NULL, TRUE, NULL);
     if(tilesMutex == NULL) {
         status = MUTEX_FAILURE;
-        sprintf(errormsgBuffer, "Error initializing tiles mutex: %ld", GetLastError());
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error initializing tiles mutex: %ld", GetLastError());
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto sdl_destroyrenderer;
     }
@@ -264,7 +234,7 @@ int main(int argc, char** argv) {
     HANDLE renderMutex = CreateMutex(NULL, TRUE, NULL);
     if(renderMutex == NULL) {
         status = MUTEX_FAILURE;
-        sprintf(errormsgBuffer, "Error initializing render thread mutex: %ld", GetLastError());
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error initializing render thread mutex: %ld", GetLastError());
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto closeTilesMutex;
     }
@@ -291,7 +261,7 @@ int main(int argc, char** argv) {
     HANDLE renderThread = CreateThread(NULL, 0, renderScreen, &renderParameters, 0, NULL);
     if(renderThread == NULL) {
         status = THREAD_START_FAILURE;
-        sprintf(errormsgBuffer, "Error starting render thread: %ld", GetLastError());
+        snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error starting render thread: %ld", GetLastError());
         logToStream(errorlog, LOGLEVEL_ERROR, errormsgBuffer);
         goto closeRenderMutex;
     }
@@ -306,7 +276,7 @@ int main(int argc, char** argv) {
     ReleaseMutex(tilesMutex);
     ReleaseMutex(renderMutex); //start render thread
 
-    tickTimerStart = tickTimerEnd = timer.QuadPart;
+    QueryPerformanceCounter(&timerStart);
 
     while(programParameters.flags.running) { //main game loop
         WaitForSingleObject(tilesMutex, INFINITE);
@@ -400,12 +370,12 @@ int main(int argc, char** argv) {
         }
         if(programParameters.flags.playing) {
             if(!Mix_PlayingMusic()) playMusic(&programParameters);
-            size_t baseFallSpeed = programParameters.baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
+            long long baseFallSpeed = programParameters.baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
             if(programParameters.flags.speed == SPEED_DROPSOFT)  baseFallSpeed /= 5;
             else if(programParameters.flags.speed == SPEED_HOLD) baseFallSpeed *= 5;
-            tickTimerEnd = timer.QuadPart;
-            // fprintf(debugLog, "%lld %lld\n", tickTimerEnd, tickTimerStart);
-            if(tickTimerEnd - tickTimerStart > baseFallSpeed) {
+            QueryPerformanceCounter(&timerEnd);
+            // fprintf(debugLog, "%lld %lld\n", timerEnd, timerStart);
+            if(timerEnd.QuadPart - timerStart.QuadPart > baseFallSpeed) {
                 if(programParameters.currentTile != NULL) {
                     status_t moveStatus = moveDown(programParameters.grid, programParameters.currentTile, programParameters.gridSize.height);
                     #ifdef DEBUG
@@ -432,7 +402,7 @@ int main(int argc, char** argv) {
                         else if(programParameters.flags.speed == SPEED_HOLD)     programParameters.score += POINTS_HOLD;
                     }
                 }
-                tickTimerStart = timer.QuadPart;
+                QueryPerformanceCounter(&timerStart);
             }
         }
         
@@ -471,11 +441,6 @@ int main(int argc, char** argv) {
         freeProgramConfig(&programParameters);
 
     close_configfile: fclose(configFile);
-
-    closeClockThread:
-        clockStatus = STOP;
-        WaitForSingleObject(clockThread, INFINITE);
-        CloseHandle(clockThread);
 
     close_errorlog: fclose(errorlog);
 

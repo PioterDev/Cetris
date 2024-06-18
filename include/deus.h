@@ -31,7 +31,9 @@
 #define loggingBufferSize 1024
 #define defaultFallSpeed 1000
 
-#define DEBUG //for diagnostic logging, testing, etc.
+#define DEBUG //for diagnostic logging, debugging, etc.
+
+#define TEST //for testing new stuff
 
 typedef unsigned long long size_t;
 
@@ -71,6 +73,7 @@ typedef enum status_t {
     LOADCONFIG_FAILURE,
     SDL_INIT_FAILURE,
     IMG_INIT_FAILURE,
+    MIX_OPEN_FAILURE,
     SDL_WINDOW_FAILURE,
     SDL_RENDERER_FAILURE,
     MUTEX_FAILURE,
@@ -236,7 +239,6 @@ typedef struct ProgramParameters {
     //If it's > 0, scale up, if it's < 0, scale down
     short scalingFactor;
     LARGE_INTEGER* clockFrequency;
-    LARGE_INTEGER* timer;
     FILE* generallog;
     FILE* errorlog;
     FILE* debugLog;
