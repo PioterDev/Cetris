@@ -1,10 +1,10 @@
 #include "deus.h"
 #include "utils.h"
 
-status_t rotateClockwise(int** grid, Tile* tile) {
+status_t rotateClockwise(int** grid, Tile* tile, const Size gridSize) {
     if(tile == NULL)return MEMORY_FAILURE;
-    int x = tile->position.x;
-    int y = tile->position.y;
+    unsigned int x = tile->position.x;
+    unsigned int y = tile->position.y;
     switch(tile->state) {
         case BAR_HORIZONTAL_UP: {
             if(y > 0 && grid[y - 1][x + 2] == 0 && grid[y + 1][x + 2] == 0 && grid[y + 2][x + 2] == 0) {
@@ -83,7 +83,7 @@ status_t rotateClockwise(int** grid, Tile* tile) {
             break;
         }
         case J_0: {
-            if(x < GridWidth - 2 && grid[y - 2][x] == 0 && grid[y - 1][x] == 0 && grid[y - 1][x + 2] == 0) {
+            if(x < gridSize.width - 2 && grid[y - 2][x] == 0 && grid[y - 1][x] == 0 && grid[y - 1][x + 2] == 0) {
                 grid[y - 2][x]     = -1 * tile->color;
                 grid[y - 1][x]     = -1 * tile->color;
                 grid[y - 1][x + 2] = -1 * tile->color;
@@ -101,7 +101,7 @@ status_t rotateClockwise(int** grid, Tile* tile) {
             break;
         }
         case J_90: {
-            if(y < GridHeight - 2 && grid[y][x + 1] == 0 && grid[y][x + 2] == 0 && grid[y + 2][x + 1] == 0) {
+            if(y < gridSize.height - 2 && grid[y][x + 1] == 0 && grid[y][x + 2] == 0 && grid[y + 2][x + 1] == 0) {
                 grid[y]    [x + 1] = -1 * tile->color;
                 grid[y]    [x + 2] = -1 * tile->color;
                 grid[y + 2][x + 1] = -1 * tile->color;
@@ -191,7 +191,7 @@ status_t rotateClockwise(int** grid, Tile* tile) {
             break;
         }
         case L_180: {
-            if(x < GridWidth - 2 && grid[y][x + 2] == 0 && grid[y + 1][x + 2] == 0 && grid[y + 1][x] == 0) {
+            if(x < gridSize.width - 2 && grid[y][x + 2] == 0 && grid[y + 1][x + 2] == 0 && grid[y + 1][x] == 0) {
                 grid[y]    [x + 2] = -1 * tile->color;
                 grid[y + 1][x + 2] = -1 * tile->color;
                 grid[y + 1][x]     = -1 * tile->color;
@@ -209,7 +209,7 @@ status_t rotateClockwise(int** grid, Tile* tile) {
             break;
         }
         case L_270: {
-            if(y < GridHeight - 2 && grid[y + 2][x] == 0 && grid[y + 2][x - 1] == 0 && grid[y][x - 1] == 0) {
+            if(y < gridSize.height - 2 && grid[y + 2][x] == 0 && grid[y + 2][x - 1] == 0 && grid[y][x - 1] == 0) {
                 grid[y + 2][x]     = -1 * tile->color;
                 grid[y + 2][x - 1] = -1 * tile->color;
                 grid[y]    [x - 1] = -1 * tile->color;
@@ -227,7 +227,7 @@ status_t rotateClockwise(int** grid, Tile* tile) {
             break;
         }
         case S_0: {
-            if(y < GridHeight - 2 && grid[y + 1][x + 2] == 0 && grid[y][x + 2] == 0) {
+            if(y < gridSize.height - 2 && grid[y + 1][x + 2] == 0 && grid[y][x + 2] == 0) {
                 grid[y + 1][x + 2] = -1 * tile->color;
                 grid[y]    [x + 2] = -1 * tile->color;
 
@@ -277,7 +277,7 @@ status_t rotateClockwise(int** grid, Tile* tile) {
             break;
         }
         case S_270: {
-            if(x < GridWidth - 2 && grid[y][x + 1] == 0 && grid[y][x + 1] == 0) {
+            if(x < gridSize.width - 2 && grid[y][x + 1] == 0 && grid[y][x + 1] == 0) {
                 grid[y][x + 1] = -1 * tile->color;
                 grid[y][x + 2] = -1 * tile->color;
 
@@ -309,7 +309,7 @@ status_t rotateClockwise(int** grid, Tile* tile) {
             break;
         }
         case T_90: {
-            if(x < GridWidth - 2 && grid[y][x + 2] == 0) {
+            if(x < gridSize.width - 2 && grid[y][x + 2] == 0) {
                 grid[y][x + 2] = -1 * tile->color;
 
                 grid[y + 1][x + 1] = 0;
@@ -324,7 +324,7 @@ status_t rotateClockwise(int** grid, Tile* tile) {
             break;
         }
         case T_180: {
-            if(y < GridHeight - 2 && grid[y + 2][x] == 0) {
+            if(y < gridSize.height - 2 && grid[y + 2][x] == 0) {
                 grid[y + 2][x] = -1 * tile->color;
 
                 grid[y + 1][x - 1] = 0;
@@ -354,7 +354,7 @@ status_t rotateClockwise(int** grid, Tile* tile) {
             break;
         }
         case Z_0: {
-            if(y < GridHeight - 2 && grid[y][x + 2] == 0 && grid[y + 2][x + 1] == 0) {
+            if(y < gridSize.height - 2 && grid[y][x + 2] == 0 && grid[y + 2][x + 1] == 0) {
                 grid[y][x + 2] = -1 * tile->color;
                 grid[y + 2][x + 1] = -1 * tile->color;
 
@@ -403,7 +403,7 @@ status_t rotateClockwise(int** grid, Tile* tile) {
             break;
         }
         case Z_270: {
-            if(x < GridWidth - 2 && grid[y - 1][x] == 0 && grid[y][x + 2] == 0) {
+            if(x < gridSize.width - 2 && grid[y - 1][x] == 0 && grid[y][x + 2] == 0) {
                 grid[y - 1][x]     = -1 * tile->color;
                 grid[y]    [x + 2] = -1 * tile->color;
 
@@ -423,10 +423,10 @@ status_t rotateClockwise(int** grid, Tile* tile) {
     return FAILURE;
 }
 
-status_t rotateCounterClockwise(int** grid, Tile* tile) {
+status_t rotateCounterClockwise(int** grid, Tile* tile, const Size gridSize) {
     if(tile == NULL) return MEMORY_FAILURE;
-    int x = tile->position.x;
-    int y = tile->position.y;
+    unsigned int x = tile->position.x;
+    unsigned int y = tile->position.y;
     switch(tile->state) {
         case BAR_HORIZONTAL_UP: {
             if(y > 0 && grid[y - 1][x + 1] == 0 && grid[y + 1][x + 1] == 0 && grid[y + 2][x + 1] == 0) {
@@ -505,7 +505,7 @@ status_t rotateCounterClockwise(int** grid, Tile* tile) {
             break;
         }
         case J_0: {
-            if(x < GridWidth - 2 && grid[y][x + 2] == 0 && grid[y - 1][x] == 0 && grid[y - 1][x + 2] == 0) {
+            if(x < gridSize.width - 2 && grid[y][x + 2] == 0 && grid[y - 1][x] == 0 && grid[y - 1][x + 2] == 0) {
                 grid[y]    [x + 2] = -1 * tile->color;
                 grid[y - 1][x]     = -1 * tile->color;
                 grid[y - 1][x + 2] = -1 * tile->color;
@@ -523,7 +523,7 @@ status_t rotateCounterClockwise(int** grid, Tile* tile) {
             break;
         }
         case J_90: {
-            if(y < GridHeight - 2 && grid[y + 2][x] == 0 && grid[y + 2][x + 1] == 0 && grid[y][x + 1] == 0) {
+            if(y < gridSize.height - 2 && grid[y + 2][x] == 0 && grid[y + 2][x + 1] == 0 && grid[y][x + 1] == 0) {
                 grid[y + 2][x]     = -1 * tile->color;
                 grid[y + 2][x + 1] = -1 * tile->color;
                 grid[y]    [x + 1] = -1 * tile->color;
@@ -613,7 +613,7 @@ status_t rotateCounterClockwise(int** grid, Tile* tile) {
             break;
         }
         case L_180: {
-            if(x < GridWidth - 2 && grid[y + 1][x] == 0 && grid[y + 2][x] == 0 && grid[y + 1][x + 2] == 0) {
+            if(x < gridSize.width - 2 && grid[y + 1][x] == 0 && grid[y + 2][x] == 0 && grid[y + 1][x + 2] == 0) {
                 grid[y + 1][x]     = -1 * tile->color;
                 grid[y + 2][x]     = -1 * tile->color;
                 grid[y + 1][x + 2] = -1 * tile->color;
@@ -631,7 +631,7 @@ status_t rotateCounterClockwise(int** grid, Tile* tile) {
             break;
         }
         case L_270: {
-            if(y < GridHeight - 2 && grid[y][x - 1] == 0 && grid[y][x - 2] == 0 && grid[y + 2][x - 1] == 0) {
+            if(y < gridSize.height - 2 && grid[y][x - 1] == 0 && grid[y][x - 2] == 0 && grid[y + 2][x - 1] == 0) {
                 grid[y]    [x - 1] = -1 * tile->color;
                 grid[y]    [x - 2] = -1 * tile->color;
                 grid[y + 2][x - 1] = -1 * tile->color;
@@ -649,7 +649,7 @@ status_t rotateCounterClockwise(int** grid, Tile* tile) {
             break;
         }
         case S_0: {
-            if(y < GridHeight - 2 && grid[y - 1][x] == 0 && grid[y + 1][x + 1] == 0) {
+            if(y < gridSize.height - 2 && grid[y - 1][x] == 0 && grid[y + 1][x + 1] == 0) {
                 grid[y - 1][x]     = -1 * tile->color;
                 grid[y + 1][x + 1] = -1 * tile->color;
 
@@ -699,7 +699,7 @@ status_t rotateCounterClockwise(int** grid, Tile* tile) {
             break;
         }
         case S_270: {
-            if(x < GridWidth - 2 && grid[y + 2][x] == 0 && grid[y + 1][x + 2] == 0) {
+            if(x < gridSize.width - 2 && grid[y + 2][x] == 0 && grid[y + 1][x + 2] == 0) {
                 grid[y + 2][x]     = -1 * tile->color;
                 grid[y + 1][x + 2] = -1 * tile->color;
 
@@ -731,7 +731,7 @@ status_t rotateCounterClockwise(int** grid, Tile* tile) {
             break;
         }
         case T_90: {
-            if(x < GridWidth - 2 && grid[y][x + 2] == 0) {
+            if(x < gridSize.width - 2 && grid[y][x + 2] == 0) {
                 grid[y][x + 2] = -1 * tile->color;
 
                 grid[y - 1][x + 1] = 0;
@@ -746,7 +746,7 @@ status_t rotateCounterClockwise(int** grid, Tile* tile) {
             break;
         }
         case T_180: {
-            if(y < GridHeight - 2 && grid[y + 2][x] == 0) {
+            if(y < gridSize.height - 2 && grid[y + 2][x] == 0) {
                 grid[y + 2][x] = -1 * tile->color;
 
                 grid[y + 1][x + 1] = 0;
@@ -776,7 +776,7 @@ status_t rotateCounterClockwise(int** grid, Tile* tile) {
             break;
         }
         case Z_0: {
-            if(y < GridHeight - 2 && grid[y + 1][x] == 0 && grid[y + 2][x] == 0) {
+            if(y < gridSize.height - 2 && grid[y + 1][x] == 0 && grid[y + 2][x] == 0) {
                 grid[y + 1][x] = -1 * tile->color;
                 grid[y + 2][x] = -1 * tile->color;
 
@@ -825,7 +825,7 @@ status_t rotateCounterClockwise(int** grid, Tile* tile) {
             break;
         }
         case Z_270: {
-            if(x < GridWidth - 2 && grid[y + 1][x + 1] == 0 && grid[y + 1][x + 2] == 0) {
+            if(x < gridSize.width - 2 && grid[y + 1][x + 1] == 0 && grid[y + 1][x + 2] == 0) {
                 grid[y + 1][x + 1] = -1 * tile->color;
                 grid[y + 1][x + 2] = -1 * tile->color;
 

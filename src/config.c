@@ -247,6 +247,7 @@ typedef enum Option {
     SCREEN_HEIGHT,
     FPS,
     BASEFALLSPEED,
+    SPEEDMULTIPLIER,
     SOUNDTRACK,
     SOUNDTRACK_VOLUME,
     SFX_VOLUME,
@@ -291,6 +292,9 @@ void setParameter(ProgramParameters* parameters, Option key, const int value) {
             break;
         case BASEFALLSPEED:
             parameters->baseFallSpeed = value;
+            break;
+        case SPEEDMULTIPLIER:
+            parameters->speedMultiplier = value;
             break;
         case SOUNDTRACK:
             parameters->flags.soundtrack = value - 1; //to ensure it doesn't overflow
@@ -348,6 +352,7 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
         else if(!strcmp(key, "height"))                     option = SCREEN_HEIGHT;
         else if(!strcmp(key, "fps"))                        option = FPS;
         else if(!strcmp(key, "basefallspeed"))              option = BASEFALLSPEED;
+        else if(!strcmp(key, "speed_multiplier"))           option = SPEEDMULTIPLIER;
         else if(!strcmp(key, "soundtrack"))                 option = SOUNDTRACK;
         else if(!strcmp(key, "soundtrack_volume"))          option = SOUNDTRACK_VOLUME;
         else if(!strcmp(key, "sfx_volume"))                 option = SFX_VOLUME;
@@ -361,6 +366,7 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
                     case SCREEN_HEIGHT:
                     case FPS:
                     case BASEFALLSPEED:
+                    case SPEEDMULTIPLIER:
                     case SOUNDTRACK:
                     case SOUNDTRACK_VOLUME:
                     case SFX_VOLUME:
@@ -523,6 +529,9 @@ void printConfig(ProgramParameters* params, FILE* stream) {
     logToStream(stream, LOGLEVEL_INFO, NULL);
 
     snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Base fall speed: %d ms", params->baseFallSpeed);
+    logToStream(stream, LOGLEVEL_INFO, NULL);
+
+    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Speed multiplier: %d", params->speedMultiplier);
     logToStream(stream, LOGLEVEL_INFO, NULL);
 
     snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Scaling factor: %d", params->scalingFactor);

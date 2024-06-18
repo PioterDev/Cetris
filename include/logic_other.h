@@ -14,6 +14,13 @@
 status_t loadTileIntoGrid(int** grid, const Tile* tile);
 
 /**
+ * @brief Pauses or unpauses the game.
+ * 
+ * @param parameters pointer to ProgramParameters struct
+ */
+void togglePause(ProgramParameters* parameters);
+
+/**
  * @brief 
  * 
  * @param grid 

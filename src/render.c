@@ -33,7 +33,8 @@ DWORD WINAPI renderScreen(void* params) {
         
         QueryPerformanceCounter(&start);
 
-        frameTime = frequency / programParameters->fps;
+        if(programParameters->flags.paused) frameTime = frequency / 10;
+        else frameTime = frequency / programParameters->fps;
         baseTileSize = programParameters->baseTileSize;
         scalingFactor = programParameters->scalingFactor;
         
@@ -61,7 +62,7 @@ DWORD WINAPI renderScreen(void* params) {
                     else if(color < 0) color = abs(color);
                     current.y = P.y + i * current.h;
                     current.x = P.x + j * current.w;
-                    if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current) != 0) {
+                    if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current)) {
                         logToStream(programParameters->debugLog, LOGLEVEL_ERROR, "Error rendering tile");
                     }
                 }
@@ -72,7 +73,7 @@ DWORD WINAPI renderScreen(void* params) {
                 for(unsigned int j = 0; j < programParameters->gridSize.width; j++) {
                     current.y = P.y + i * current.h;
                     current.x = P.x + j * current.w;
-                    if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current) != 0) {
+                    if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current)) {
                         logToStream(programParameters->debugLog, LOGLEVEL_ERROR, "Error rendering tile");
                     }
                 }

@@ -59,6 +59,13 @@ Mix_Music* loadMusic(const char* path);
 void freeMusic(Mix_Music* music);
 
 /**
+ * @brief Toggles the music.
+ * 
+ * @param playing whether the music is playing or not
+ */
+void toggleMusic(int playing);
+
+/**
  * @brief Stops the music.
  * 
  */

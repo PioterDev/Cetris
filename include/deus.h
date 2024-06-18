@@ -25,11 +25,13 @@
 #define tileColorAmount 8 //7 + background
 #define soundtracksAmount 3
 #define soundEffectAmount 9 //left, right and down movement, drop, rotations, line clears
-#define GridHeight 20
-#define GridWidth 10
 #define tileQueuedAmount 4
 #define loggingBufferSize 1024
+
 #define defaultFallSpeed 1000
+#define defaultSpeedMultiplier 5
+#define defaultGridHeight 20
+#define defaultGridWidth 10
 
 #define DEBUG //for diagnostic logging, debugging, etc.
 
@@ -215,12 +217,16 @@ typedef struct SoundEffect {
 
 //1st bit - whether the program should continue running
 //2nd bit - whether a game is played
-//3rd and 4th bit hold the game speed
-//5th and 6th bit hold the soundtrack to be played
-//7th and 8th bit hold the soundtrack that is currently playing
+//3rd bit - whether the game is paused
+//7 bits of offset to bring the total struct size to 2 bytes
+//11th and 12th bit hold the game speed
+//13th and 14th bit hold the soundtrack to be played
+//15th and 16th bit hold the soundtrack that is currently playing
 typedef struct ProgramFlags {
     int running : 1;
     int playing : 1;
+    int paused : 1;
+    int __offset__: 7;
     MovementSpeed speed : 2;
     unsigned int soundtrack : 2;
     unsigned int soundtrackNowPlaying : 2;
@@ -234,25 +240,33 @@ typedef struct ProgramParameters {
     Size screenSize;
     unsigned int fps;
     unsigned short baseFallSpeed;
+    unsigned short speedMultiplier;
     unsigned short baseTileSize;
     Keymap keymap;
     //If it's > 0, scale up, if it's < 0, scale down
     short scalingFactor;
+    
     LARGE_INTEGER* clockFrequency;
+    
     FILE* generallog;
     FILE* errorlog;
     FILE* debugLog;
+    
     SDL_Texture* baseTextures[tileColorAmount];
     SDL_Texture* digits[10];
+    
     int** grid;
     Size gridSize;
+    
     Tile* currentTile;
     Tile* heldTile;
     TileQueue tileQueue;
+    
     Soundtrack soundtracks[soundtracksAmount];
     SoundEffect soundEffects[soundEffectAmount];
     unsigned char soundEffectsVolume; //max is 128
     unsigned char soundtracksVolume; //same here
+    
     size_t score;
     unsigned int combo;
     unsigned int level;

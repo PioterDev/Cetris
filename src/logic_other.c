@@ -19,6 +19,22 @@ status_t loadTileIntoGrid(int** grid, const Tile* tile) {
     return SUCCESS;
 }
 
+void togglePause(ProgramParameters* parameters) {
+    toggleMusic(!parameters->flags.paused);
+    if(parameters->flags.paused) {
+        parameters->flags.paused = false;
+        /* for(int i = 0; i < tileColorAmount; i++) {
+            SDL_SetTextureAlphaMod(parameters->baseTextures[i], 255);
+        } */
+    }
+    else {
+        parameters->flags.paused = true;
+        /* for(int i = 0; i < tileColorAmount; i++) {
+            SDL_SetTextureAlphaMod(parameters->baseTextures[i], 50);
+        } */
+    }
+}
+
 static inline void shiftDown(int** grid, const Size gridSize, const int n, const int startHeight) {
     for(int i = startHeight; i > n - 1; i--) {
         for(unsigned int j = 0; j < gridSize.width; j++) {

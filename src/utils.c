@@ -80,6 +80,11 @@ void freeMusic(Mix_Music* music) {
     Mix_FreeMusic(music);
 }
 
+void toggleMusic(int playing) {
+    if(playing) Mix_PauseMusic();
+    else        Mix_ResumeMusic();
+}
+
 void stopMusic() {
     Mix_HaltMusic();
 }

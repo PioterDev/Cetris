@@ -87,13 +87,14 @@ int main(int argc, char** argv) {
     programParameters.generallog = generallog;
     programParameters.errorlog = errorlog;
     programParameters.debugLog = debugLog;
-
-    if(programParameters.gridSize.height == 0)   programParameters.gridSize.height = GridHeight;
-    if(programParameters.gridSize.width == 0)    programParameters.gridSize.width = GridWidth;
-    if(programParameters.baseFallSpeed == 0)     programParameters.baseFallSpeed = defaultFallSpeed;
-    if(programParameters.fps == 0)               programParameters.fps = 60;
-    if(programParameters.screenSize.height == 0) programParameters.screenSize.height = 720;
+    //Default parameters
     if(programParameters.screenSize.width == 0)  programParameters.screenSize.width = 1280;
+    if(programParameters.screenSize.height == 0) programParameters.screenSize.height = 720;
+    if(programParameters.fps == 0)               programParameters.fps = 60;
+    if(programParameters.baseFallSpeed == 0)     programParameters.baseFallSpeed = defaultFallSpeed;
+    if(programParameters.speedMultiplier == 0)   programParameters.speedMultiplier = defaultSpeedMultiplier;
+    if(programParameters.gridSize.height == 0)   programParameters.gridSize.height = defaultGridHeight;
+    if(programParameters.gridSize.width == 0)    programParameters.gridSize.width = defaultGridWidth;
     
     logToStream(generallog, LOGLEVEL_INFO, "Loaded configuration file.");
 
@@ -313,13 +314,17 @@ int main(int argc, char** argv) {
                         }                  
                         break;
                     }
-                
+
                     if(debugLog != NULL) {
                         snprintf(loggingBuffer, loggingBufferSize, "[Key press] %d", key);
                         logToStream(debugLog, LOGLEVEL_DEBUG, NULL);
                     }
 
-                    if(key == programParameters.keymap.dropHard) {
+                    if(key == programParameters.keymap.pause) togglePause(&programParameters);
+
+                    else if(programParameters.flags.paused) break;
+                
+                    else if(key == programParameters.keymap.dropHard) {
                         dropHard(&programParameters);
                         onPlacement(&programParameters);
                         
@@ -346,12 +351,12 @@ int main(int argc, char** argv) {
                     else if(key == programParameters.keymap.dropSoft) programParameters.flags.speed = SPEED_DROPSOFT;
 
                     else if(key == programParameters.keymap.rotateClockwise) {
-                        rotateClockwise(programParameters.grid, programParameters.currentTile);
+                        rotateClockwise(programParameters.grid, programParameters.currentTile, programParameters.gridSize);
                         playSound(&programParameters.soundEffects[ACTION_ROTATECLOCKWISE], programParameters.soundEffectsVolume);
                     }
                     
                     else if(key == programParameters.keymap.rotateCounterClockwise) {
-                        rotateCounterClockwise(programParameters.grid, programParameters.currentTile);
+                        rotateCounterClockwise(programParameters.grid, programParameters.currentTile, programParameters.gridSize);
                         playSound(&programParameters.soundEffects[ACTION_ROTATECOUNTERCLOCKWISE], programParameters.soundEffectsVolume);
                     }
                         
@@ -369,10 +374,11 @@ int main(int argc, char** argv) {
             }
         }
         if(programParameters.flags.playing) {
+            if(programParameters.flags.paused) goto gameloop_end;
             if(!Mix_PlayingMusic()) playMusic(&programParameters);
             long long baseFallSpeed = programParameters.baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
-            if(programParameters.flags.speed == SPEED_DROPSOFT)  baseFallSpeed /= 5;
-            else if(programParameters.flags.speed == SPEED_HOLD) baseFallSpeed *= 5;
+            if(programParameters.flags.speed == SPEED_DROPSOFT)  baseFallSpeed /= programParameters.speedMultiplier;
+            else if(programParameters.flags.speed == SPEED_HOLD) baseFallSpeed *= programParameters.speedMultiplier;
             QueryPerformanceCounter(&timerEnd);
             // fprintf(debugLog, "%lld %lld\n", timerEnd, timerStart);
             if(timerEnd.QuadPart - timerStart.QuadPart > baseFallSpeed) {
@@ -405,9 +411,9 @@ int main(int argc, char** argv) {
                 QueryPerformanceCounter(&timerStart);
             }
         }
-        
-        ReleaseMutex(tilesMutex);
-        Sleep(1);
+        gameloop_end:
+            ReleaseMutex(tilesMutex);
+            Sleep(1);
     }
 
 
