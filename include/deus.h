@@ -32,6 +32,7 @@
 #define defaultSpeedMultiplier 5
 #define defaultGridHeight 20
 #define defaultGridWidth 10
+#define maxTileSize 4 //for later implementations of tiles taking up >4 cells
 
 #define DEBUG //for diagnostic logging, debugging, etc.
 
@@ -80,7 +81,8 @@ typedef enum status_t {
     SDL_RENDERER_FAILURE,
     MUTEX_FAILURE,
     SEMAPHORE_FAILURE,
-    THREAD_START_FAILURE
+    THREAD_START_FAILURE,
+    INDEXOUTOFRANGE
 } status_t;
 
 typedef enum LogLevel {
@@ -135,8 +137,7 @@ typedef enum TileColor {
 } TileColor;
 
 typedef enum TileShape {
-    SHAPE_UNKNOWN,
-    BASE,
+    SHAPE_UNKNOWN = -1,
     BAR,
     J,
     L,
@@ -144,11 +145,11 @@ typedef enum TileShape {
     SQUARE,
     T,
     Z,
-    BACKGROUND
+    SHAPE_AMOUNT
 } TileShape;
 
 typedef enum TileState {
-    STATE_UNKNOWN,
+    STATE_UNKNOWN = -1,
     BAR_HORIZONTAL_UP,
     BAR_HORIZONTAL_DOWN,
     BAR_VERTICAL_LEFT,
@@ -173,7 +174,8 @@ typedef enum TileState {
     Z_0,
     Z_90,
     Z_180,
-    Z_270
+    Z_270,
+    STATE_AMOUNT //total number of states
 } TileState;
 
 /**
@@ -223,10 +225,16 @@ typedef struct SoundEffect {
 //13th and 14th bit hold the soundtrack to be played
 //15th and 16th bit hold the soundtrack that is currently playing
 typedef struct ProgramFlags {
+    //Whether the program should continue to run.
     int running : 1;
+    //Whether there is a game played.
     int playing : 1;
+    //Whether the game is paused, does nothing when playing == false.
     int paused : 1;
-    int __offset__: 7;
+    //Whether a tile has been loaded into the grid recently. If true, reset the fall timer.
+    //This is to prevent causing the tile to fall immediately after being loaded.
+    int tileRecentlyLoaded : 1;
+    int __offset__: 6;
     MovementSpeed speed : 2;
     unsigned int soundtrack : 2;
     unsigned int soundtrackNowPlaying : 2;
@@ -248,9 +256,7 @@ typedef struct ProgramParameters {
     
     LARGE_INTEGER* clockFrequency;
     
-    FILE* generallog;
-    FILE* errorlog;
-    FILE* debugLog;
+    FILE* log;
     
     SDL_Texture* baseTextures[tileColorAmount];
     SDL_Texture* digits[10];
@@ -313,6 +319,12 @@ typedef enum PointsPerAction {
     POINTS_TRIPLE = 500,
     POINTS_QUAD = 800
 } PointsPerAction;
+
+typedef enum GameEndReason {
+    GAME_END_REASON_EXIT,
+    GAME_END_REASON_LOADFAIL,
+    REASON_AMOUNT
+} GameEndReason;
 
 
 #endif

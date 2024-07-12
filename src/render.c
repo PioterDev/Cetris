@@ -63,7 +63,7 @@ DWORD WINAPI renderScreen(void* params) {
                     current.y = P.y + i * current.h;
                     current.x = P.x + j * current.w;
                     if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current)) {
-                        logToStream(programParameters->debugLog, LOGLEVEL_ERROR, "Error rendering tile");
+                        logToStream(programParameters->log, LOGLEVEL_ERROR, "Error rendering tile");
                     }
                 }
             }
@@ -74,7 +74,7 @@ DWORD WINAPI renderScreen(void* params) {
                     current.y = P.y + i * current.h;
                     current.x = P.x + j * current.w;
                     if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current)) {
-                        logToStream(programParameters->debugLog, LOGLEVEL_ERROR, "Error rendering tile");
+                        logToStream(programParameters->log, LOGLEVEL_ERROR, "Error rendering tile");
                     }
                 }
             }
@@ -92,7 +92,7 @@ DWORD WINAPI renderScreen(void* params) {
         current.y = (P.y - 2 * current.h) + (programParameters->gridSize.height * 3 / 4) * current.h;
         do {
             if(SDL_RenderCopy(renderer, digits[combo % 10], NULL, &current)) {
-                logToStream(programParameters->debugLog, LOGLEVEL_ERROR, "Error rendering digit");
+                logToStream(programParameters->log, LOGLEVEL_ERROR, "Error rendering digit");
             }
             combo /= 10;
             current.x -= current.w;
@@ -112,7 +112,7 @@ DWORD WINAPI renderScreen(void* params) {
         current.y = P.y + (programParameters->gridSize.height * 3 / 4) * current.h;
         do {
             if(SDL_RenderCopy(renderer, digits[score % 10], NULL, &current)) {
-                logToStream(programParameters->debugLog, LOGLEVEL_ERROR, "Error rendering digit");
+                logToStream(programParameters->log, LOGLEVEL_ERROR, "Error rendering digit");
             }
             score /= 10;
             current.x -= current.w;
