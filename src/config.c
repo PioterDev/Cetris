@@ -320,10 +320,10 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
     char buf[128] = {0};
     while(fgets(buf, sizeof(buf), configFile)) {
         buf[strcspn(buf, "\n")] = '\0';
-        #ifdef DEBUG
+#ifdef DEBUG
         snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Read line: %s", buf);
         logToStream(debugFile, LOGLEVEL_DEBUG, NULL);
-        #endif
+#endif
         if(buf[0] == '#')continue; //comment line
         
         char key[32] = {0};
@@ -331,10 +331,10 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
 
         char* value = strstr(buf, ":") + 1;
         while((value[0] == ' ' || value[0] == '\t') && value[0] != '\n')value++;
-        #ifdef DEBUG
+#ifdef DEBUG
         snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Key: %s, Value: %s", key, value);
         logToStream(debugFile, LOGLEVEL_DEBUG, NULL);
-        #endif
+#endif
         //...so anyway, let's begin this mess
 
         Option option;

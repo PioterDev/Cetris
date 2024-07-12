@@ -396,7 +396,7 @@ status_t rotateClockwise(int** grid, Tile* tile, const Size gridSize) {
 
                 tile->state = Z_270;
 
-                //position statys the same
+                //position stays the same
 
                 return SUCCESS;
             }
