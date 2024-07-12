@@ -4,6 +4,7 @@
 #include "deus.h"
 
 char loggingBuffer[loggingBufferSize];
+FILE* defaultStream = NULL;
 
 void logToStream(FILE* stream, const LogLevel loglevel, const char* log) {
     if(stream == NULL)return;

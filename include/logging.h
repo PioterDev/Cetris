@@ -5,6 +5,7 @@
 #include "deus.h"
 
 extern char loggingBuffer[loggingBufferSize]; //To be used with snprintf, otherwise just pass a normal char*
+extern FILE* defaultStream;
 
 /**
  * @brief Logs given message to the specified stream in the following format: "[<Current date in ISO8601> [<log level>] <message>]"
