@@ -4,45 +4,11 @@
 
 #include "deus.h"
 
-/**
- * @brief Sets the appropiate tile positions that it should occupy for a given tile state. 
- * Used in conjunction with `checkPositions`.
- * 
- * @param state tile state
- * @param position tile position, as per convention
- * @param positions preallocated array of Point structs, its length has to be set appropiately based on the tile size
- * @return SUCCESS on successfully setting positions, FAILURE on failure
- */
-status_t getPositions(TileState state, const Point position, Point* positions);
+extern const int occupiedAmount[STATE_AMOUNT];
 
-/**
- * @brief Checks if given positions are unoccupied.
- * Used in conjunction with `getPositions`.
- * 
- * @param grid game matrix
- * @param positions preallocated array of Point structs, its positions can't be negative.
- * @param n number of points to check
- * @return SUCCESS on all free, FAILURE on failure
- */
-status_t checkPositions(int** grid, const Point* positions, const int n);
+extern const int basePositions[STATE_AMOUNT][maxTileSize][2];
 
-/**
- * @brief Sets the given position to the given value.
- * 
- * @param grid game matrix
- * @param positions preallocated array of Point structs, its positions can't be negative
- * @param n number of points
- * @param value value to set
- */
-void setPositions(int** grid, const Point* positions, const int n, const int value);
-
-/**
- * @brief Returns how much space does the tile occupy in a game matrix.
- * 
- * @param state tile state
- * @return amount of cells needed, -1 on error
- */
-int getOccupiedAmount(TileState state);
+extern const char shapeNames[SHAPE_AMOUNT][8];
 
 
 #endif

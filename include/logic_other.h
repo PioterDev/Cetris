@@ -11,7 +11,7 @@
  * @param tile tile
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t loadTileIntoGrid(int** grid, const Tile* tile);
+status_t loadTileIntoGrid(int** grid, const Tile* tile, const Size gridSize);
 
 /**
  * @brief Pauses or unpauses the game.
@@ -30,11 +30,13 @@ void togglePause(ProgramParameters* parameters);
 void onPlacement(ProgramParameters* parameters);
 
 /**
- * @brief Function to be invoked when an end-of-game is detected (can't load next tile into the game matrix, etc.)
+ * @brief Function to be invoked when an end-of-game event is detected 
+ * (can't load next tile into the game matrix, the program received an exit signal, etc.).
  * 
  * @param parameters pointer to ProgramParameters struct
+ * @param reason reason as to why the game ended
  */
-void onGameEnd(ProgramParameters* parameters);
+void onGameEnd(ProgramParameters* parameters, GameEndReason reason);
 
 /**
  * @brief Function to be invoked when the game starts.

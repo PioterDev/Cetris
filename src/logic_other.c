@@ -8,14 +8,39 @@
 #include "tile_queue.h"
 #include "utils.h"
 
-status_t loadTileIntoGrid(int** grid, const Tile* tile) {
+static const char gameEndReasonNames[REASON_AMOUNT][32] = {
+    "User exit",
+    "Tile loading failed"
+};
+
+status_t loadTileIntoGrid(int** grid, const Tile* tile, const Size gridSize) {
     if(tile == NULL) return MEMORY_FAILURE;
-    int n = getOccupiedAmount(tile->state);
-    if(n == -1) return FAILURE;
+    if(tile->state == STATE_UNKNOWN) return FAILURE;
+#ifdef DEBUG
+    snprintf(loggingBuffer, loggingBufferSize, "[loadTileIntoGrid] Attempting to load %s...", shapeNames[tile->shape]);
+    logToStream(defaultStream, LOGLEVEL_DEBUG, NULL);    
+#endif
+    int n = occupiedAmount[tile->state];
     Point positions[n];
-    if(getPositions(tile->state, tile->position, positions) == FAILURE) return FAILURE;
-    if(checkPositions(grid, positions, n) == FAILURE) return FAILURE;
-    setPositions(grid, positions, n, -1 * tile->color);
+    for(int i = 0; i < n; i++) {
+        positions[i].x = tile->position.x + basePositions[tile->state][i][0];
+        positions[i].y = tile->position.y + basePositions[tile->state][i][1];
+#ifdef DEBUG
+        snprintf(loggingBuffer, loggingBufferSize, "[loadTileIntoGrid] %d %d", positions[i].x, positions[i].y);
+#endif
+        if(positions[i].x < 0 || positions[i].y < 0) return INDEXOUTOFRANGE;
+        if((unsigned int)positions[i].x >= gridSize.width || (unsigned int)positions[i].y >= gridSize.height) return FAILURE;
+
+        int a = grid[positions[i].y][positions[i].x];
+        if(a != 0 && a != GHOST) return FAILURE;
+    }
+
+    for(int i = 0; i < n; i++) {
+        grid[positions[i].y][positions[i].x] = -1 * tile->color;
+    }
+#ifdef DEBUG
+    logToStream(defaultStream, LOGLEVEL_DEBUG, "[loadTileIntoGrid] Successfully loaded tile into grid.");
+#endif
     return SUCCESS;
 }
 
@@ -109,11 +134,16 @@ void onPlacement(ProgramParameters* parameters) {
     /* freeTile(parameters->currentTile);
 
     dequeueTile(&parameters->tileQueue, &parameters->currentTile);
-    enqueueTile(&parameters->tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, parameters->debugLog)); */
+    enqueueTile(&parameters->tileQueue, loadTileRandom(renderer, NULL, TILELOAD_NOTEXTURE, parameters->log)); */
 }
 
-void onGameEnd(ProgramParameters* parameters) {
-    logToStream(parameters->generallog, LOGLEVEL_INFO, "onGameEnd event triggered, ending the game...");
+void onGameEnd(ProgramParameters* parameters, GameEndReason reason) {
+#ifdef DEBUG
+    snprintf(loggingBuffer, loggingBufferSize, "onGameEnd event triggered, reason: %s, ending the game...", gameEndReasonNames[reason]);
+    logToStream(parameters->log, LOGLEVEL_INFO, NULL);
+#else
+    logToStream(parameters->log, LOGLEVEL_INFO, "onGameEnd event triggered, ending the game...");
+#endif
     if(parameters->currentTile != NULL) {
         freeTile(parameters->currentTile);
         parameters->currentTile = NULL;
@@ -131,29 +161,31 @@ void onGameEnd(ProgramParameters* parameters) {
 }
 
 status_t onGameStart(ProgramParameters* parameters, SDL_Renderer* renderer) {
-    logToStream(parameters->generallog, LOGLEVEL_INFO, "Attempting to create a game matrix...");
+    logToStream(parameters->log, LOGLEVEL_INFO, "Attempting to create a game matrix...");
     parameters->grid = zeroMatrix(parameters->gridSize);
     if(parameters->grid == NULL) {
-        logToStream(parameters->errorlog, LOGLEVEL_ERROR, "Error allocating memory for the game matrix.");
+        logToStream(parameters->log, LOGLEVEL_ERROR, "Error allocating memory for the game matrix.");
         return MEMORY_FAILURE;
     }
-    logToStream(parameters->generallog, LOGLEVEL_INFO, "Game matrix successfully created!");
-
-    parameters->currentTile = loadTileRandom(renderer, NULL, parameters->gridSize.width, TILELOAD_NOTEXTURE, parameters->debugLog);
+    logToStream(parameters->log, LOGLEVEL_INFO, "Game matrix successfully created!");
+    logToStream(parameters->log, LOGLEVEL_INFO, "Attempting to load a random tile...");
+    parameters->currentTile = loadTileRandom(renderer, NULL, parameters->gridSize.width, TILELOAD_NOTEXTURE, parameters->log);
     if(parameters->currentTile == NULL) return MEMORY_FAILURE;
+    logToStream(parameters->log, LOGLEVEL_INFO, "Attempting to fill the tile queue...");
     for(unsigned int i = 0; i < tileQueuedAmount; i++) {
-        Tile* tmp = loadTileRandom(renderer, NULL, parameters->gridSize.width, TILELOAD_NOTEXTURE, parameters->debugLog);
+        Tile* tmp = loadTileRandom(renderer, NULL, parameters->gridSize.width, TILELOAD_NOTEXTURE, parameters->log);
         if(tmp == NULL) return MEMORY_FAILURE;
         enqueueTile(&parameters->tileQueue, tmp);
     }
-    
-    loadTileIntoGrid(parameters->grid, parameters->currentTile);
+    logToStream(parameters->log, LOGLEVEL_INFO, "Tile queue filled successfully!");
+
+    loadTileIntoGrid(parameters->grid, parameters->currentTile, parameters->gridSize);
 
     playMusic(parameters);
     
     parameters->level = 1;
     parameters->flags.playing = true;
-    logToStream(parameters->generallog, LOGLEVEL_INFO, "Game started!");
+    logToStream(parameters->log, LOGLEVEL_INFO, "Game started!");
     
     return SUCCESS;
 }

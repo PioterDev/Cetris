@@ -8,6 +8,7 @@
 #include "config.h"
 #include "deus.h"
 #include "logging.h"
+#include "logic_shapes.h"
 #include "utils.h"
 
 Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* coordinates, const int gridWidth, const int flags, FILE* debug) {
@@ -15,11 +16,11 @@ Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* 
     if(tile == NULL) return NULL;
 
     tile->texture = NULL;
-    #ifdef DEBUG
+#ifdef DEBUG
     if(flags & TILELOAD_NOTEXTURE) {
         logToStream(debug, LOGLEVEL_DEBUG, "[loadTile] Skipping texture loading");
     }
-    #endif
+#endif
 
     switch(shape) {
         case BAR:
@@ -57,11 +58,6 @@ Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* 
             tile->position.x = (gridWidth >> 1) - 1;
             tile->state = Z_0;
             break;
-        case BACKGROUND:
-            tile->position.y = -1;
-            tile->position.x = -1;
-            tile->state = STATE_UNKNOWN;
-            break;
         default: goto failure;
     }
 
@@ -95,11 +91,11 @@ void freeTile(Tile* tile) {
 
 Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, const int gridWidth, const int flags, FILE* debug) {
     TileColor color = rand() % (tileColorAmount - 1) + 1;
-    TileShape shape = rand() % (tileColorAmount - 1) + 2;
-    #ifdef DEBUG
-    snprintf(loggingBuffer, loggingBufferSize, "[loadTileRandom] Color: %d, Shape: %d", color, shape);
+    TileShape shape = rand() % (tileColorAmount - 1);
+#ifdef DEBUG
+    snprintf(loggingBuffer, loggingBufferSize, "[loadTileRandom] Color: %d, Shape: %s", color, shapeNames[shape]);
     logToStream(debug, LOGLEVEL_DEBUG, NULL);
-    #endif
+#endif
     return loadTile(renderer, color, shape, coordinates, gridWidth, flags, debug);
 }
 
