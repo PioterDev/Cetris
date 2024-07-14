@@ -17,7 +17,7 @@ status_t loadTileIntoGrid(int** grid, const Tile* tile, const Size gridSize) {
     if(tile == NULL) return MEMORY_FAILURE;
     if(tile->state == STATE_UNKNOWN) return FAILURE;
 #ifdef DEBUG
-    snprintf(loggingBuffer, loggingBufferSize, "[loadTileIntoGrid] Attempting to load %s...", shapeNames[tile->shape]);
+    snprintf(loggingBuffer, loggingBufferSize, "[loadTileIntoGrid] Attempting to load a %s tile...", shapeNames[tile->shape]);
     logToStream(defaultStream, LOGLEVEL_DEBUG, NULL);    
 #endif
     int n = occupiedAmount[tile->state];
@@ -25,11 +25,8 @@ status_t loadTileIntoGrid(int** grid, const Tile* tile, const Size gridSize) {
     for(int i = 0; i < n; i++) {
         positions[i].x = tile->position.x + basePositions[tile->state][i][0];
         positions[i].y = tile->position.y + basePositions[tile->state][i][1];
-#ifdef DEBUG
-        snprintf(loggingBuffer, loggingBufferSize, "[loadTileIntoGrid] %d %d", positions[i].x, positions[i].y);
-#endif
         if(positions[i].x < 0 || positions[i].y < 0) return INDEXOUTOFRANGE;
-        if((unsigned int)positions[i].x >= gridSize.width || (unsigned int)positions[i].y >= gridSize.height) return FAILURE;
+        if((unsigned int)positions[i].x >= gridSize.width || (unsigned int)positions[i].y >= gridSize.height) return INDEXOUTOFRANGE;
 
         int a = grid[positions[i].y][positions[i].x];
         if(a != 0 && a != GHOST) return FAILURE;
