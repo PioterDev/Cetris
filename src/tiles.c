@@ -11,6 +11,61 @@
 #include "logic_shapes.h"
 #include "utils.h"
 
+const char shapeNames[SHAPE_AMOUNT][8] = {
+    "Bar",
+    "J",
+    "L",
+    "S",
+    "Square",
+    "T",
+    "Z"
+};
+
+const char colorNames[COLOR_AMOUNT][8] = {
+    "Aqua",
+    "Blue",
+    "Green",
+    "Magenta",
+    "Orange",
+    "Red",
+    "Yellow"
+};
+
+const char stateNames[STATE_AMOUNT][32] = {
+    //BAR
+    "Horizontal up",
+    "Horizontal down",
+    "Vertical left",
+    "Vertical right",
+    //J
+    "Base",
+    "Rotated by 90 degrees",
+    "Rotated by 180 degrees",
+    "Rotated by 270 degrees",
+    //L
+    "Base",
+    "Rotated by 90 degrees",
+    "Rotated by 180 degrees",
+    "Rotated by 270 degrees",
+    //S
+    "Base",
+    "Rotated by 90 degrees",
+    "Rotated by 180 degrees",
+    "Rotated by 270 degrees",
+    //SQR
+    "Square",
+    //T
+    "Base",
+    "Rotated by 90 degrees",
+    "Rotated by 180 degrees",
+    "Rotated by 270 degrees",
+    //Z
+    "Base",
+    "Rotated by 90 degrees",
+    "Rotated by 180 degrees",
+    "Rotated by 270 degrees",
+};
+
 Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* coordinates, const int gridWidth, const int flags, FILE* debug) {
     Tile* tile = malloc(sizeof(Tile));
     if(tile == NULL) return NULL;
@@ -90,10 +145,10 @@ void freeTile(Tile* tile) {
 }
 
 Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, const int gridWidth, const int flags, FILE* debug) {
-    TileColor color = rand() % (tileColorAmount - 1) + 1;
+    TileColor color = rand() % (tileColorAmount - 1);
     TileShape shape = rand() % (tileColorAmount - 1);
 #ifdef DEBUG
-    snprintf(loggingBuffer, loggingBufferSize, "[loadTileRandom] Color: %d, Shape: %s", color, shapeNames[shape]);
+    snprintf(loggingBuffer, loggingBufferSize, "[loadTileRandom] Color: %s, Shape: %s", colorNames[color], shapeNames[shape]);
     logToStream(debug, LOGLEVEL_DEBUG, NULL);
 #endif
     return loadTile(renderer, color, shape, coordinates, gridWidth, flags, debug);
@@ -114,12 +169,13 @@ void centerTile(Tile* tile, ProgramParameters* programParameters) {
 
 void printTile(Tile* tile, FILE* stream) {
     if(tile == NULL) {
-        logToStream(stream, LOGLEVEL_INFO, "[printTile] Nothing to print");
+        logToStream(stream, LOGLEVEL_DEBUG, "[printTile] Nothing to print");
         return;
     }
     snprintf(loggingBuffer, loggingBufferSize, 
-        "Tile color: %d\nTile shape: %d\nTile state: %d\nPosition: (%d, %d)\n", 
-        tile->color, tile->shape, tile->state, tile->position.x, tile->position.y
+        "Tile color: %s\nTile shape: %s\nTile state: %s\nPosition: (%d, %d)\n", 
+        colorNames[tile->color], shapeNames[tile->shape], stateNames[tile->state],
+        tile->position.x, tile->position.y
     );
-    logToStream(stream, LOGLEVEL_INFO, NULL);
+    logToStream(stream, LOGLEVEL_DEBUG, NULL);
 }

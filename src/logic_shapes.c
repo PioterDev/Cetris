@@ -10,18 +10,6 @@ const int occupiedAmount[STATE_AMOUNT] = {
     4, 4, 4, 4 //Z
 };
 
-const char shapeNames[SHAPE_AMOUNT][8] = {
-    "Bar",
-    "J",
-    "L",
-    "S",
-    "Square",
-    "T",
-    "Z"
-};
-
-//Base positions, based on the convention described
-//in logic.h.
 const int basePositions[STATE_AMOUNT][maxTileSize][2] = {
     { {0, 0}, {1, 0}, {2, 0}, {3, 0} }, //BAR_HORIZONTAL
     { {0, 0}, {1, 0}, {2, 0}, {3, 0} }, //-||-
