@@ -534,7 +534,7 @@ void printConfig(ProgramParameters* params, FILE* stream) {
     snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Speed multiplier: %d", params->speedMultiplier);
     logToStream(stream, LOGLEVEL_INFO, NULL);
 
-    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Scaling factor: %d", params->scalingFactor);
+    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Scaling factor: %g", params->scalingFactor);
     logToStream(stream, LOGLEVEL_INFO, NULL);
 
     snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Grid height: %d", params->gridSize.height);

@@ -126,13 +126,14 @@ typedef union Keymap_array {
 
 typedef enum TileColor {
     COLOR_UNKNOWN = -1,
-    AQUA = 1,
+    AQUA,
     BLUE,
     GREEN,
     MAGENTA,
     ORANGE,
     RED,
     YELLOW,
+    COLOR_AMOUNT,
     GHOST = 0x7F
 } TileColor;
 
@@ -252,7 +253,8 @@ typedef struct ProgramParameters {
     unsigned short baseTileSize;
     Keymap keymap;
     //If it's > 0, scale up, if it's < 0, scale down
-    short scalingFactor;
+    // short scalingFactor;
+    double scalingFactor;
     
     LARGE_INTEGER* clockFrequency;
     

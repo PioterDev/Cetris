@@ -1,11 +1,46 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
+#include <float.h>
 #include <windows.h>
 #include <SDL.h>
 #include <SDL_image.h>
 
 #include "logging.h"
 #include "deus.h"
+
+void calculateScalingFactor(ProgramParameters* parameters) {
+    
+    double h = (double)parameters->gridSize.height;
+    double H = (double)parameters->screenSize.height;
+
+    double w = (double)parameters->gridSize.width;
+    double W = (double)parameters->screenSize.width;
+
+    double B = (double)parameters->baseTileSize;
+    double hB = h * B, wB = w * B;
+    
+    double tempH = H / hB, tempW = W / wB;
+#ifdef DEBUG
+    snprintf(loggingBuffer, loggingBufferSize, "[calculateScalingFactor] %g %g %g %g %g %g", tempH, tempW, hB, wB, H, W);
+    logToStream(parameters->log, LOGLEVEL_DEBUG, NULL);
+#endif
+    if(hB > H || wB > W) { //scale down
+#ifdef DEBUG
+        logToStream(parameters->log, LOGLEVEL_DEBUG, "[calculateScalingFactor] Scaling down...");
+#endif
+        if(tempH * wB > W) parameters->scalingFactor = tempW;
+        else parameters->scalingFactor = tempH;        
+    }
+    else if(hB < H || wB < W) { //scale up
+#ifdef DEBUG
+        logToStream(parameters->log, LOGLEVEL_DEBUG, "[calculateScalingFactor] Scaling up...");
+#endif
+        if(tempH * wB > W) parameters->scalingFactor = tempW;
+        else parameters->scalingFactor = tempH;
+    }
+    else parameters->scalingFactor = 1.0;
+}
 
 DWORD WINAPI renderScreen(void* params) {
     renderThreadParameters* parameters = params;
@@ -21,7 +56,8 @@ DWORD WINAPI renderScreen(void* params) {
     long long frequency = programParameters->clockFrequency->QuadPart, delta = 0, frameTime = 0, overhead = 0; //if the thread sleeps for too long in one iteration, make it sleep shorter in another iteration
     Color* backgroundColor = parameters->backgroundColor;
     int baseTileSize = 0;
-    short scalingFactor = 0;
+    // short scalingFactor = 0;
+    double scalingFactor = 1.0;
 
     
 
@@ -33,7 +69,7 @@ DWORD WINAPI renderScreen(void* params) {
         
         QueryPerformanceCounter(&start);
 
-        if(programParameters->flags.paused) frameTime = frequency / 10;
+        if(programParameters->flags.paused) frameTime = frequency / 10; //10 FPS when paused
         else frameTime = frequency / programParameters->fps;
         baseTileSize = programParameters->baseTileSize;
         scalingFactor = programParameters->scalingFactor;
@@ -42,16 +78,18 @@ DWORD WINAPI renderScreen(void* params) {
         SDL_RenderClear(renderer);
 
         SDL_Rect current;
-        if(scalingFactor > 0) {
+        current.w = (int) floor((double)baseTileSize * scalingFactor);
+        current.h = (int) floor((double)baseTileSize * scalingFactor);
+        /* if(scalingFactor > 0) {
             current.w = baseTileSize * scalingFactor;
             current.h = baseTileSize * scalingFactor;
         }
         else if(scalingFactor < 0) {
             current.w = baseTileSize / abs(scalingFactor);
             current.h = baseTileSize / abs(scalingFactor);
-        }
+        } */
 
-        P.x = (programParameters->screenSize.width >> 1) - ((programParameters->gridSize.width * current.w) >> 1); //the x coordinate of a top-left corner of the game matrix
+        P.x = (programParameters->screenSize.width / 2) - ((programParameters->gridSize.width * current.w) / 2); //the x coordinate of a top-left corner of the game matrix
         if(programParameters->grid != NULL) {
             for(unsigned int i = 0; i < programParameters->gridSize.height; i++) {
                 for(unsigned int j = 0; j < programParameters->gridSize.width; j++) {
@@ -63,7 +101,8 @@ DWORD WINAPI renderScreen(void* params) {
                     current.y = P.y + i * current.h;
                     current.x = P.x + j * current.w;
                     if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current)) {
-                        logToStream(programParameters->log, LOGLEVEL_ERROR, "Error rendering tile");
+                        snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game running] Error rendering tile: %s", SDL_GetError());
+                        logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
                     }
                 }
             }
@@ -74,7 +113,9 @@ DWORD WINAPI renderScreen(void* params) {
                     current.y = P.y + i * current.h;
                     current.x = P.x + j * current.w;
                     if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current)) {
-                        logToStream(programParameters->log, LOGLEVEL_ERROR, "Error rendering tile");
+                        snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game not running] Error rendering tile: %s", SDL_GetError());
+                        logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+
                     }
                 }
             }
@@ -92,7 +133,8 @@ DWORD WINAPI renderScreen(void* params) {
         current.y = (P.y - 2 * current.h) + (programParameters->gridSize.height * 3 / 4) * current.h;
         do {
             if(SDL_RenderCopy(renderer, digits[combo % 10], NULL, &current)) {
-                logToStream(programParameters->log, LOGLEVEL_ERROR, "Error rendering digit");
+                snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Combo] Error rendering digit: %s", SDL_GetError());
+                logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
             }
             combo /= 10;
             current.x -= current.w;
@@ -112,7 +154,8 @@ DWORD WINAPI renderScreen(void* params) {
         current.y = P.y + (programParameters->gridSize.height * 3 / 4) * current.h;
         do {
             if(SDL_RenderCopy(renderer, digits[score % 10], NULL, &current)) {
-                logToStream(programParameters->log, LOGLEVEL_ERROR, "Error rendering digit");
+                snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Score] Error rendering digit: %s", SDL_GetError());
+                logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
             }
             score /= 10;
             current.x -= current.w;

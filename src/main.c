@@ -22,6 +22,8 @@
 int main(int argc, char** argv) {
     srand(time(NULL));
     timeBeginPeriod(1);
+    //Disables Windows' scale and layout for the process
+    SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
 
     LARGE_INTEGER frequency, timerStart, timerEnd;
     QueryPerformanceFrequency(&frequency);
@@ -173,10 +175,10 @@ int main(int argc, char** argv) {
     }
     logToStream(log, LOGLEVEL_INFO, "Sound effects successfully loaded!");
 
-
-
+    
+    calculateScalingFactor(&programParameters);
     //dynamic calculation of by how much should everything be scaled
-    if( programParameters.gridSize.height * programParameters.baseTileSize > programParameters.screenSize.height || 
+    /* if( programParameters.gridSize.height * programParameters.baseTileSize > programParameters.screenSize.height || 
         programParameters.gridSize.width * programParameters.baseTileSize > programParameters.screenSize.width) { //scale down
         programParameters.scalingFactor = -1;
         while(
@@ -191,7 +193,7 @@ int main(int argc, char** argv) {
             programParameters.gridSize.height * programParameters.baseTileSize * 2 * (unsigned short)programParameters.scalingFactor < programParameters.screenSize.height &&
             programParameters.gridSize.width  * programParameters.baseTileSize * 2 * (unsigned short)programParameters.scalingFactor < programParameters.screenSize.width
         ) {programParameters.scalingFactor++;}
-    }
+    } */
 
 
     logToStream(log, LOGLEVEL_INFO, "Attempting to create a tiles mutex...");
@@ -369,7 +371,7 @@ int main(int argc, char** argv) {
 #ifdef DEBUG
                     logToStream(log, LOGLEVEL_DEBUG, "[moveDown] Moving tile down...");
 #endif
-                    if(moveStatus == FAILURE) {
+                    if(moveStatus != SUCCESS) {
 #ifdef DEBUG
                         logToStream(log, LOGLEVEL_DEBUG, "[moveDown] Failed to move tile down.");
 #endif
