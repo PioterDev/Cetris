@@ -21,9 +21,9 @@ and used under the CC BY-NC 4.0 license (see [reference](https://www.classicals.
 - delta time rendering (with rendering on a separate thread)
 
 The config itself gives you all the freedom to customize keybinds, target FPS,
-window size and audio volume.
+window size, audio volume and game settings.
 
-Currently, only Windows is supported because of the use of its threading support.
+Currently, only Windows is supported because of the use of its threads.
 Linux support will be added if I ever decide to do it (which may be never).
 
 ## How to build from source
