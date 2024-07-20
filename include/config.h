@@ -7,6 +7,20 @@
 #include "deus.h"
 
 /**
+ * @brief A lookup table containing names of SDL-mapped keys.
+ * 
+ */
+extern const char keynames[177][32];
+
+/**
+ * @brief Function converting SDL keycodes to their corresponding string indices in the `keynames` table.
+ * 
+ * @param key SDL keycode
+ * @return index in `keynames`, -1 if it's an ASCII character
+ */
+int getKeystringIndex(SDL_Keycode key);
+
+/**
  * @brief Loads program configuration and returns a pointer to ProgramParameters struct, NULL on error.
  * 
  * @param configFile stream to config file

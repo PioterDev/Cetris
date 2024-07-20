@@ -6,6 +6,10 @@
 #include "tiles.h"
 
 status_t enqueueTile(TileQueue* queue, Tile* tile) {
+#ifdef DEBUG
+    snprintf(loggingBuffer, loggingBufferSize, "[enqueueTile] Queueing %s %s...", colorNames[tile->color], shapeNames[tile->shape]);
+    logToStream(defaultStream, LOGLEVEL_DEBUG, NULL);
+#endif
     TileQueueElement* e = malloc(sizeof(TileQueueElement));
     if(e == NULL) return MEMORY_FAILURE;
     
@@ -35,6 +39,14 @@ status_t dequeueTile(TileQueue* queue, Tile** toStore) {
     }
     TileQueueElement* next = queue->head->next;
     *toStore = queue->head->tile;
+#ifdef DEBUG
+    snprintf(
+        loggingBuffer, loggingBufferSize, "[enqueueTile] Dequeued %s %s...", 
+        colorNames[queue->head->tile->color], //This quadruple dereference is a war crime...
+        shapeNames[queue->head->tile->shape]
+    );
+    logToStream(defaultStream, LOGLEVEL_DEBUG, NULL);
+#endif
     free(queue->head);
     queue->head = next;
     queue->size--;

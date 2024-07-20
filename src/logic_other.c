@@ -17,7 +17,11 @@ status_t loadTileIntoGrid(int** grid, const Tile* tile, const Size gridSize) {
     if(tile == NULL) return MEMORY_FAILURE;
     if(tile->state == STATE_UNKNOWN) return FAILURE;
 #ifdef DEBUG
-    snprintf(loggingBuffer, loggingBufferSize, "[loadTileIntoGrid] Attempting to load a %s tile...", shapeNames[tile->shape]);
+    snprintf(
+        loggingBuffer, loggingBufferSize, "[loadTileIntoGrid] Attempting to load a %s %s tile...", 
+        colorNames[tile->color],
+        shapeNames[tile->shape]
+    );
     logToStream(defaultStream, LOGLEVEL_DEBUG, NULL);    
 #endif
     int n = occupiedAmount[tile->state];

@@ -293,10 +293,16 @@ int main(int argc, char** argv) {
                         break;
                     }
 
-                    if(log != NULL) {
-                        snprintf(loggingBuffer, loggingBufferSize, "[Key press] %d", key);
-                        logToStream(log, LOGLEVEL_DEBUG, NULL);
+#ifdef DEBUG
+                    int keyIndex = getKeystringIndex(key);
+                    if(keyIndex == -1) {
+                        snprintf(loggingBuffer, loggingBufferSize, "[Key press] %c", key);
                     }
+                    else {
+                        snprintf(loggingBuffer, loggingBufferSize, "[Key press] %s", keynames[keyIndex]);
+                    }
+                    logToStream(log, LOGLEVEL_DEBUG, NULL);
+#endif
 
                     if(key == programParameters.keymap.pause) togglePause(&programParameters);
 

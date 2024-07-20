@@ -50,7 +50,7 @@ static char bindings[sizeof(Keymap) / sizeof(int)][32] = {
     "Test"
 };
 
-static char keynames[][32] = {
+const char keynames[177][32] = {
     //0
     "Unknown",   //0
     //1-5
@@ -177,13 +177,7 @@ static char keynames[][32] = {
     "End call" //1073742114
 };
 
-/**
- * @brief Function converting SDL keycodes to their corresponding string indices in the `keynames` variable above.
- * 
- * @param key SDL keycode
- * @return index in `keynames`, -1 if it's an ASCII character
- */
-static inline int getKeystringIndex(int key) {
+int getKeystringIndex(SDL_Keycode key) {
     if((key >= 33 && key <= 64) || (key >= 91 && key <= 126)) return -1; //ASCII character
     
     int index = 0;
