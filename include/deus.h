@@ -126,6 +126,7 @@ typedef union Keymap_array {
 
 typedef enum TileColor {
     COLOR_UNKNOWN = -1,
+    BACKGROUND,
     AQUA,
     BLUE,
     GREEN,

@@ -21,7 +21,8 @@ const char shapeNames[SHAPE_AMOUNT][8] = {
     "Z"
 };
 
-const char colorNames[COLOR_AMOUNT][8] = {
+const char colorNames[COLOR_AMOUNT][12] = {
+    "Background",
     "Aqua",
     "Blue",
     "Green",
@@ -145,7 +146,7 @@ void freeTile(Tile* tile) {
 }
 
 Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, const int gridWidth, const int flags, FILE* debug) {
-    TileColor color = rand() % (tileColorAmount - 1);
+    TileColor color = rand() % (tileColorAmount - 1) + (BACKGROUND + 1); //Actual colors start at BACKGROUND + 1
     TileShape shape = rand() % (tileColorAmount - 1);
 #ifdef DEBUG
     snprintf(loggingBuffer, loggingBufferSize, "[loadTileRandom] Color: %s, Shape: %s", colorNames[color], shapeNames[shape]);

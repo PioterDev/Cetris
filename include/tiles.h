@@ -9,7 +9,7 @@
 
 extern const char shapeNames[SHAPE_AMOUNT][8];
 
-extern const char colorNames[COLOR_AMOUNT][8];
+extern const char colorNames[COLOR_AMOUNT][12];
 
 /**
  * @brief Loads a tile of given color, shape and coordinates. If `coordinates` is NULL, the position is `(0, 0)`.
