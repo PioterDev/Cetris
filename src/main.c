@@ -11,6 +11,7 @@
 
 #include "config.h"
 #include "date.h"
+#include "events.h"
 #include "logging.h"
 #include "logic.h"
 #include "render.h"
@@ -32,8 +33,6 @@ int main(int argc, char** argv) {
     char errormsgBuffer[128] = {0};
 
     SDL_Window* window = NULL;
-    SDL_Renderer* renderer = NULL;
-
     
     FILE* log = fopen("./log/latest.log", "w");
     if(log == NULL) {
@@ -114,7 +113,10 @@ int main(int argc, char** argv) {
     } */
 
     logToStream(log, LOGLEVEL_INFO, "Attempting to create a window...");
-    window = SDL_CreateWindow("Cetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, programParameters.screenSize.width, programParameters.screenSize.height, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow(
+        "Cetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        programParameters.screenSize.width, programParameters.screenSize.height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+    );
     if(window == NULL) {
         status = SDL_WINDOW_FAILURE;
         snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error creating window: %s", SDL_GetError());
@@ -126,8 +128,8 @@ int main(int argc, char** argv) {
 
 
     logToStream(log, LOGLEVEL_INFO, "Attempting to create a renderer...");
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(renderer == NULL) {
+    programParameters.renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if(programParameters.renderer == NULL) {
         status = SDL_RENDERER_FAILURE;
         snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error initializing renderer: %s", SDL_GetError());
         logToStream(log, LOGLEVEL_ERROR, errormsgBuffer);
@@ -138,7 +140,7 @@ int main(int argc, char** argv) {
 
 
     logToStream(log, LOGLEVEL_INFO, "Attempting to load base tile textures...");
-    if(loadBaseTextures(&programParameters, renderer) != SUCCESS) {
+    if(loadBaseTextures(&programParameters) != SUCCESS) {
         status = FAILURE;
         snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error loading base tile textures.");
         logToStream(log, LOGLEVEL_ERROR, errormsgBuffer);
@@ -148,7 +150,7 @@ int main(int argc, char** argv) {
 
 
     logToStream(log, LOGLEVEL_INFO, "Attempting to load digits...");
-    if(loadDigits(&programParameters, renderer) != SUCCESS) {
+    if(loadDigits(&programParameters) != SUCCESS) {
         status = FAILURE;
         snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error loading digit textures.");
         logToStream(log, LOGLEVEL_ERROR, errormsgBuffer);
@@ -175,26 +177,7 @@ int main(int argc, char** argv) {
     }
     logToStream(log, LOGLEVEL_INFO, "Sound effects successfully loaded!");
 
-    
     calculateScalingFactor(&programParameters);
-    //dynamic calculation of by how much should everything be scaled
-    /* if( programParameters.gridSize.height * programParameters.baseTileSize > programParameters.screenSize.height || 
-        programParameters.gridSize.width * programParameters.baseTileSize > programParameters.screenSize.width) { //scale down
-        programParameters.scalingFactor = -1;
-        while(
-            programParameters.gridSize.height * programParameters.baseTileSize / abs(programParameters.scalingFactor) > programParameters.screenSize.height ||
-            programParameters.gridSize.width * programParameters.baseTileSize / abs(programParameters.scalingFactor) > programParameters.screenSize.width
-        ) {programParameters.scalingFactor--;}
-    }
-    else if(programParameters.gridSize.height * programParameters.baseTileSize * 2 < programParameters.screenSize.height || 
-            programParameters.gridSize.width  * programParameters.baseTileSize * 2 < programParameters.screenSize.width) { //scale up
-        programParameters.scalingFactor = 1;
-        while(
-            programParameters.gridSize.height * programParameters.baseTileSize * 2 * (unsigned short)programParameters.scalingFactor < programParameters.screenSize.height &&
-            programParameters.gridSize.width  * programParameters.baseTileSize * 2 * (unsigned short)programParameters.scalingFactor < programParameters.screenSize.width
-        ) {programParameters.scalingFactor++;}
-    } */
-
 
     logToStream(log, LOGLEVEL_INFO, "Attempting to create a tiles mutex...");
     HANDLE tilesMutex = CreateMutex(NULL, TRUE, NULL);
@@ -232,7 +215,6 @@ int main(int argc, char** argv) {
         renderMutex, 
         tilesMutex,
         &programParameters,
-        renderer,
         &backgroundColor
     };
 
@@ -247,8 +229,9 @@ int main(int argc, char** argv) {
     logToStream(log, LOGLEVEL_INFO, "Render thread is now operational.");
     //end of render thread //
 
+#ifdef DEBUG
     printConfig(&programParameters, log);
-
+#endif
     programParameters.flags.running = true;
     SDL_Event event;
 
@@ -273,14 +256,22 @@ int main(int argc, char** argv) {
                     
                     goto exit_start;
                 }
+                case SDL_WINDOWEVENT: {
+                    if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                        programParameters.screenSize.width = event.window.data1;
+                        programParameters.screenSize.height = event.window.data2;
+                        onWindowResize(&programParameters, window);
+                    }
+                    break;
+                }
                 case SDL_KEYDOWN: {
                     SDL_Keycode key = event.key.keysym.sym;
 
                     if(!programParameters.flags.playing) {
-                        if(isFunctionalKey(key)) break;
-                        if(onGameStart(&programParameters, renderer) != SUCCESS) {
+                        if(isFunctionalKey(key)) break; //this allows for Alt-Tab without starting the game
+                        status = onGameStart(&programParameters);
+                        if(status != SUCCESS) {
                             programParameters.flags.playing = false;
-                            status = MEMORY_FAILURE;
                             renderStatus = STOP;
 
                             ReleaseMutex(tilesMutex);
@@ -315,7 +306,7 @@ int main(int argc, char** argv) {
                         freeTile(programParameters.currentTile);
                         dequeueTile(&programParameters.tileQueue, &programParameters.currentTile);
 
-                        Tile* tmp = loadTileRandom(renderer, NULL, programParameters.gridSize.width, TILELOAD_NOTEXTURE, log);
+                        Tile* tmp = loadTileRandom(programParameters.renderer, NULL, programParameters.gridSize.width, TILELOAD_NOTEXTURE, log);
                         if(tmp != NULL) enqueueTile(&programParameters.tileQueue, tmp);
                         
                         if(programParameters.currentTile == NULL) {
@@ -357,6 +348,35 @@ int main(int argc, char** argv) {
                     }
                     break;
                 }
+                /* case SDL_CONTROLLERBUTTONDOWN: {
+                    SDL_GameControllerButton button = event.cbutton.button;
+                    snprintf(loggingBuffer, loggingBufferSize, "[Controller] %d", button);
+                    logToStream(log, LOGLEVEL_DEBUG, NULL);
+                    if(button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER) {
+                        moveLeft(programParameters.grid, programParameters.currentTile);
+                    }
+                    break;
+                }
+                case SDL_CONTROLLERAXISMOTION: {
+                    snprintf(loggingBuffer, loggingBufferSize, "%d", event.caxis.value);
+                    logToStream(log, LOGLEVEL_DEBUG, NULL);
+                    break;
+                }
+                case SDL_JOYAXISMOTION: {
+                    fprintf(log, "%d %d\n", event.jaxis.axis, event.jaxis.value);
+                    if(event.jaxis.which == 0) {
+                        if(event.jaxis.axis == 1) {
+                            if(event.jaxis.value > 0) {
+                                moveLeft(programParameters.grid, programParameters.currentTile);
+                            }
+                        }
+                        else if(event.jaxis.axis == 2) {
+                            if(event.jaxis.value > 0) {
+                                moveRight(programParameters.grid, programParameters.currentTile, programParameters.gridSize.width);
+                            }
+                        }
+                    }
+                } */
             }
         }
         if(programParameters.flags.playing) {
@@ -385,7 +405,7 @@ int main(int argc, char** argv) {
                         freeTile(programParameters.currentTile);
 
                         dequeueTile(&programParameters.tileQueue, &programParameters.currentTile);
-                        enqueueTile(&programParameters.tileQueue, loadTileRandom(renderer, NULL, programParameters.gridSize.width, TILELOAD_NOTEXTURE, log));
+                        enqueueTile(&programParameters.tileQueue, loadTileRandom(programParameters.renderer, NULL, programParameters.gridSize.width, TILELOAD_NOTEXTURE, log));
 
                         if(programParameters.currentTile == NULL) {
                             logToStream(log, LOGLEVEL_ERROR, "Error loading tile");
@@ -413,22 +433,27 @@ int main(int argc, char** argv) {
 
 
 
-    exit_start: 
+    exit_start:
         timeEndPeriod(1);
-        logToStream(log, LOGLEVEL_INFO, "Exiting...");
+        logToStream(log, LOGLEVEL_INFO, "Started the exit sequence...");
 
     closeRenderThread:
-        if(renderStatus != STOP)renderStatus = STOP;
+        if(renderStatus != STOP) renderStatus = STOP;
+        logToStream(log, LOGLEVEL_INFO, "Closing the render thread...");
         WaitForSingleObject(renderThread, INFINITE);
         CloseHandle(renderThread);
 
-    closeRenderMutex: CloseHandle(renderMutex);
+    closeRenderMutex:
+        CloseHandle(renderMutex);
 
-    closeTilesMutex: CloseHandle(tilesMutex);
+    closeTilesMutex:
+        CloseHandle(tilesMutex);
 
-    sdl_destroyrenderer: SDL_DestroyRenderer(renderer);
+    sdl_destroyrenderer:
+        SDL_DestroyRenderer(programParameters.renderer);
 
-    sdl_destroywindow: SDL_DestroyWindow(window);
+    sdl_destroywindow:
+        SDL_DestroyWindow(window);
 
     // ttf_quit: TTF_Quit();
 
@@ -441,10 +466,11 @@ int main(int argc, char** argv) {
     freeConfig:
         freeProgramConfig(&programParameters);
 
-    close_configfile: fclose(configFile);
-
+    close_configfile:
+        fclose(configFile);
     close_log:
-        if(status == SUCCESS) logToStream(log, LOGLEVEL_INFO, "Goodbye!");
+        snprintf(loggingBuffer, loggingBufferSize, "Exiting with code %d...", status);
+        logToStream(log, LOGLEVEL_INFO, NULL);
         fclose(log);
     exit:
         return status;

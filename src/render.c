@@ -10,7 +10,6 @@
 #include "deus.h"
 
 void calculateScalingFactor(ProgramParameters* parameters) {
-    
     double h = (double)parameters->gridSize.height;
     double H = (double)parameters->screenSize.height;
 
@@ -45,21 +44,25 @@ void calculateScalingFactor(ProgramParameters* parameters) {
 DWORD WINAPI renderScreen(void* params) {
     renderThreadParameters* parameters = params;
     ProgramParameters* programParameters = parameters->programParameters;
+
+    logToStream(programParameters->log, LOGLEVEL_DEBUG, "[Render thread] Started the render thread.");
     
-    SDL_Renderer* renderer = parameters->renderer;
-    SDL_Texture** baseTextures = programParameters->baseTextures;
-    SDL_Texture** digits = programParameters->digits;
+    
     Point P;
     P.y = 0;
 
+    SDL_Renderer* renderer = NULL;
+    SDL_Texture** baseTextures = NULL;
+    SDL_Texture** digits = NULL;
+
+
     LARGE_INTEGER start, end;
-    long long frequency = programParameters->clockFrequency->QuadPart, delta = 0, frameTime = 0, overhead = 0; //if the thread sleeps for too long in one iteration, make it sleep shorter in another iteration
+    long long frequency = programParameters->clockFrequency->QuadPart;
+    long long delta = 0, frameTime = 0, overhead = 0; //if the thread sleeps for too long in one iteration, make it sleep shorter in another iteration
     Color* backgroundColor = parameters->backgroundColor;
     int baseTileSize = 0;
     // short scalingFactor = 0;
     double scalingFactor = 1.0;
-
-    
 
     while(true) {
         if(*(parameters->renderStatus) == STOP) break;
@@ -69,10 +72,16 @@ DWORD WINAPI renderScreen(void* params) {
         
         QueryPerformanceCounter(&start);
 
+        renderer = programParameters->renderer;
+        baseTextures = programParameters->baseTextures;
+        digits = programParameters->digits;
+
         if(programParameters->flags.paused) frameTime = frequency / 10; //10 FPS when paused
         else frameTime = frequency / programParameters->fps;
         baseTileSize = programParameters->baseTileSize;
         scalingFactor = programParameters->scalingFactor;
+        //all of this copying is required for thread safety
+        //as all of those values can change mid execution
         
         SDL_SetRenderDrawColor(renderer, backgroundColor->red, backgroundColor->green, backgroundColor->blue, backgroundColor->alpha);
         SDL_RenderClear(renderer);
@@ -80,15 +89,8 @@ DWORD WINAPI renderScreen(void* params) {
         SDL_Rect current;
         current.w = (int) floor((double)baseTileSize * scalingFactor);
         current.h = (int) floor((double)baseTileSize * scalingFactor);
-        /* if(scalingFactor > 0) {
-            current.w = baseTileSize * scalingFactor;
-            current.h = baseTileSize * scalingFactor;
-        }
-        else if(scalingFactor < 0) {
-            current.w = baseTileSize / abs(scalingFactor);
-            current.h = baseTileSize / abs(scalingFactor);
-        } */
 
+        
         P.x = (programParameters->screenSize.width / 2) - ((programParameters->gridSize.width * current.w) / 2); //the x coordinate of a top-left corner of the game matrix
         if(programParameters->grid != NULL) {
             for(unsigned int i = 0; i < programParameters->gridSize.height; i++) {
@@ -120,6 +122,7 @@ DWORD WINAPI renderScreen(void* params) {
                 }
             }
         }
+
         //combo rendering
         unsigned int combo = programParameters->combo;
         size_t c = 1;
@@ -169,7 +172,7 @@ DWORD WINAPI renderScreen(void* params) {
         } */
 
         QueryPerformanceCounter(&end);
-        
+
         ReleaseMutex(parameters->tilesMutex);
         
         //formula: [ticks per second (probably 10^7) / FPS - time elapsed for input processing]
@@ -181,7 +184,7 @@ DWORD WINAPI renderScreen(void* params) {
 
         QueryPerformanceCounter(&end);
         overhead = end.QuadPart - start.QuadPart - frameTime;
-    
+
         ReleaseMutex(parameters->renderMutex);
     }
 
