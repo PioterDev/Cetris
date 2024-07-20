@@ -110,6 +110,14 @@ void playSound(const SoundEffect* soundEffect, const unsigned short volume);
 
 
 
+/**
+ * @brief Pauses or unpauses the game.
+ * 
+ * @param parameters pointer to ProgramParameters struct
+ */
+void togglePause(ProgramParameters* parameters);
+
+
 
 /**
  * @brief Creates a matrix filled with 0s with elements of given size.
