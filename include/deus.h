@@ -36,7 +36,7 @@
 
 #define DEBUG //for diagnostic logging, debugging, etc.
 
-#define TEST //for testing new stuff
+// #define TEST //for testing new stuff
 
 typedef unsigned long long size_t;
 
@@ -222,7 +222,8 @@ typedef struct SoundEffect {
 //1st bit - whether the program should continue running
 //2nd bit - whether a game is played
 //3rd bit - whether the game is paused
-//7 bits of offset to bring the total struct size to 2 bytes
+//4th bit - whether a tile has been loaded recently
+//6 bits of offset to bring the total struct size to 2 bytes
 //11th and 12th bit hold the game speed
 //13th and 14th bit hold the soundtrack to be played
 //15th and 16th bit hold the soundtrack that is currently playing
@@ -248,18 +249,22 @@ typedef struct ProgramFlags {
 typedef struct ProgramParameters {
     ProgramFlags flags;
     Size screenSize;
+
     unsigned int fps;
     unsigned short baseFallSpeed;
     unsigned short speedMultiplier;
     unsigned short baseTileSize;
-    Keymap keymap;
-    //If it's > 0, scale up, if it's < 0, scale down
-    // short scalingFactor;
+    
+    Keymap keymap;           //these have to be separate because SDL has
+    Keymap controllerKeymap; //separate bindings for keyboards and controllers
+
     double scalingFactor;
     
     LARGE_INTEGER* clockFrequency;
     
     FILE* log;
+
+    SDL_Renderer* renderer;
     
     SDL_Texture* baseTextures[tileColorAmount];
     SDL_Texture* digits[10];
@@ -293,7 +298,6 @@ typedef struct renderThreadParameters {
     HANDLE renderMutex;
     HANDLE tilesMutex;
     ProgramParameters* programParameters;
-    SDL_Renderer* renderer;
     Color* backgroundColor;
 } renderThreadParameters;
 

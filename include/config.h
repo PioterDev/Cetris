@@ -10,7 +10,7 @@
  * @brief A lookup table containing names of SDL-mapped keys.
  * 
  */
-extern const char keynames[177][32];
+extern const char keynames[178][32];
 
 /**
  * @brief Function converting SDL keycodes to their corresponding string indices in the `keynames` table.
@@ -37,7 +37,7 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
  * @param renderer pointer to SDL2's renderer
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer);
+status_t loadBaseTextures(ProgramParameters* parameters);
 
 /**
  * @brief Loads digit textures into program parameters.
@@ -46,7 +46,7 @@ status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer)
  * @param renderer pointer to SDL2's renderer
  * @return SUCCESS on success, FAILURE on failure 
  */
-status_t loadDigits(ProgramParameters* parameters, SDL_Renderer* renderer);
+status_t loadDigits(ProgramParameters* parameters);
 
 /**
  * @brief Loads a soundtrack from specified ID.
@@ -63,6 +63,13 @@ status_t loadSoundtracks(ProgramParameters* parameters);
  * @return SUCCESS on success, FAILURE on failure 
  */
 status_t loadSoundEffects(ProgramParameters* parameters);
+
+/**
+ * @brief Frees textures.
+ * 
+ * @param params pointer to ProgramParameters struct
+ */
+void freeTextures(ProgramParameters* params);
 
 /**
  * @brief Frees game configuration.

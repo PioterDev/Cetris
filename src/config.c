@@ -50,7 +50,7 @@ static char bindings[sizeof(Keymap) / sizeof(int)][32] = {
     "Test"
 };
 
-const char keynames[177][32] = {
+const char keynames[178][32] = {
     //0
     "Unknown",   //0
     //1-5
@@ -65,7 +65,7 @@ const char keynames[177][32] = {
     //18-23
     "Print Screen", //1073741894
     "Scroll Lock",
-    "Pause",
+    "Pause break",
     "Insert",
     "Home",
     "Page Up", //1073741899
@@ -84,7 +84,7 @@ const char keynames[177][32] = {
     //48-77
     "Application", //1073741925
     "Power",
-    "Keypad ="
+    "Keypad =",
     "F13", "F14", "F15", "F16", "F17", "F18", 
     "F19", "F20", "F21", "F22", "F23", "F24",
     "Execute",
@@ -318,13 +318,25 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
         snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Read line: %s", buf);
         logToStream(debugFile, LOGLEVEL_DEBUG, NULL);
 #endif
-        if(buf[0] == '#')continue; //comment line
+        if(buf[0] == '#') continue; //comment line
+
+        char* key1 = buf;
+        //remove whitespaces in front of a key
+        while((key1[0] == ' ' || key1[0] == '\t') && key1[0] != '\n' && key1[0] != '\0') { key1++; } 
         
+        char* key2 = key1;
+        //calculate the position of the last character of a key
+        while(key2[0] != ':' && key2[0] != '\n' && key2[0] != '\0') { key2++; }
         char key[32] = {0};
-        strncpy(key, buf, strcspn(buf, ":"));
+        size_t keyLength = (size_t)(key2 - key1);
+        if(keyLength == 0) continue; //empty line
+        else if(keyLength >= sizeof(key)) continue;
+        strncpy(key, key1, keyLength);
+        // strncpy(key, buf, strcspn(buf, ":"));
 
         char* value = strstr(buf, ":") + 1;
-        while((value[0] == ' ' || value[0] == '\t') && value[0] != '\n')value++;
+        //remove whitespaces in front of a value
+        while((value[0] == ' ' || value[0] == '\t') && value[0] != '\n' && value[0] != '\0') { value++; }
 #ifdef DEBUG
         snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Key: %s, Value: %s", key, value);
         logToStream(debugFile, LOGLEVEL_DEBUG, NULL);
@@ -407,7 +419,7 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
     return SUCCESS;
 }
 
-status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer) {
+status_t loadBaseTextures(ProgramParameters* parameters) {
     char path[256];
     strcpy(path, tilesPath);
     char* pos = path + strlen(tilesPath);
@@ -415,27 +427,27 @@ status_t loadBaseTextures(ProgramParameters* parameters, SDL_Renderer* renderer)
 
     //The first one is necessary to get the base tile size
     strcpy(pos, baseTexturePaths[0]);
-    parameters->baseTextures[0] = loadTextureRect(path, renderer, &rect);
+    parameters->baseTextures[0] = loadTextureRect(path, parameters->renderer, &rect);
     if(parameters->baseTextures[0] == NULL) return FAILURE;
     parameters->baseTileSize = rect.h;
 
     for(int i = 1; i < tileColorAmount; i++) {
         strcpy(pos, baseTexturePaths[i]);
-        parameters->baseTextures[i] = loadTexture(path, renderer);
+        parameters->baseTextures[i] = loadTexture(path, parameters->renderer);
         if(parameters->baseTextures[i] == NULL) return FAILURE; //no need to worry about freeing textures, it's done on exit
     }
 
     return SUCCESS;
 }
 
-status_t loadDigits(ProgramParameters* parameters, SDL_Renderer* renderer) {
+status_t loadDigits(ProgramParameters* parameters) {
     char path[256];
     strcpy(path, digitsPath);
     char* pos = path + sizeof(digitsPath) - 1;
 
     for(int i = 0; i < 10; i++) {
         sprintf(pos, "%d.png", i);
-        parameters->digits[i] = loadTexture(path, renderer);
+        parameters->digits[i] = loadTexture(path, parameters->renderer);
         if(parameters->digits[i] == NULL) return FAILURE;
     }
 
@@ -472,8 +484,8 @@ status_t loadSoundEffects(ProgramParameters* parameters) {
     return SUCCESS;
 }
 
-void freeProgramConfig(ProgramParameters* params) {
-    for(int i = 0; i < tileColorAmount; i++) {
+void freeTextures(ProgramParameters* params) {
+        for(int i = 0; i < tileColorAmount; i++) {
         if(params->baseTextures[i] != NULL) {
             SDL_DestroyTexture(params->baseTextures[i]);
         }
@@ -483,6 +495,10 @@ void freeProgramConfig(ProgramParameters* params) {
             SDL_DestroyTexture(params->digits[i]);
         }
     }
+}
+
+void freeProgramConfig(ProgramParameters* params) {
+    freeTextures(params);
     if(params->grid != NULL) freeMatrix(params->grid, params->gridSize.height);
     for(int i = 0; i < soundtracksAmount; i++) {
         freeMusic(params->soundtracks[i].music);
