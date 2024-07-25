@@ -38,5 +38,13 @@ void onPlacement(ProgramParameters* parameters);
  */
 status_t onWindowResize(ProgramParameters* parameters, SDL_Window* window);
 
+/**
+ * @brief Function to be invoked when the player requests a hold operation.
+ * 
+ * @param parameters pointer to ProgramParameters struct
+ * @return SUCCESS on success, FAILURE on failure
+ */
+status_t onHold(ProgramParameters* parameters);
+
 
 #endif

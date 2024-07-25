@@ -12,5 +12,10 @@ extern const int occupiedAmount[STATE_AMOUNT];
 //in logic.h.
 extern const int basePositions[STATE_AMOUNT][maxTileSize][2];
 
+extern const int holdPositionsAmount[SHAPE_AMOUNT];
+
+extern const int holdPositions[SHAPE_AMOUNT][maxTileSize][2];
+
+
 
 #endif

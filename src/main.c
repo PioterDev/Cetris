@@ -306,16 +306,15 @@ int main(int argc, char** argv) {
                         freeTile(programParameters.currentTile);
                         dequeueTile(&programParameters.tileQueue, &programParameters.currentTile);
 
-                        Tile* tmp = loadTileRandom(programParameters.renderer, NULL, programParameters.gridSize.width, TILELOAD_NOTEXTURE, log);
+                        Tile* tmp = loadTileRandom(NULL, programParameters.gridSize.width, log);
                         if(tmp != NULL) enqueueTile(&programParameters.tileQueue, tmp);
                         
                         if(programParameters.currentTile == NULL) {
                             logToStream(log, LOGLEVEL_ERROR, "Error loading tile");
                         }
-                        else if(loadTileIntoGrid(programParameters.grid, programParameters.currentTile, programParameters.gridSize) == FAILURE) {
+                        else if(loadTileIntoGrid(&programParameters) == FAILURE) {
                             onGameEnd(&programParameters, GAME_END_REASON_LOADFAIL);
                         }
-                        programParameters.flags.tileRecentlyLoaded = true;
                         programParameters.flags.speed = SPEED_NORMAL;
                     }
 
@@ -325,20 +324,29 @@ int main(int argc, char** argv) {
                     else if(key == programParameters.keymap.movePieceRight) {
                         moveRight(programParameters.grid, programParameters.currentTile, programParameters.gridSize.width);
                     }
-                    else if(key == programParameters.keymap.dropSoft) programParameters.flags.speed = SPEED_DROPSOFT;
-
+                    else if(key == programParameters.keymap.dropSoft) {
+                        programParameters.flags.speed = SPEED_DROPSOFT;
+                    }
                     else if(key == programParameters.keymap.rotateClockwise) {
                         rotateClockwise(programParameters.grid, programParameters.currentTile, programParameters.gridSize);
                         playSound(&programParameters.soundEffects[ACTION_ROTATECLOCKWISE], programParameters.soundEffectsVolume);
                     }
-                    
                     else if(key == programParameters.keymap.rotateCounterClockwise) {
                         rotateCounterClockwise(programParameters.grid, programParameters.currentTile, programParameters.gridSize);
                         playSound(&programParameters.soundEffects[ACTION_ROTATECOUNTERCLOCKWISE], programParameters.soundEffectsVolume);
+                    }   
+                    else if(key == programParameters.keymap.hold) {
+                        onHold(&programParameters);
+                        // programParameters.flags.speed = SPEED_HOLD;
                     }
-                        
-                    else if(key == programParameters.keymap.hold) programParameters.flags.speed = SPEED_HOLD;
-
+#ifdef TEST
+                    else if(key == programParameters.keymap.test) {
+                        unloadTileFromGrid(programParameters.grid, programParameters.currentTile);
+                        programParameters.currentTile->state = defaultStates[programParameters.currentTile->shape];
+                        setDefaultTileParameters(programParameters.currentTile, programParameters.gridSize.width);
+                        loadTileIntoGrid(&programParameters);
+                    }
+#endif
                     break;
                 }
                 case SDL_KEYUP: {
@@ -405,16 +413,15 @@ int main(int argc, char** argv) {
                         freeTile(programParameters.currentTile);
 
                         dequeueTile(&programParameters.tileQueue, &programParameters.currentTile);
-                        enqueueTile(&programParameters.tileQueue, loadTileRandom(programParameters.renderer, NULL, programParameters.gridSize.width, TILELOAD_NOTEXTURE, log));
+                        enqueueTile(&programParameters.tileQueue, loadTileRandom(NULL, programParameters.gridSize.width, log));
 
                         if(programParameters.currentTile == NULL) {
                             logToStream(log, LOGLEVEL_ERROR, "Error loading tile");
                         }
-                        else if(loadTileIntoGrid(programParameters.grid, programParameters.currentTile, programParameters.gridSize) == FAILURE) { 
+                        else if(loadTileIntoGrid(&programParameters) == FAILURE) { 
                             onGameEnd(&programParameters, GAME_END_REASON_LOADFAIL);
                             //TODO: expand functionality on end of the game
                         }
-                        programParameters.flags.tileRecentlyLoaded = true;
                         programParameters.flags.speed = SPEED_NORMAL;
                     }
                     else {

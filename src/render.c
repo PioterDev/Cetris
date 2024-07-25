@@ -6,8 +6,9 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include "logging.h"
 #include "deus.h"
+#include "logging.h"
+#include "logic_shapes.h"
 
 void calculateScalingFactor(ProgramParameters* parameters) {
     double h = (double)parameters->gridSize.height;
@@ -91,7 +92,8 @@ DWORD WINAPI renderScreen(void* params) {
         current.h = (int) floor((double)baseTileSize * scalingFactor);
 
         
-        P.x = (programParameters->screenSize.width / 2) - ((programParameters->gridSize.width * current.w) / 2); //the x coordinate of a top-left corner of the game matrix
+        //the x coordinate of a top-left corner of the game matrix
+        P.x = (programParameters->screenSize.width / 2) - ((programParameters->gridSize.width * current.w) / 2); 
         if(programParameters->grid != NULL) {
             for(unsigned int i = 0; i < programParameters->gridSize.height; i++) {
                 for(unsigned int j = 0; j < programParameters->gridSize.width; j++) {
@@ -111,13 +113,54 @@ DWORD WINAPI renderScreen(void* params) {
         }
         else {
             for(unsigned int i = 0; i < programParameters->gridSize.height; i++) {
+                current.y = P.y + i * current.h;
                 for(unsigned int j = 0; j < programParameters->gridSize.width; j++) {
-                    current.y = P.y + i * current.h;
                     current.x = P.x + j * current.w;
                     if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current)) {
                         snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game not running] Error rendering tile: %s", SDL_GetError());
                         logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                    }
+                }
+            }
+        }
 
+        //hold area rendering
+        if(programParameters->heldTile == NULL) {
+            for(int i = 0; i < holdSpaceVerticalSize; i++) {
+                current.y = P.y + (i + 1) * current.h;
+                for(int j = 0; j < maxTileSize; j++) {
+                    current.x = P.x + (j - maxTileSize - 1) * current.w;
+                    if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current)) {
+                        snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game not running] Error rendering tile: %s", SDL_GetError());
+                        logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                    }
+                }
+            }
+        }
+        else {
+            for(int i = 0; i < holdSpaceVerticalSize; i++) {
+                current.y = P.y + (i + 1) * current.h;
+                for(int j = 0; j < maxTileSize; j++) {
+                    current.x = P.x + (j - maxTileSize - 1) * current.w;
+                    int rendered = false;
+                    for(int k = 0; k < holdPositionsAmount[programParameters->heldTile->shape]; k++) {
+                        if(
+                            i == holdPositions[programParameters->heldTile->shape][k][1] &&    
+                            j == holdPositions[programParameters->heldTile->shape][k][0]
+                        ) {
+                            if(SDL_RenderCopy(renderer, baseTextures[programParameters->heldTile->color], NULL, &current)) {
+                                snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game not running] Error rendering tile: %s", SDL_GetError());
+                                logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                            }
+                            rendered = true;
+                            break;
+                        }
+                    }
+                    if(!rendered) {
+                        if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current)) {
+                            snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game not running] Error rendering tile: %s", SDL_GetError());
+                            logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                        }
                     }
                 }
             }

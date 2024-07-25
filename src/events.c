@@ -34,21 +34,22 @@ status_t onGameStart(ProgramParameters* parameters) {
     }
     logToStream(parameters->log, LOGLEVEL_INFO, "Game matrix successfully created!");
     logToStream(parameters->log, LOGLEVEL_INFO, "Attempting to load a random tile...");
-    parameters->currentTile = loadTileRandom(parameters->renderer, NULL, parameters->gridSize.width, TILELOAD_NOTEXTURE, parameters->log);
+    parameters->currentTile = loadTileRandom(NULL, parameters->gridSize.width, parameters->log);
     if(parameters->currentTile == NULL) return MEMORY_FAILURE;
     logToStream(parameters->log, LOGLEVEL_INFO, "Attempting to fill the tile queue...");
     for(unsigned int i = 0; i < tileQueuedAmount; i++) {
-        Tile* tmp = loadTileRandom(parameters->renderer, NULL, parameters->gridSize.width, TILELOAD_NOTEXTURE, parameters->log);
+        Tile* tmp = loadTileRandom(NULL, parameters->gridSize.width, parameters->log);
         if(tmp == NULL) return MEMORY_FAILURE;
         enqueueTile(&parameters->tileQueue, tmp);
     }
     logToStream(parameters->log, LOGLEVEL_INFO, "Tile queue filled successfully!");
 
-    loadTileIntoGrid(parameters->grid, parameters->currentTile, parameters->gridSize);
+    loadTileIntoGrid(parameters);
 
     playMusic(parameters);
     
     parameters->level = 1;
+    parameters->score = 0;
     parameters->flags.playing = true;
     logToStream(parameters->log, LOGLEVEL_INFO, "Game started!");
     
@@ -74,7 +75,7 @@ void onGameEnd(ProgramParameters* parameters, GameEndReason reason) {
     stopMusic();
     freeMatrix(parameters->grid, parameters->gridSize.height);
     parameters->grid = NULL;
-    parameters->score = parameters->combo = parameters->level = 0;
+    parameters->combo = parameters->level = 0;
     parameters->flags.playing = false;
 }
 
@@ -139,6 +140,7 @@ void onPlacement(ProgramParameters* parameters) {
     }
 
     parameters->score += POINTS_COMBO_MULTIPLIER * parameters->combo * parameters->level;
+    if(parameters->flags.holdLocked) parameters->flags.holdLocked = false;
     /* freeTile(parameters->currentTile);
 
     dequeueTile(&parameters->tileQueue, &parameters->currentTile);
@@ -181,4 +183,23 @@ status_t onWindowResize(ProgramParameters* parameters, SDL_Window* window) {
     }
     calculateScalingFactor(parameters);
     return s;
+}
+
+status_t onHold(ProgramParameters* parameters) {
+    if(parameters->heldTile != NULL && parameters->flags.holdLocked) return FAILURE;
+    unloadTileFromGrid(parameters->grid, parameters->currentTile);
+    setDefaultTileParameters(parameters->currentTile, parameters->gridSize.width);
+    if(parameters->heldTile != NULL) {
+        Tile* tmp = parameters->currentTile;
+        parameters->currentTile = parameters->heldTile;
+        parameters->heldTile = tmp;
+        parameters->flags.holdLocked = true;
+    }
+    else {
+        parameters->heldTile = parameters->currentTile;
+        dequeueTile(&parameters->tileQueue, &parameters->currentTile);
+        enqueueTile(&parameters->tileQueue, loadTileRandom(NULL, parameters->gridSize.width, parameters->log));
+    }
+    loadTileIntoGrid(parameters);
+    return SUCCESS;
 }
