@@ -12,7 +12,7 @@ status_t enqueueTile(TileQueue* queue, Tile* tile) {
 #endif
     TileQueueElement* e = malloc(sizeof(TileQueueElement));
     if(e == NULL) return MEMORY_FAILURE;
-    
+
     e->tile = tile;
     e->next = NULL;
 

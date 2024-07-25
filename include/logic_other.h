@@ -7,11 +7,18 @@
 /**
  * @brief Loads the tile, given its "focal point", to the game matrix.
  * 
- * @param grid game matrix
- * @param tile tile
+ * @param parameters pointer to ProgramParameters struct
  * @return SUCCESS on success, FAILURE on failure
  */
-status_t loadTileIntoGrid(int** grid, const Tile* tile, const Size gridSize);
+status_t loadTileIntoGrid(ProgramParameters* parameters);
+
+/**
+ * @brief Unloads the tile from the game matrix.
+ * 
+ * @param grid game matrix
+ * @param tile tile 
+ */
+void unloadTileFromGrid(int** grid, const Tile* tile);
 
 
 #endif

@@ -33,10 +33,11 @@
 #define defaultGridHeight 20
 #define defaultGridWidth 10
 #define maxTileSize 4 //for later implementations of tiles taking up >4 cells
+#define holdSpaceVerticalSize 2
 
 #define DEBUG //for diagnostic logging, debugging, etc.
 
-// #define TEST //for testing new stuff
+#define TEST //for testing new stuff
 
 typedef unsigned long long size_t;
 
@@ -184,9 +185,7 @@ typedef enum TileState {
  * @brief Struct for holding tiles.
  */
 typedef struct Tile {
-    SDL_Texture* texture;
     SDL_Rect rect;
-    double angle;
     TileColor color;
     TileShape shape;
     TileState state;
@@ -237,7 +236,8 @@ typedef struct ProgramFlags {
     //Whether a tile has been loaded into the grid recently. If true, reset the fall timer.
     //This is to prevent causing the tile to fall immediately after being loaded.
     int tileRecentlyLoaded : 1;
-    int __offset__: 6;
+    int holdLocked : 1;
+    int __offset__: 5;
     MovementSpeed speed : 2;
     unsigned int soundtrack : 2;
     unsigned int soundtrackNowPlaying : 2;
@@ -285,10 +285,6 @@ typedef struct ProgramParameters {
     unsigned int combo;
     unsigned int level;
 } ProgramParameters;
-
-typedef enum TileLoadingFlags {
-    TILELOAD_NOTEXTURE = 1
-} TileLoadingFlags;
 
 /**
  * @brief Struct for holding parameters for the render thread.

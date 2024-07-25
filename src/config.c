@@ -237,6 +237,7 @@ typedef enum Option {
     DROPHARD,
     HOLD,
     PAUSE,
+    OPTION_TEST,
     SCREEN_WIDTH,
     SCREEN_HEIGHT,
     FPS,
@@ -274,6 +275,9 @@ void setParameter(ProgramParameters* parameters, Option key, const int value) {
             break;
         case PAUSE:
             parameters->keymap.pause = value;
+            break;
+        case OPTION_TEST:
+            parameters->keymap.test = value;
             break;
         case SCREEN_WIDTH:
             parameters->screenSize.width = value > 0 ? value : 640;
@@ -352,6 +356,7 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
         else if(!strcmp(key, "drophard"))                   option = DROPHARD;
         else if(!strcmp(key, "hold"))                       option = HOLD;
         else if(!strcmp(key, "pause"))                      option = PAUSE;
+        else if(!strcmp(key, "test"))                       option = OPTION_TEST;
 
         //numerical options
         else if(!strcmp(key, "width"))                      option = SCREEN_WIDTH;

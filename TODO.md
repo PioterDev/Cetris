@@ -1,4 +1,3 @@
-- support for window resizability
 - thread safety (currently some inter-thread functions don't respect that)
 - rewriting the onPlacement function checks for full rows (it only checks one row and those above, so it's kinda buggy)
 - ghost tile

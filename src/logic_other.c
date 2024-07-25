@@ -8,7 +8,8 @@
 #include "tile_queue.h"
 #include "utils.h"
 
-status_t loadTileIntoGrid(int** grid, const Tile* tile, const Size gridSize) {
+status_t loadTileIntoGrid(ProgramParameters* parameters) {
+    Tile* tile = parameters->currentTile;
     if(tile == NULL) return MEMORY_FAILURE;
     if(tile->state == STATE_UNKNOWN) return FAILURE;
 #ifdef DEBUG
@@ -25,17 +26,30 @@ status_t loadTileIntoGrid(int** grid, const Tile* tile, const Size gridSize) {
         positions[i].x = tile->position.x + basePositions[tile->state][i][0];
         positions[i].y = tile->position.y + basePositions[tile->state][i][1];
         if(positions[i].x < 0 || positions[i].y < 0) return INDEXOUTOFRANGE;
-        if((unsigned int)positions[i].x >= gridSize.width || (unsigned int)positions[i].y >= gridSize.height) return INDEXOUTOFRANGE;
+        if((unsigned int)positions[i].x >= parameters->gridSize.width || (unsigned int)positions[i].y >= parameters->gridSize.height) return INDEXOUTOFRANGE;
 
-        int a = grid[positions[i].y][positions[i].x];
+        int a = parameters->grid[positions[i].y][positions[i].x];
         if(a != 0 && a != GHOST) return FAILURE;
     }
 
     for(int i = 0; i < n; i++) {
-        grid[positions[i].y][positions[i].x] = -1 * tile->color;
+        parameters->grid[positions[i].y][positions[i].x] = -1 * tile->color;
     }
+    parameters->flags.tileRecentlyLoaded = true;
 #ifdef DEBUG
     logToStream(defaultStream, LOGLEVEL_DEBUG, "[loadTileIntoGrid] Successfully loaded tile into grid.");
 #endif
+    return SUCCESS;
+}
+
+status_t unloadTileFromGrid(int** grid, const Tile* tile) {
+    if(tile == NULL) return MEMORY_FAILURE;
+    if(tile->state == STATE_UNKNOWN) return FAILURE;
+    if(tile->position.x < 0 || tile->position.y < 0) return FAILURE;
+
+    for(int i = 0; i < occupiedAmount[tile->state]; i++) {
+        grid[tile->position.y + basePositions[tile->state][i][1]][tile->position.x + basePositions[tile->state][i][0]] = 0;
+    }
+
     return SUCCESS;
 }

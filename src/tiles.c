@@ -11,6 +11,16 @@
 #include "logic_shapes.h"
 #include "utils.h"
 
+const int defaultStates[SHAPE_AMOUNT] = {
+    BAR_HORIZONTAL_UP, //BAR
+    J_90, //J
+    L_270, //L
+    S_0, //S
+    SQR, //SQUARE
+    T_180, //T
+    Z_0 //Z
+};
+
 const char shapeNames[SHAPE_AMOUNT][8] = {
     "Bar",
     "J",
@@ -67,32 +77,22 @@ const char stateNames[STATE_AMOUNT][32] = {
     "Rotated by 270 degrees",
 };
 
-Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* coordinates, const int gridWidth, const int flags, FILE* debug) {
-    Tile* tile = malloc(sizeof(Tile));
-    if(tile == NULL) return NULL;
-
-    tile->texture = NULL;
-#ifdef DEBUG
-    if(flags & TILELOAD_NOTEXTURE) {
-        logToStream(debug, LOGLEVEL_DEBUG, "[loadTile] Skipping texture loading");
-    }
-#endif
-
-    switch(shape) {
+status_t setDefaultTileParameters(Tile* tile, const int gridWidth) {
+    switch(tile->shape) {
         case BAR:
             tile->position.y = 0;
             tile->position.x = (gridWidth >> 1) - 2;
             tile->state = BAR_HORIZONTAL_UP;
             break;
         case J:
-            tile->position.y = 2;
+            tile->position.y = 0;
             tile->position.x = (gridWidth >> 1) - 1;
-            tile->state = J_0;
+            tile->state = J_90;
             break;
         case L:
-            tile->position.y = 2;
-            tile->position.x = (gridWidth >> 1) - 1;
-            tile->state = L_0;
+            tile->position.y = 0;
+            tile->position.x = (gridWidth >> 1) + 1;
+            tile->state = L_270;
             break;
         case S:
             tile->position.y = 1;
@@ -105,17 +105,27 @@ Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* 
             tile->state = SQR;
             break;
         case T:
-            tile->position.y = 1;
+            tile->position.y = 0;
             tile->position.x = (gridWidth >> 1) - 1;
-            tile->state = T_0;
+            tile->state = T_180;
             break;
         case Z:
-            tile->position.y = 1;
+            tile->position.y = 0;
             tile->position.x = (gridWidth >> 1) - 1;
             tile->state = Z_0;
             break;
-        default: goto failure;
+        default: return FAILURE;
     }
+    return SUCCESS;
+}
+
+Tile* loadTile(TileColor color, TileShape shape, Point* coordinates, const int gridWidth) {
+    Tile* tile = malloc(sizeof(Tile));
+    if(tile == NULL) return NULL;
+
+    tile->color = color;
+    tile->shape = shape;
+    if(setDefaultTileParameters(tile, gridWidth) != SUCCESS) goto failure;
 
     if(coordinates != NULL) {
         tile->rect.x = coordinates->x;
@@ -125,47 +135,27 @@ Tile* loadTile(SDL_Renderer* renderer, TileColor color, TileShape shape, Point* 
         tile->rect.x = 0;
         tile->rect.y = 0;
     }
-    tile->angle = 0;
-    tile->color = color;
-    tile->shape = shape;
 
     return tile;
 
     failure:
-        if(!(flags & TILELOAD_NOTEXTURE) && tile->texture != NULL) {
-            SDL_DestroyTexture(tile->texture);
-        }
         free(tile);
         return NULL;
 }
 
 void freeTile(Tile* tile) {
     if(tile == NULL) return;
-    if(tile->texture != NULL) SDL_DestroyTexture(tile->texture);
     free(tile);
 }
 
-Tile* loadTileRandom(SDL_Renderer* renderer, Point* coordinates, const int gridWidth, const int flags, FILE* debug) {
+Tile* loadTileRandom(Point* coordinates, const int gridWidth, FILE* debug) {
     TileColor color = rand() % (tileColorAmount - 1) + (BACKGROUND + 1); //Actual colors start at BACKGROUND + 1
     TileShape shape = rand() % (tileColorAmount - 1);
 #ifdef DEBUG
     snprintf(loggingBuffer, loggingBufferSize, "[loadTileRandom] Color: %s, Shape: %s", colorNames[color], shapeNames[shape]);
     logToStream(debug, LOGLEVEL_DEBUG, NULL);
 #endif
-    return loadTile(renderer, color, shape, coordinates, gridWidth, flags, debug);
-}
-
-void centerTileHorizontally(Tile* tile, ProgramParameters* programParameters) {
-    tile->rect.x = programParameters->screenSize.width / 2 - tile->rect.w / 4;
-}
-
-void centerTileVertically(Tile* tile, ProgramParameters* programParameters) {
-    tile->rect.y = programParameters->screenSize.height / 2 - tile->rect.h / 4;
-}
-
-void centerTile(Tile* tile, ProgramParameters* programParameters) {
-    centerTileVertically(tile, programParameters);
-    centerTileHorizontally(tile, programParameters);
+    return loadTile(color, shape, coordinates, gridWidth);
 }
 
 void printTile(Tile* tile, FILE* stream) {
