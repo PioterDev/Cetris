@@ -18,7 +18,7 @@ extern const char colorNames[COLOR_AMOUNT][12];
  * 
  * @param tile tile
  * @param gridWidth game matrix's width 
- * @return status_t 
+ * @return SUCCESS on success, FAILURE on unhandled shape
  */
 status_t setDefaultTileParameters(Tile* tile, const int gridWidth);
 

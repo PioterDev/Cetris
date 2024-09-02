@@ -12,30 +12,28 @@ status_t itos(int in, const unsigned int base, char* buf, const size_t bufsize) 
     if(base > sizeof(digits) - 1) return BASEOUTOFRANGE;
 
     char tmp[64] = {0};
-    unsigned long long i = 0, sign = 0;
-    if(in == 0) {
-        tmp[i] = '0';
-        i++;
-        strncpy(buf, tmp, i);
-        return SUCCESS;
-    }
+    size_t i = 1, sign = 0;
     if(in < 0) {
         tmp[0] = '-';
-        i++; sign++; 
+        i++; sign++;
+        in = -in;
     }
-    int len = -1, incpy = in;
-    while(incpy != 0) {
+    int len = 0, incpy = in;
+    do {
         len++;
         incpy /= base;
     }
-    in = abs(in);
-    while(in != 0) {
+    while(incpy != 0);
+
+    do {
         if(i == bufsize - 1) return FAILURE;
         char digit = in % base;
         tmp[sign + len] = digits[(int)digit];
         i++; len--;
         in /= base;
     }
+    while(in != 0);
+
     strncpy(buf, tmp, i);
     return SUCCESS;
 }
@@ -145,7 +143,7 @@ void togglePause(ProgramParameters* parameters) {
 
 int** zeroMatrix(const Size size) {
     int** matrix = calloc(size.height, sizeof(int*));
-    if(matrix == NULL)return NULL;
+    if(matrix == NULL) return NULL;
 
     for(unsigned int i = 0; i < size.height; i++) {
         matrix[i] = calloc(size.width, sizeof(int));
@@ -189,7 +187,7 @@ void setMatrix(int** matrix, const Size size, const int value) {
 void absMatrix(int** matrix, const Size size) {
     for(unsigned int i = 0; i < size.height; i++) {
         for(unsigned int j = 0; j < size.width; j++) {
-            if(matrix[i][j] < 0) matrix[i][j] = abs(matrix[i][j]);
+            matrix[i][j] = abs(matrix[i][j]);
         }
     }
 }
@@ -197,7 +195,7 @@ void absMatrix(int** matrix, const Size size) {
 int MaxIndex(const int* arr, const int n) {
     int maxIndex = 0;
     for(int i = 1; i < n; i++) {
-        if(arr[i] > arr[maxIndex])maxIndex = i;
+        if(arr[i] > arr[maxIndex]) maxIndex = i;
     }
 
     return maxIndex;
@@ -206,7 +204,7 @@ int MaxIndex(const int* arr, const int n) {
 int MinIndex(const int* arr, const int n) {
     int minIndex = 0;
     for(int i = 1; i < n; i++) {
-        if(arr[i] < arr[minIndex])minIndex = i;
+        if(arr[i] < arr[minIndex]) minIndex = i;
     }
 
     return minIndex;
@@ -215,7 +213,7 @@ int MinIndex(const int* arr, const int n) {
 int Max(const int* arr, const int n) {
     int max = arr[0];
     for(int i = 1; i < n; i++) {
-        if(arr[i] > max)max = arr[i];
+        if(arr[i] > max) max = arr[i];
     }
 
     return max;
@@ -224,7 +222,7 @@ int Max(const int* arr, const int n) {
 int Min(const int* arr, const int n) {
     int min = arr[0];
     for(int i = 1; i < n; i++) {
-        if(arr[i] < min)min = arr[i];
+        if(arr[i] < min) min = arr[i];
     }
 
     return min;

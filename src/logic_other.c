@@ -21,19 +21,23 @@ status_t loadTileIntoGrid(ProgramParameters* parameters) {
     logToStream(defaultStream, LOGLEVEL_DEBUG, NULL);    
 #endif
     int n = occupiedAmount[tile->state];
+    if(n == 0) return BASEOUTOFRANGE;
     Point positions[n];
     for(int i = 0; i < n; i++) {
         positions[i].x = tile->position.x + basePositions[tile->state][i][0];
         positions[i].y = tile->position.y + basePositions[tile->state][i][1];
         if(positions[i].x < 0 || positions[i].y < 0) return INDEXOUTOFRANGE;
-        if((unsigned int)positions[i].x >= parameters->gridSize.width || (unsigned int)positions[i].y >= parameters->gridSize.height) return INDEXOUTOFRANGE;
+        if(
+            (unsigned int)positions[i].x >= parameters->gridSize.width ||
+            (unsigned int)positions[i].y >= parameters->gridSize.height
+        ) return INDEXOUTOFRANGE;
 
         int a = parameters->grid[positions[i].y][positions[i].x];
         if(a != 0 && a != GHOST) return FAILURE;
     }
 
     for(int i = 0; i < n; i++) {
-        parameters->grid[positions[i].y][positions[i].x] = -1 * tile->color;
+        parameters->grid[positions[i].y][positions[i].x] = -tile->color;
     }
     parameters->flags.tileRecentlyLoaded = true;
 #ifdef DEBUG

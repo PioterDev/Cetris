@@ -8,7 +8,11 @@
  * @brief Loads the tile, given its "focal point", to the game matrix.
  * 
  * @param parameters pointer to ProgramParameters struct
- * @return SUCCESS on success, FAILURE on failure
+ * @return SUCCESS on success, 
+ * FAILURE on failure,
+ * MEMORY_FAILURE on NULL tile,
+ * BASEOUTOFRANGE on developer being a dumbass,
+ * INDEXOUTOFRANGE on position outside of the grid
  */
 status_t loadTileIntoGrid(ProgramParameters* parameters);
 

@@ -10,75 +10,65 @@ status_t enqueueTile(TileQueue* queue, Tile* tile) {
     snprintf(loggingBuffer, loggingBufferSize, "[enqueueTile] Queueing %s %s...", colorNames[tile->color], shapeNames[tile->shape]);
     logToStream(defaultStream, LOGLEVEL_DEBUG, NULL);
 #endif
-    TileQueueElement* e = malloc(sizeof(TileQueueElement));
-    if(e == NULL) return MEMORY_FAILURE;
-
-    e->tile = tile;
-    e->next = NULL;
-
-    if(queue->size == 0) {
-        queue->head = queue->last = e;
+    
+    queue->writeIndex++;
+    if(queue->writeIndex >= tileQueuedAmount + 1) queue->writeIndex = 0;
+    if(queue->writeIndex == queue->readIndex) {
+        queue->writeIndex--;
+        if(queue->writeIndex < 0) queue->writeIndex = tileQueuedAmount;
+        return FAILURE;
     }
-    else if(queue->size == 1) {
-        queue->head->next = queue->last;
-        queue->last->next = e;
-        queue->last = e;
-    }
-    else {
-        queue->last->next = e;
-        queue->last = e;
-    }
-    queue->size++;
+    queue->tiles[queue->writeIndex] = tile;
     return SUCCESS;
 }
 
 status_t dequeueTile(TileQueue* queue, Tile** toStore) {
-    if(queue->size == 0) {
+    if(queue->readIndex == queue->writeIndex) {
         *toStore = NULL;
-        return FAILURE;
+        return FAILURE; //queue is empty
     }
-    TileQueueElement* next = queue->head->next;
-    *toStore = queue->head->tile;
+    queue->readIndex++;
+    if(queue->readIndex >= tileQueuedAmount + 1) queue->readIndex = 0;
+    *toStore = queue->tiles[queue->readIndex];
 #ifdef DEBUG
     snprintf(
-        loggingBuffer, loggingBufferSize, "[enqueueTile] Dequeued %s %s...", 
-        colorNames[queue->head->tile->color], //This quadruple dereference is a war crime...
-        shapeNames[queue->head->tile->shape]
+        loggingBuffer, loggingBufferSize, "[dequeueTile] Dequeued %s %s...", 
+        colorNames[queue->tiles[queue->readIndex]->color],
+        shapeNames[queue->tiles[queue->readIndex]->shape]
     );
     logToStream(defaultStream, LOGLEVEL_DEBUG, NULL);
 #endif
-    free(queue->head);
-    queue->head = next;
-    queue->size--;
-
     return SUCCESS;
 }
 
 void flushTileQueue(TileQueue* queue) {
-    if(queue->size > 0 && queue->head != NULL) {
-        TileQueueElement* current = queue->head;
-        TileQueueElement* next = current->next;
-        freeTile(current->tile);
-        free(current);
-        while(next != NULL) {
-            current = next;
-            next = current->next;
-            freeTile(current->tile);
-            free(current);
-        }
-        queue->size = 0;
+    while(queue->readIndex != queue->writeIndex) {
+        queue->readIndex++;
+        if(queue->readIndex >= tileQueuedAmount + 1) queue->readIndex = 0;
+        freeTile(queue->tiles[queue->readIndex]);
     }
 }
 
 void printTileQueue(TileQueue* queue, FILE* stream) {
-    if(queue->size == 0) logToStream(stream, LOGLEVEL_INFO, "Queue is empty");
+    int index = queue->readIndex;
+    size_t size = 0;
+    if(index == queue->writeIndex) logToStream(stream, LOGLEVEL_DEBUG, "Queue is empty");
     else {
-        snprintf(loggingBuffer, loggingBufferSize, "[printTileQueue] Queue size: %llu\n", queue->size);
-        logToStream(stream, LOGLEVEL_INFO, NULL);
-        TileQueueElement* current = queue->head;
-        while(current) {
-            printTile(current->tile, stream);
-            current = current->next;
+        while(index != queue->writeIndex) {
+            index++;
+            if(index >= tileQueuedAmount + 1) index = 0;
+            size++;
+        };
+        snprintf(
+            loggingBuffer, loggingBufferSize, 
+            "[printTileQueue] Queue size: %llu", size
+        );
+        logToStream(stream, LOGLEVEL_DEBUG, NULL);
+        index = queue->readIndex;
+        while(index != queue->writeIndex) {
+            index++;
+            if(index >= tileQueuedAmount + 1) index = 0;
+            printTile(queue->tiles[index], stream);
         }
     }
 }

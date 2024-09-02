@@ -90,7 +90,8 @@ typedef enum LogLevel {
     LOGLEVEL_INFO,
     LOGLEVEL_WARNING,
     LOGLEVEL_ERROR,
-    LOGLEVEL_DEBUG
+    LOGLEVEL_DEBUG,
+    LOGLEVEL_FATAL
 } LogLevel;
 
 /**
@@ -204,12 +205,18 @@ typedef struct TileQueueElement {
 } TileQueueElement;
 
 typedef struct TileQueue {
+    int writeIndex;
+    int readIndex;
+    Tile* tiles[tileQueuedAmount + 1];
+} TileQueue;
+
+/* typedef struct TileQueue {
     size_t size;
     TileQueueElement* head;
     TileQueueElement* last;
-} TileQueue;
+} TileQueue; */
 
-//I guess the following 2 structs be marked as unnecesary, but eh.
+//I guess the following 2 structs are unnecesary, but eh.
 typedef struct Soundtrack {
     Mix_Music* music;
 } Soundtrack;
@@ -224,20 +231,20 @@ typedef struct SoundEffect {
 //4th bit - whether a tile has been loaded recently
 //6 bits of offset to bring the total struct size to 2 bytes
 //11th and 12th bit hold the game speed
-//13th and 14th bit hold the soundtrack to be played
-//15th and 16th bit hold the soundtrack that is currently playing
+//13th and 14th bit hold the soundtrack to be played (to be changed)
+//15th and 16th bit hold the soundtrack that is currently playing (to be changed)
 typedef struct ProgramFlags {
     //Whether the program should continue to run.
-    int running : 1;
+    unsigned char running : 1;
     //Whether there is a game played.
-    int playing : 1;
+    unsigned char playing : 1;
     //Whether the game is paused, does nothing when playing == false.
-    int paused : 1;
+    unsigned char paused : 1;
     //Whether a tile has been loaded into the grid recently. If true, reset the fall timer.
     //This is to prevent causing the tile to fall immediately after being loaded.
-    int tileRecentlyLoaded : 1;
-    int holdLocked : 1;
-    int __offset__: 5;
+    unsigned char tileRecentlyLoaded : 1;
+    unsigned char holdLocked : 1;
+    unsigned char __offset__: 5;
     MovementSpeed speed : 2;
     unsigned int soundtrack : 2;
     unsigned int soundtrackNowPlaying : 2;
@@ -297,6 +304,7 @@ typedef struct renderThreadParameters {
     Color* backgroundColor;
 } renderThreadParameters;
 
+//Unused.
 typedef struct clockThreadParameters {
     loopStatus_t* clockStatus;
     LARGE_INTEGER* timer;
@@ -324,8 +332,14 @@ typedef enum PointsPerAction {
 } PointsPerAction;
 
 typedef enum GameEndReason {
+    //Emitted when the user requests to close the program.
     GAME_END_REASON_EXIT,
+    //Emitted when loading a new tile into the grid failed - most likely because it's full.
     GAME_END_REASON_LOADFAIL,
+    //Emitted when memory allocation fails or when a NULL pointer is caught in a critical section.
+    GAME_END_REASON_NOMEM,
+    //Emitted when the developer forgot to update logic or something, I don't know man...
+    GAME_END_REASON_YOUIDIOT,
     REASON_AMOUNT
 } GameEndReason;
 

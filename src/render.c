@@ -65,6 +65,8 @@ DWORD WINAPI renderScreen(void* params) {
     // short scalingFactor = 0;
     double scalingFactor = 1.0;
 
+    int testAlpha = 128;
+
     while(true) {
         if(*(parameters->renderStatus) == STOP) break;
 
@@ -84,7 +86,8 @@ DWORD WINAPI renderScreen(void* params) {
         //all of this copying is required for thread safety
         //as all of those values can change mid execution
         
-        SDL_SetRenderDrawColor(renderer, backgroundColor->red, backgroundColor->green, backgroundColor->blue, backgroundColor->alpha);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, backgroundColor->red, backgroundColor->green, backgroundColor->blue, (unsigned char)testAlpha);
         SDL_RenderClear(renderer);
 
         SDL_Rect current;
@@ -99,14 +102,24 @@ DWORD WINAPI renderScreen(void* params) {
                 for(unsigned int j = 0; j < programParameters->gridSize.width; j++) {
                     int color = programParameters->grid[i][j];
                     if(color == GHOST) {
-                        continue; //TODO: ghost
+                        color = programParameters->currentTile->color;
+                        if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current)) {
+                            snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game running] Error rendering tile: %s", SDL_GetError());
+                            logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                        }
+                        if(SDL_RenderFillRect(renderer, &current)) {
+                            snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game running] Error rendering tile: %s", SDL_GetError());
+                            logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                        }
                     }
-                    else if(color < 0) color = abs(color);
-                    current.y = P.y + i * current.h;
-                    current.x = P.x + j * current.w;
-                    if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current)) {
-                        snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game running] Error rendering tile: %s", SDL_GetError());
-                        logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                    else {
+                        if(color < 0) color = -color;
+                        current.y = P.y + i * current.h;
+                        current.x = P.x + j * current.w;
+                        if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current)) {
+                            snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game running] Error rendering tile: %s", SDL_GetError());
+                            logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                        }
                     }
                 }
             }
@@ -213,7 +226,20 @@ DWORD WINAPI renderScreen(void* params) {
         for(size_t i = 0; i < programParameters->tileQueue->size; i++) {
             
         } */
-
+        /* if(fadeOut) {
+            testAlpha -= 10;
+            if(testAlpha < 0) {
+                testAlpha = 0;
+                fadeOut = false;
+            }
+        }
+        else {
+            testAlpha += 10;
+            if(testAlpha > 255) {
+                testAlpha = 255;
+                fadeOut = true;
+            }
+        } */
         QueryPerformanceCounter(&end);
 
         ReleaseMutex(parameters->tilesMutex);

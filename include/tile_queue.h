@@ -9,7 +9,7 @@
  * 
  * @param queue queue struct
  * @param tile tile to enqueue
- * @return SUCCESS on success, MEMORY_FAILURE on memory failure
+ * @return SUCCESS on success, FAILURE on full queue
  */
 status_t enqueueTile(TileQueue* queue, Tile* tile);
 

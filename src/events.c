@@ -11,7 +11,9 @@
 
 static const char gameEndReasonNames[REASON_AMOUNT][32] = {
     "User exit",
-    "Tile loading failed"
+    "Tile loading failed",
+    "Insufficient memory",
+    "Developer is a moron"
 };
 
 static inline void shiftDown(int** grid, const Size gridSize, const int n, const int startHeight) {
@@ -29,7 +31,7 @@ status_t onGameStart(ProgramParameters* parameters) {
     logToStream(parameters->log, LOGLEVEL_INFO, "Attempting to create a game matrix...");
     parameters->grid = zeroMatrix(parameters->gridSize);
     if(parameters->grid == NULL) {
-        logToStream(parameters->log, LOGLEVEL_ERROR, "Error allocating memory for the game matrix.");
+        logToStream(parameters->log, LOGLEVEL_FATAL, "Error allocating memory for the game matrix.");
         return MEMORY_FAILURE;
     }
     logToStream(parameters->log, LOGLEVEL_INFO, "Game matrix successfully created!");
@@ -38,13 +40,21 @@ status_t onGameStart(ProgramParameters* parameters) {
     if(parameters->currentTile == NULL) return MEMORY_FAILURE;
     logToStream(parameters->log, LOGLEVEL_INFO, "Attempting to fill the tile queue...");
     for(unsigned int i = 0; i < tileQueuedAmount; i++) {
-        Tile* tmp = loadTileRandom(NULL, parameters->gridSize.width, parameters->log);
-        if(tmp == NULL) return MEMORY_FAILURE;
-        enqueueTile(&parameters->tileQueue, tmp);
+        enqueueTile(&parameters->tileQueue, loadTileRandom(NULL, parameters->gridSize.width, parameters->log));
     }
     logToStream(parameters->log, LOGLEVEL_INFO, "Tile queue filled successfully!");
+#ifdef DEBUG
+    printTileQueue(&parameters->tileQueue, parameters->log);
+#endif
 
-    loadTileIntoGrid(parameters);
+    switch(loadTileIntoGrid(parameters)) {
+        case FAILURE:
+        case BASEOUTOFRANGE:
+        case INDEXOUTOFRANGE:
+            return FAILURE;
+        default: 
+            break;
+    }
 
     playMusic(parameters);
     
@@ -79,9 +89,42 @@ void onGameEnd(ProgramParameters* parameters, GameEndReason reason) {
     parameters->flags.playing = false;
 }
 
+//TODO: fix checks for full rows for this new function
+void onPlacementNew(ProgramParameters* parameters) {
+    int fullInARow = 0;
+    for(unsigned int i = 0; i < parameters->gridSize.height; i++) {
+        int isFull = true;
+        for(unsigned int j = 0; j < parameters->gridSize.width; j++) {
+            if(parameters->grid[i][j] == 0 || parameters->grid[i][j] == GHOST) {
+                isFull = false;
+                break;
+            }
+        }
+        if(isFull) fullInARow++;
+        else {
+            switch(fullInARow) {
+                case 0:
+                    break;
+                case 1:
+                    parameters->score += POINTS_SINGLE * parameters->level;
+                    break;
+                case 2:
+                    parameters->score += POINTS_DOUBLE * parameters->level;
+                    break;
+                case 3:
+                    parameters->score += POINTS_TRIPLE * parameters->level;
+                    break;
+                case 4:
+                    parameters->score += POINTS_QUAD * parameters->level;
+                    break;
+            }
+        }
+    }
+}
 
 void onPlacement(ProgramParameters* parameters) {
     int howManyFull = 0, lowestFull = parameters->gridSize.height - 1;
+
     for(unsigned int i = parameters->gridSize.height - 1; i > 0; i--) {
         char isRowFull = true;
         for(unsigned int j = 0; j < parameters->gridSize.width; j++) {

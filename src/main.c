@@ -20,7 +20,7 @@
 #include "tile_queue.h"
 #include "utils.h"
 
-int main(int argc, char** argv) {
+int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) {
     srand(time(NULL));
     timeBeginPeriod(1);
     //Disables Windows' scale and layout for the process
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
     }
 
 
-    ProgramParameters programParameters = {};
+    ProgramParameters programParameters = {0};
     if(loadConfig(configFile, log, &programParameters) != SUCCESS) {
         status = LOADCONFIG_FAILURE;
         snprintf(errormsgBuffer, sizeof(errormsgBuffer), "Error loading game config.");
@@ -248,13 +248,7 @@ int main(int argc, char** argv) {
                     if(programParameters.flags.playing) onGameEnd(&programParameters, GAME_END_REASON_EXIT);
                     programParameters.flags.running = false;
                     renderStatus = STOP;
-
-                    ReleaseMutex(tilesMutex);
-                    ReleaseMutex(renderMutex);
-                    
-                    WaitForSingleObject(renderThread, INFINITE);
-                    
-                    goto exit_start;
+                    goto gameloop_end;
                 }
                 case SDL_WINDOWEVENT: {
                     if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
@@ -269,18 +263,14 @@ int main(int argc, char** argv) {
 
                     if(!programParameters.flags.playing) {
                         if(isFunctionalKey(key)) break; //this allows for Alt-Tab without starting the game
-                        status = onGameStart(&programParameters);
-                        if(status != SUCCESS) {
-                            programParameters.flags.playing = false;
-                            renderStatus = STOP;
-
-                            ReleaseMutex(tilesMutex);
-                            ReleaseMutex(renderMutex);
-                    
-                            WaitForSingleObject(renderThread, INFINITE);
-                    
-                            goto exit_start;
-                        }                  
+                        switch(onGameStart(&programParameters)) {
+                            case FAILURE:
+                            case MEMORY_FAILURE:
+                                programParameters.flags.running = false;
+                                renderStatus = STOP;
+                                goto gameloop_end;
+                            default: break;
+                        }
                         break;
                     }
 
@@ -305,16 +295,33 @@ int main(int argc, char** argv) {
 
                         freeTile(programParameters.currentTile);
                         dequeueTile(&programParameters.tileQueue, &programParameters.currentTile);
-
-                        Tile* tmp = loadTileRandom(NULL, programParameters.gridSize.width, log);
-                        if(tmp != NULL) enqueueTile(&programParameters.tileQueue, tmp);
+                        enqueueTile(&programParameters.tileQueue, loadTileRandom(NULL, programParameters.gridSize.width, log));
                         
                         if(programParameters.currentTile == NULL) {
-                            logToStream(log, LOGLEVEL_ERROR, "Error loading tile");
+                            logToStream(log, LOGLEVEL_FATAL, "Error loading tile");
+                            onGameEnd(&programParameters, GAME_END_REASON_NOMEM);
+                            programParameters.flags.running = false;
+                            goto gameloop_end;
                         }
-                        else if(loadTileIntoGrid(&programParameters) == FAILURE) {
-                            onGameEnd(&programParameters, GAME_END_REASON_LOADFAIL);
+                        else {
+                            switch(loadTileIntoGrid(&programParameters)) {
+                                case FAILURE:
+                                case INDEXOUTOFRANGE:
+                                    onGameEnd(&programParameters, GAME_END_REASON_LOADFAIL);
+                                    break;
+                                case BASEOUTOFRANGE:
+                                    logToStream(
+                                        log, LOGLEVEL_WARNING, 
+                                        "Tell that dumbass dev to add state values that he clearly forgot lmao"
+                                    );
+                                    onGameEnd(&programParameters, GAME_END_REASON_YOUIDIOT);
+                                    programParameters.flags.running = false;
+                                    goto gameloop_end;
+                                default: 
+                                    break;
+                            }
                         }
+                        
                         programParameters.flags.speed = SPEED_NORMAL;
                     }
 
@@ -390,7 +397,10 @@ int main(int argc, char** argv) {
         if(programParameters.flags.playing) {
             if(programParameters.flags.paused) goto gameloop_end;
             if(!Mix_PlayingMusic()) playMusic(&programParameters);
-            long long baseFallSpeed = programParameters.baseFallSpeed * (frequency.QuadPart / 1000); //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
+            
+            //relies upon the fact that frequency is 10^7 (almost always will be, almost, always...)
+            long long baseFallSpeed = programParameters.baseFallSpeed * (frequency.QuadPart / 1000); 
+            
             if(programParameters.flags.speed == SPEED_DROPSOFT)  baseFallSpeed /= programParameters.speedMultiplier;
             else if(programParameters.flags.speed == SPEED_HOLD) baseFallSpeed *= programParameters.speedMultiplier;
 
@@ -401,7 +411,11 @@ int main(int argc, char** argv) {
             QueryPerformanceCounter(&timerEnd);
             if(timerEnd.QuadPart - timerStart.QuadPart > baseFallSpeed) {
                 if(programParameters.currentTile != NULL) {
-                    status_t moveStatus = moveDown(programParameters.grid, programParameters.currentTile, programParameters.gridSize.height);
+                    status_t moveStatus = moveDown(
+                        programParameters.grid,
+                        programParameters.currentTile,
+                        programParameters.gridSize.height
+                    );
 #ifdef DEBUG
                     logToStream(log, LOGLEVEL_DEBUG, "[moveDown] Moving tile down...");
 #endif
@@ -417,6 +431,9 @@ int main(int argc, char** argv) {
 
                         if(programParameters.currentTile == NULL) {
                             logToStream(log, LOGLEVEL_ERROR, "Error loading tile");
+                            onGameEnd(&programParameters, GAME_END_REASON_NOMEM);
+                            programParameters.flags.running = false;
+                            goto gameloop_end;
                         }
                         else if(loadTileIntoGrid(&programParameters) == FAILURE) { 
                             onGameEnd(&programParameters, GAME_END_REASON_LOADFAIL);
@@ -440,9 +457,8 @@ int main(int argc, char** argv) {
 
 
 
-    exit_start:
-        timeEndPeriod(1);
-        logToStream(log, LOGLEVEL_INFO, "Started the exit sequence...");
+    timeEndPeriod(1);
+    logToStream(log, LOGLEVEL_INFO, "Started the exit sequence...");
 
     closeRenderThread:
         if(renderStatus != STOP) renderStatus = STOP;
@@ -451,9 +467,11 @@ int main(int argc, char** argv) {
         CloseHandle(renderThread);
 
     closeRenderMutex:
+        WaitForSingleObject(renderMutex, 1000);
         CloseHandle(renderMutex);
 
     closeTilesMutex:
+        WaitForSingleObject(tilesMutex, 1000);
         CloseHandle(tilesMutex);
 
     sdl_destroyrenderer:

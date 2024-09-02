@@ -7,7 +7,7 @@ char loggingBuffer[loggingBufferSize];
 FILE* defaultStream = NULL;
 
 void logToStream(FILE* stream, const LogLevel loglevel, const char* log) {
-    if(stream == NULL)return;
+    if(stream == NULL) return;
     char date[20] = {0};
     char level[8] = {0};
     switch(loglevel) {
@@ -22,6 +22,9 @@ void logToStream(FILE* stream, const LogLevel loglevel, const char* log) {
             break;
         case LOGLEVEL_DEBUG:
             strcpy(level, "Debug");
+            break;
+        case LOGLEVEL_FATAL:
+            strcpy(level, "Fatal");
             break;
         default:
             strcpy(level, "Unknown");

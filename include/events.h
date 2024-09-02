@@ -9,7 +9,7 @@
  * 
  * @param parameters pointer to ProgramParameters struct
  * @param renderer pointer to SDL2's renderer
- * @return SUCCESS on starting the game, FAILURE on failure
+ * @return SUCCESS on starting the game, MEMORY_FAILURE on allocation failure
  */
 status_t onGameStart(ProgramParameters* parameters);
 
@@ -34,7 +34,7 @@ void onPlacement(ProgramParameters* parameters);
  * @brief Function to be invoked when the window is resized.
  * 
  * @param parameters pointer to ProgramParameters struct
- * @return status_t 
+ * @return SUCCESS on success, various different values otherwise
  */
 status_t onWindowResize(ProgramParameters* parameters, SDL_Window* window);
 
