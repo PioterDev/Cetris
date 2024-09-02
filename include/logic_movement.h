@@ -9,7 +9,7 @@
  * 
  * @param grid game matrix
  * @param tile tile
- * @return SUCCESS on success, FAILURE on failure
+ * @return SUCCESS on success, FAILURE on failure, INDEXOUTOFRANGE on position outside of the grid
  */
 status_t moveLeft(int** grid, Tile* tile);
 
@@ -19,7 +19,7 @@ status_t moveLeft(int** grid, Tile* tile);
  * @param grid game matrix
  * @param tile tile
  * @param gridHeight height of the game matrix
- * @return SUCCESS on success, FAILURE on failure
+ * @return SUCCESS on success, FAILURE on failure, INDEXOUTOFRANGE on position outside of the grid
  */
 status_t moveRight(int** grid, Tile* tile, const int gridWidth);
 
@@ -29,7 +29,7 @@ status_t moveRight(int** grid, Tile* tile, const int gridWidth);
  * @param grid game matrix
  * @param tile tile
  * @param gridHeight height of the game matrix
- * @return SUCCESS on success, FAILURE on failure 
+ * @return SUCCESS on success, FAILURE on failure, INDEXOUTOFRANGE on position outside of the grid
  */
 status_t moveDown(int** grid, Tile* tile, const int gridHeight);
 
@@ -57,7 +57,6 @@ void dropHard(ProgramParameters* parameters);
  * @param gridHeight height of the game matrix 
  * @return SUCCESS on success, FAILURE on failure
  */
-//status_t dropHardOld(char** grid, Tile* tile, const int gridHeight, FILE* debug);
 
 
 #endif

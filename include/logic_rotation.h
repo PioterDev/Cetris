@@ -10,7 +10,7 @@
  * @param grid game matrix
  * @param tile tile
  * @param gridSize size of the game matrix
- * @return SUCCESS on success, FAILURE on failure 
+ * @return SUCCESS on success, FAILURE on failure, INDEXOUTOFRANGE on position outside of the grid
  */
 status_t rotateClockwise(int** grid, Tile* tile, const Size gridSize);
 
@@ -21,7 +21,7 @@ status_t rotateClockwise(int** grid, Tile* tile, const Size gridSize);
  * @param grid game matrix
  * @param tile tile
  * @param gridSize size of the game matrix
- * @return SUCCESS on success, FAILURE on failure 
+ * @return SUCCESS on success, FAILURE on failure, INDEXOUTOFRANGE on position outside of the grid
  */
 status_t rotateCounterClockwise(int** grid, Tile* tile, const Size gridSize);
 
