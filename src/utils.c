@@ -6,34 +6,36 @@
 
 #include "deus.h"
 
-static char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 status_t itos(int in, const unsigned int base, char* buf, const size_t bufsize) {
     if(base > sizeof(digits) - 1) return BASEOUTOFRANGE;
 
     char tmp[64] = {0};
-    size_t i = 1, sign = 0;
+    size_t i = 0, sign = 0;
+    if(in == 0) {
+        tmp[i] = '0';
+        i++;
+        strncpy(buf, tmp, i);
+        return SUCCESS;
+    }
     if(in < 0) {
         tmp[0] = '-';
-        i++; sign++;
-        in = -in;
+        i++; sign++; 
     }
-    int len = 0, incpy = in;
-    do {
+    int len = -1, incpy = in;
+    while(incpy != 0) {
         len++;
         incpy /= base;
     }
-    while(incpy != 0);
-
-    do {
+    in = abs(in);
+    while(in != 0) {
         if(i == bufsize - 1) return FAILURE;
         char digit = in % base;
         tmp[sign + len] = digits[(int)digit];
         i++; len--;
         in /= base;
     }
-    while(in != 0);
-
     strncpy(buf, tmp, i);
     return SUCCESS;
 }
