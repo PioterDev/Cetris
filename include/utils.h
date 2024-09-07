@@ -8,6 +8,17 @@
 
 #include "deus.h"
 
+#define isFunctionalKey(key) \
+    ((key) >= SDLK_LCTRL && (key) <= SDLK_RGUI) || \
+    ((key) >= SDLK_AUDIONEXT && (key) <= SDLK_AUDIOMUTE) || \
+    ((key) >= SDLK_APPLICATION && (key) <= SDLK_KP_EQUALSAS400) || \
+    ((key) >= SDLK_F1 && (key) <= SDLK_F12) || \
+    ((key) >= SDLK_BRIGHTNESSDOWN && (key) <= SDLK_APP2) || \
+    ((key) == SDLK_TAB) || ((key) == SDLK_ESCAPE) || \
+    ((key) == SDLK_RETURN) || ((key) == SDLK_BACKSPACE) || \
+    ((key) >= SDLK_PRINTSCREEN && (key) <= SDLK_PAUSE) || \
+    ((key) == SDLK_NUMLOCKCLEAR) || ((key) == SDLK_CAPSLOCK)
+
 /**
  * @brief Converts an integer to a string.
  * 
@@ -197,14 +208,6 @@ int Max(const int* arr, const int n);
  * @return min element
  */
 int Min(const int* arr, const int n);
-
-/**
- * @brief Checks if `key` is a functional key (Alt/Ctrl).
- * 
- * @param key key
- * @return true if key is SDL's Alt or Ctrl
- */
-int isFunctionalKey(const SDL_Keycode key);
 
 
 #endif

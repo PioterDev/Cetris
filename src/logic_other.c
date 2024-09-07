@@ -28,8 +28,8 @@ status_t loadTileIntoGrid(ProgramParameters* parameters) {
         positions[i].y = tile->position.y + basePositions[tile->state][i][1];
         if(positions[i].x < 0 || positions[i].y < 0) return INDEXOUTOFRANGE;
         if(
-            (unsigned int)positions[i].x >= parameters->gridSize.width ||
-            (unsigned int)positions[i].y >= parameters->gridSize.height
+            positions[i].x >= (int)parameters->gridSize.width ||
+            positions[i].y >= (int)parameters->gridSize.height
         ) return INDEXOUTOFRANGE;
 
         int a = parameters->grid[positions[i].y][positions[i].x];

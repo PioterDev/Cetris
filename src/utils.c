@@ -229,7 +229,3 @@ int Min(const int* arr, const int n) {
 
     return min;
 }
-
-int isFunctionalKey(const SDL_Keycode key) {
-    return (key == SDLK_LALT) || (key == SDLK_RALT) || (key == SDLK_LCTRL) || (key == SDLK_RCTRL);
-}

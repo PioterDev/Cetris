@@ -65,8 +65,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
     
     programParameters.log = log;
     //Default parameters
-    if(programParameters.screenSize.width == 0)  programParameters.screenSize.width = 1280;
-    if(programParameters.screenSize.height == 0) programParameters.screenSize.height = 720;
+    if(programParameters.screenSize.width == 0)  programParameters.screenSize.width = 640;
+    if(programParameters.screenSize.height == 0) programParameters.screenSize.height = 360;
     if(programParameters.fps == 0)               programParameters.fps = 60;
     if(programParameters.baseFallSpeed == 0)     programParameters.baseFallSpeed = defaultFallSpeed;
     if(programParameters.speedMultiplier == 0)   programParameters.speedMultiplier = defaultSpeedMultiplier;
@@ -265,13 +265,18 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
                         if(isFunctionalKey(key)) break; //this allows for Alt-Tab without starting the game
                         switch(onGameStart(&programParameters)) {
                             case FAILURE:
+                                logToStream(log, LOGLEVEL_FATAL, "Failed to start the game - unable to load a tile into the grid.");
+                                goto error;
                             case MEMORY_FAILURE:
-                                programParameters.flags.running = false;
-                                renderStatus = STOP;
-                                goto gameloop_end;
+                                logToStream(log, LOGLEVEL_FATAL, "Failed to start the game - no memory.");
+                                goto error;
                             default: break;
                         }
                         break;
+                        error:
+                            programParameters.flags.running = false;
+                            renderStatus = STOP;
+                            goto gameloop_end;
                     }
 
 #ifdef DEBUG
@@ -493,6 +498,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
 
     close_configfile:
         fclose(configFile);
+
     close_log:
         snprintf(loggingBuffer, loggingBufferSize, "Exiting with code %d...", status);
         logToStream(log, LOGLEVEL_INFO, NULL);
