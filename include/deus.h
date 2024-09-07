@@ -229,7 +229,9 @@ typedef struct SoundEffect {
 //2nd bit - whether a game is played
 //3rd bit - whether the game is paused
 //4th bit - whether a tile has been loaded recently
-//6 bits of offset to bring the total struct size to 2 bytes
+//5th bit - whether the hold mechanic is currently locked
+//6th bit - whether FPS should be capped
+//4 bits of offset to bring the total struct size to 2 bytes
 //11th and 12th bit hold the game speed
 //13th and 14th bit hold the soundtrack to be played (to be changed)
 //15th and 16th bit hold the soundtrack that is currently playing (to be changed)
@@ -243,8 +245,11 @@ typedef struct ProgramFlags {
     //Whether a tile has been loaded into the grid recently. If true, reset the fall timer.
     //This is to prevent causing the tile to fall immediately after being loaded.
     unsigned char tileRecentlyLoaded : 1;
+    //Whether the hold mechanic is currently locked.
     unsigned char holdLocked : 1;
-    unsigned char __offset__: 5;
+    //Whether to ignore the FPS limit specified in ProgramParameters.
+    unsigned char unlimitedFps : 1;
+    unsigned char __offset__: 4;
     MovementSpeed speed : 2;
     unsigned int soundtrack : 2;
     unsigned int soundtrackNowPlaying : 2;

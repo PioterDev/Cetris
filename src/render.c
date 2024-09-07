@@ -59,7 +59,8 @@ DWORD WINAPI renderScreen(void* params) {
 
     LARGE_INTEGER start, end;
     long long frequency = programParameters->clockFrequency->QuadPart;
-    long long delta = 0, frameTime = 0, overhead = 0; //if the thread sleeps for too long in one iteration, make it sleep shorter in another iteration
+    long long delta = 0, frameTime = 0;
+    long long overhead = 0; //if the thread sleeps for too long in one iteration, make it sleep shorter in another iteration
     Color* backgroundColor = parameters->backgroundColor;
     int baseTileSize = 0;
     // short scalingFactor = 0;
@@ -80,6 +81,7 @@ DWORD WINAPI renderScreen(void* params) {
         digits = programParameters->digits;
 
         if(programParameters->flags.paused) frameTime = frequency / 10; //10 FPS when paused
+        else if(programParameters->flags.unlimitedFps) frameTime = 0;
         else frameTime = frequency / programParameters->fps;
         baseTileSize = programParameters->baseTileSize;
         scalingFactor = programParameters->scalingFactor;

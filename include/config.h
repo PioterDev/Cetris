@@ -10,7 +10,7 @@
  * @brief A lookup table containing names of SDL-mapped keys.
  * 
  */
-extern const char keynames[178][32];
+extern const char keynames[179][32];
 
 /**
  * @brief Function converting SDL keycodes to their corresponding string indices in the `keynames` table.

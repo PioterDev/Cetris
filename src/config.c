@@ -38,7 +38,7 @@ static const char soundEffectPaths[soundEffectAmount][32] = {
     "Rotate_counterclockwise.mp3" //27 characters, wow
 };
 
-static char bindings[sizeof(Keymap) / sizeof(int)][32] = {
+static const char bindings[sizeof(Keymap) / sizeof(int)][32] = {
     "Move left", 
     "Move right", 
     "Rotate clockwise", 
@@ -50,38 +50,39 @@ static char bindings[sizeof(Keymap) / sizeof(int)][32] = {
     "Test"
 };
 
-const char keynames[178][32] = {
+const char keynames[179][32] = {
     //0
     "Unknown",   //0
     //1-5
-    "Return",    //13
+    "Enter",    //13
     "Escape",    //27
     "Backspace", //8
     "Tab",       //9
     "Space",     //32
-    //6-17
+    //6-18
+    "Caps Lock",
     "F1", "F2", "F3", "F4", "F5", "F6", //1073741882-1073741893
     "F7", "F8", "F9", "F10", "F11", "F12", 
-    //18-23
+    //19-23
     "Print Screen", //1073741894
     "Scroll Lock",
-    "Pause break",
+    "Pause/Break",
     "Insert",
     "Home",
     "Page Up", //1073741899
-    //24
+    //25
     "Delete", //127
-    //25-30
+    //26-31
     "End", //1073741901
     "Page Down",
     "Right arrow", "Left arrow", "Down arrow", "Up arrow", //1073741906
-    //31-47
+    //32-48
     "Num Lock", //1073741907
     "Keypad /", "Keypad *", "Keypad -", "Keypad +", "Keypad Enter",
     "Keypad 1", "Keypad 2", "Keypad 3", "Keypad 4", "Keypad 5",
     "Keypad 6", "Keypad 7", "Keypad 8", "Keypad 9", "Keypad 0",
     "Keypad .", //1073741923
-    //48-77
+    //49-78
     "Application", //1073741925
     "Power",
     "Keypad =",
@@ -92,7 +93,7 @@ const char keynames[178][32] = {
     "Undo", "Cut", "Copy", "Paste", "Find",
     "Volume up", "Volume down", "Keypad ,",
     "Keypad =400???", //1073741958
-    //78-89
+    //79-90
     "Alt erase?", //1073741977
     "Sysrq",
     "Cancel",
@@ -105,7 +106,7 @@ const char keynames[178][32] = {
     "Clear again? Why?!",
     "CrSel (whatever this is...)",
     "ExSel (whatever this is...)", //1073741988
-    //90-135
+    //91-136
     "Keypad 00", //1073742000
     "Keypad 000",
     "Thousands separator? Fancy!",
@@ -133,12 +134,12 @@ const char keynames[178][32] = {
     "Keypad Clear", "Keypad Clear entry",
     "Keypad Binary", "Keypad Octal",
     "Keypad Decimal", "Keypad Hexadecimal", //1073742045
-    //136-143
+    //137-144
     "Left Control", "Left Shift", "Left Alt", "Left GUI Key", //1073742048
     "Right Control", "Right Shift", "Right Alt", "Right GUI Key", //1073742055
-    //144
+    //145
     "Mode key", //1073742081
-    //145-161
+    //146-162
     "Audio next", //1073742082
     "Audio previous",
     "Audio stop",
@@ -156,7 +157,7 @@ const char keynames[178][32] = {
     "American stop",
     "Americal refresh",
     "American bookmarks", //1073742098
-    //162-171
+    //163-172
     "Brightness down", //1073742099
     "Brightness up",
     "Toggle display",
@@ -167,10 +168,10 @@ const char keynames[178][32] = {
     "Sleep",
     "App 1",
     "App 2", //1073742108
-    //172-173
+    //173-174
     "Audio rewind", //1073742109
     "Audio fast-forward", //1073742110
-    //174-177
+    //175-178
     "Left soft key", //1073742111
     "Right soft key",
     "Call",
@@ -199,31 +200,31 @@ int getKeystringIndex(SDL_Keycode key) {
             index = 5;
             break;
         case SDLK_DELETE:
-            index = 24;
+            index = 25;
             break;
         case SDLK_MODE:
-            index = 144;
+            index = 145;
             break;
         case SDLK_AUDIOREWIND:
-            index = 172;
+            index = 173;
             break;
         case SDLK_AUDIOFASTFORWARD:
-            index = 173;
+            index = 174;
             break;
     }
     //if the key is not there, check the continous ones
     if(index == 0) {
-        if(key >= SDLK_F1 && key <= SDLK_F12)                           index = key - SDLK_F1 + 6;
-        else if(key >= SDLK_PRINTSCREEN && key <= SDLK_PAGEUP)          index = key - SDLK_PRINTSCREEN + 18;
-        else if(key >= SDLK_END && key <= SDLK_UP)                      index = key - SDLK_END + 25;
-        else if(key >= SDLK_NUMLOCKCLEAR && key <= SDLK_KP_PERIOD)      index = key - SDLK_NUMLOCKCLEAR + 31;
-        else if(key >= SDLK_APPLICATION && key <= SDLK_KP_EQUALSAS400)  index = key - SDLK_APPLICATION + 48;
-        else if(key >= SDLK_ALTERASE && key <= SDLK_EXSEL)              index = key - SDLK_ALTERASE + 78;
-        else if(key >= SDLK_KP_00 && key <= SDLK_KP_HEXADECIMAL)        index = key - SDLK_KP_00 + 90;
-        else if(key >= SDLK_LCTRL && key <= SDLK_RGUI)                  index = key - SDLK_LCTRL + 136;
-        else if(key >= SDLK_AUDIONEXT && key <= SDLK_AC_BOOKMARKS)      index = key - SDLK_AUDIONEXT + 145;
-        else if(key >= SDLK_BRIGHTNESSDOWN && key <= SDLK_APP2)         index = key - SDLK_BRIGHTNESSDOWN + 162;
-        else if(key >= SDLK_SOFTLEFT && key <= SDLK_ENDCALL)            index = key - SDLK_SOFTLEFT + 174;
+        if(key >= SDLK_CAPSLOCK && key <= SDLK_F12)                     index = key - SDLK_CAPSLOCK + 6;
+        else if(key >= SDLK_PRINTSCREEN && key <= SDLK_PAGEUP)          index = key - SDLK_PRINTSCREEN + 19;
+        else if(key >= SDLK_END && key <= SDLK_UP)                      index = key - SDLK_END + 26;
+        else if(key >= SDLK_NUMLOCKCLEAR && key <= SDLK_KP_PERIOD)      index = key - SDLK_NUMLOCKCLEAR + 32;
+        else if(key >= SDLK_APPLICATION && key <= SDLK_KP_EQUALSAS400)  index = key - SDLK_APPLICATION + 49;
+        else if(key >= SDLK_ALTERASE && key <= SDLK_EXSEL)              index = key - SDLK_ALTERASE + 79;
+        else if(key >= SDLK_KP_00 && key <= SDLK_KP_HEXADECIMAL)        index = key - SDLK_KP_00 + 91;
+        else if(key >= SDLK_LCTRL && key <= SDLK_RGUI)                  index = key - SDLK_LCTRL + 137;
+        else if(key >= SDLK_AUDIONEXT && key <= SDLK_AC_BOOKMARKS)      index = key - SDLK_AUDIONEXT + 146;
+        else if(key >= SDLK_BRIGHTNESSDOWN && key <= SDLK_APP2)         index = key - SDLK_BRIGHTNESSDOWN + 163;
+        else if(key >= SDLK_SOFTLEFT && key <= SDLK_ENDCALL)            index = key - SDLK_SOFTLEFT + 175;
     }
     return index;
 }
@@ -247,7 +248,8 @@ typedef enum Option {
     SOUNDTRACK_VOLUME,
     SFX_VOLUME,
     GRIDHEIGHT,
-    GRIDWIDTH
+    GRIDWIDTH,
+    UNLIMITED_FPS
 } Option;
 
 void setParameter(ProgramParameters* parameters, Option key, const int value) {
@@ -280,19 +282,19 @@ void setParameter(ProgramParameters* parameters, Option key, const int value) {
             parameters->keymap.test = value;
             break;
         case SCREEN_WIDTH:
-            parameters->screenSize.width = value > 0 ? value : 640;
+            parameters->screenSize.width = value > 0 ? value : 0;
             break;
         case SCREEN_HEIGHT:
-            parameters->screenSize.height = value > 0 ? value : 360;
+            parameters->screenSize.height = value > 0 ? value : 0;
             break;
         case FPS:
-            parameters->fps = value > 0 ? value : 60;
+            parameters->fps = value > 0 ? value : 0;
             break;
         case BASEFALLSPEED:
-            parameters->baseFallSpeed = value;
+            parameters->baseFallSpeed = value > 0 ? value : 0;
             break;
         case SPEEDMULTIPLIER:
-            parameters->speedMultiplier = value;
+            parameters->speedMultiplier = value > 0 ? value : 0;
             break;
         case SOUNDTRACK:
             parameters->flags.soundtrack = value - 1; //to ensure it doesn't overflow
@@ -304,10 +306,13 @@ void setParameter(ProgramParameters* parameters, Option key, const int value) {
             parameters->soundEffectsVolume = value <= 100 ? value << 7 / 100 : 128;
             break;
         case GRIDHEIGHT:
-            parameters->gridSize.height = value > 4 ? value : 4;
+            parameters->gridSize.height = value > 0 ? value : 0;
             break;
         case GRIDWIDTH:
-            parameters->gridSize.width = value > 4 ? value : 4;
+            parameters->gridSize.width = value > 0 ? value : 0;
+            break;
+        case UNLIMITED_FPS:
+            parameters->flags.unlimitedFps = (unsigned char)value;
             break;
     }
 }
@@ -334,13 +339,23 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
         char key[32] = {0};
         size_t keyLength = (size_t)(key2 - key1);
         if(keyLength == 0) continue; //empty line
-        else if(keyLength >= sizeof(key)) continue;
+        else if(keyLength >= sizeof(key) - 1) continue;
         strncpy(key, key1, keyLength);
         // strncpy(key, buf, strcspn(buf, ":"));
 
-        char* value = strstr(buf, ":") + 1;
+        char* value1 = strstr(buf, ":");
+        if(value1 == NULL) continue;
+        value1++;
         //remove whitespaces in front of a value
-        while((value[0] == ' ' || value[0] == '\t') && value[0] != '\n' && value[0] != '\0') { value++; }
+        while((value1[0] == ' ' || value1[0] == '\t') && value1[0] != '\n' && value1[0] != '\0') { value1++; }
+        char* value2 = value1;
+        //calculate the position of the last character of a value
+        while(value2[0] != ' ' && value2[0] != '\n' && value2[0] != '\0' && value2[0] != '\t') { value2++; }
+        char value[32] = {0};
+        size_t valueLength = (size_t) (value2 - value1);
+        if(valueLength == 0) continue;
+        else if(valueLength >= sizeof(value) - 1) continue;
+        strncpy(value, value1, valueLength);
 #ifdef DEBUG
         snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Key: %s, Value: %s", key, value);
         logToStream(debugFile, LOGLEVEL_DEBUG, NULL);
@@ -369,10 +384,22 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
         else if(!strcmp(key, "sfx_volume"))                 option = SFX_VOLUME;
         else if(!strcmp(key, "gridheight"))                 option = GRIDHEIGHT;
         else if(!strcmp(key, "gridwidth"))                  option = GRIDWIDTH;
+        else if(!strcmp(key, "unlimited_fps"))              option = UNLIMITED_FPS;
 
         if(strlen(value) == 1) {
             if(value[0] >= '0' && value[0] <= '9') {
                 switch(option) {
+                    case MOVELEFT:
+                    case MOVERIGHT:
+                    case ROTATE_CLOCKWISE:
+                    case ROTATE_COUNTERCLOCKWISE:
+                    case DROPSOFT:
+                    case DROPHARD:
+                    case HOLD:
+                    case PAUSE:
+                    case OPTION_TEST:
+                        setParameter(parameters, option, (int)value[0]);
+                        break;
                     case SCREEN_WIDTH:
                     case SCREEN_HEIGHT:
                     case FPS:
@@ -385,7 +412,8 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
                     case GRIDWIDTH:
                         setParameter(parameters, option, (int)value[0] - '0');
                         break;
-                    default: setParameter(parameters, option, (int)value[0]);
+                    case UNLIMITED_FPS:
+                        setParameter(parameters, option, (int)value[0] & 1);
                 }
             }
             //ASCII
@@ -406,6 +434,9 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
                 if     (value[2] == '\0')                   setParameter(parameters, option, SDLK_F2);
                 else if(value[2] <= '0' && value[2] >= '4') setParameter(parameters, option, SDLK_F20 + value[2] - '0'); //same here
             }
+            else if(value[1] >= '3' && value[1] <= '9') {
+                setParameter(parameters, option, SDLK_F1 + value[1] - '0' - 1); 
+            }
         }
         else if(!strcmp(value, "leftarrow"))    setParameter(parameters, option, SDLK_LEFT);
         else if(!strcmp(value, "rightarrow"))   setParameter(parameters, option, SDLK_RIGHT);
@@ -414,10 +445,18 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
         else if(!strcmp(value, "lshift"))       setParameter(parameters, option, SDLK_LSHIFT);
         else if(!strcmp(value, "space"))        setParameter(parameters, option, SDLK_SPACE);
         else if(!strcmp(value, "esc"))          setParameter(parameters, option, SDLK_ESCAPE);
+        else if(!strcmp(value, "tab"))          setParameter(parameters, option, SDLK_TAB);
+        else if(!strcmp(value, "backspace"))    setParameter(parameters, option, SDLK_BACKSPACE);
+
+        else if(!strcmp(value, "true"))         setParameter(parameters, option, 1);
+        else if(!strcmp(value, "yes"))          setParameter(parameters, option, 1);
+        else if(!strcmp(value, "false"))        setParameter(parameters, option, 0);
+        else if(!strcmp(value, "no"))           setParameter(parameters, option, 0);
 
         else {
-            unsigned int valueNumerical = (unsigned int)atoi(value);
+            int valueNumerical = atoi(value);
             setParameter(parameters, option, valueNumerical);
+            //We don't care if atoi fails (returns 0) - all parameters are 0 by default
         }
     }
 
