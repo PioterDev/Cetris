@@ -33,9 +33,8 @@ void flushTileQueue(TileQueue* queue);
  * @brief Prints the size of the queue and every queued element to the given stream.
  * 
  * @param queue queue struct
- * @param stream stream
  */
-void printTileQueue(TileQueue* queue, FILE* stream);
+void printTileQueue(TileQueue* queue);
 
 
 #endif

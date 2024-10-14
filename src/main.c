@@ -30,7 +30,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
     QueryPerformanceFrequency(&frequency);
 
     status_t status = SUCCESS; //Exit code
-    char errormsgBuffer[128] = {0};
 
     SDL_Window* window = NULL;
     
@@ -364,14 +363,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv) 
                         onHold(&programParameters);
                         // programParameters.flags.speed = SPEED_HOLD;
                     }
-#ifdef TEST
-                    else if(key == programParameters.keymap.test) {
-                        unloadTileFromGrid(programParameters.grid, programParameters.currentTile);
-                        programParameters.currentTile->state = defaultStates[programParameters.currentTile->shape];
-                        setDefaultTileParameters(programParameters.currentTile, programParameters.gridSize.width);
-                        loadTileIntoGrid(&programParameters);
-                    }
-#endif
                     break;
                 }
                 case SDL_KEYUP: {

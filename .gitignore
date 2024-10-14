@@ -3,3 +3,4 @@ build/
 out/log/latest.log
 out/*.exe
 out/assets/tmp
+out/*.dll

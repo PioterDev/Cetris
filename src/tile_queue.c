@@ -52,10 +52,12 @@ void flushTileQueue(TileQueue* queue) {
     }
 }
 
-void printTileQueue(TileQueue* queue, FILE* stream) {
+void printTileQueue(TileQueue* queue) {
     int index = queue->readIndex;
     size_t size = 0;
-    if(index == queue->writeIndex) logToStream(stream, LOGLEVEL_DEBUG, "Queue is empty");
+    if(index == queue->writeIndex) {
+        logToStream(defaultStream, LOGLEVEL_DEBUG, "Queue is empty");
+    }
     else {
         while(index != queue->writeIndex) {
             index++;
@@ -63,14 +65,14 @@ void printTileQueue(TileQueue* queue, FILE* stream) {
             size++;
         };
         logToStream(
-            stream, LOGLEVEL_DEBUG,
+            defaultStream, LOGLEVEL_DEBUG,
             "[printTileQueue] Queue size: %llu", size
         );
         index = queue->readIndex;
         while(index != queue->writeIndex) {
             index++;
             if(index >= tileQueuedAmount + 1) index = 0;
-            printTile(queue->tiles[index], stream);
+            printTile(queue->tiles[index]);
         }
     }
 }

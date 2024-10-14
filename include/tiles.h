@@ -51,7 +51,7 @@ void freeTile(Tile* tile);
 Tile* loadTileRandom(Point* coordinates, const int gridWidth);
 
 /**
- * @brief Prints information about given tile to the defualt stream.
+ * @brief Prints information about given tile to the default stream.
  * 
  * @param tile tile
  * @param stream stream

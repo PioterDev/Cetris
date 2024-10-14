@@ -36,15 +36,15 @@ status_t onGameStart(ProgramParameters* parameters) {
     }
     logToStream(parameters->log, LOGLEVEL_INFO, "Game matrix successfully created!");
     logToStream(parameters->log, LOGLEVEL_INFO, "Attempting to load a random tile...");
-    parameters->currentTile = loadTileRandom(NULL, parameters->gridSize.width, parameters->log);
+    parameters->currentTile = loadTileRandom(NULL, parameters->gridSize.width);
     if(parameters->currentTile == NULL) return MEMORY_FAILURE;
     logToStream(parameters->log, LOGLEVEL_INFO, "Attempting to fill the tile queue...");
     for(unsigned int i = 0; i < tileQueuedAmount; i++) {
-        enqueueTile(&parameters->tileQueue, loadTileRandom(NULL, parameters->gridSize.width, parameters->log));
+        enqueueTile(&parameters->tileQueue, loadTileRandom(NULL, parameters->gridSize.width));
     }
     logToStream(parameters->log, LOGLEVEL_INFO, "Tile queue filled successfully!");
 #ifdef DEBUG
-    printTileQueue(&parameters->tileQueue, parameters->log);
+    printTileQueue(&parameters->tileQueue);
 #endif
 
     switch(loadTileIntoGrid(parameters)) {
@@ -247,8 +247,11 @@ status_t onHold(ProgramParameters* parameters) {
     else {
         parameters->heldTile = parameters->currentTile;
         dequeueTile(&parameters->tileQueue, &parameters->currentTile);
-        enqueueTile(&parameters->tileQueue, loadTileRandom(NULL, parameters->gridSize.width, parameters->log));
+        enqueueTile(&parameters->tileQueue, loadTileRandom(NULL, parameters->gridSize.width));
     }
     loadTileIntoGrid(parameters);
+#ifdef DEBUG
+    printTile(parameters->heldTile);
+#endif
     return SUCCESS;
 }
