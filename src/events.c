@@ -68,8 +68,11 @@ status_t onGameStart(ProgramParameters* parameters) {
 
 void onGameEnd(ProgramParameters* parameters, GameEndReason reason) {
 #ifdef DEBUG
-    snprintf(loggingBuffer, loggingBufferSize, "onGameEnd event triggered, reason: %s, ending the game...", gameEndReasonNames[reason]);
-    logToStream(parameters->log, LOGLEVEL_INFO, NULL);
+    logToStream(
+        parameters->log, LOGLEVEL_INFO, 
+        "onGameEnd event triggered, reason: %s, ending the game...", 
+        gameEndReasonNames[reason]
+    );
 #else
     logToStream(parameters->log, LOGLEVEL_INFO, "onGameEnd event triggered, ending the game...");
 #endif
@@ -200,8 +203,11 @@ status_t onWindowResize(ProgramParameters* parameters, SDL_Window* window) {
     parameters->renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if(parameters->renderer == NULL) {
         s = SDL_RENDERER_FAILURE;
-        snprintf(loggingBuffer, loggingBufferSize, "[onWindowResize] Failed to create a new renderer: %s", SDL_GetError());
-        logToStream(parameters->log, LOGLEVEL_ERROR, NULL);
+        logToStream(
+            parameters->log, LOGLEVEL_ERROR,
+            "[onWindowResize] Failed to create a new renderer: %s",
+            SDL_GetError()
+        );
         return s;
     }
     logToStream(parameters->log, LOGLEVEL_DEBUG, "[onWindowResize] New renderer successfully created!");

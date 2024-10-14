@@ -7,8 +7,12 @@
 
 status_t enqueueTile(TileQueue* queue, Tile* tile) {
 #ifdef DEBUG
-    snprintf(loggingBuffer, loggingBufferSize, "[enqueueTile] Queueing %s %s...", colorNames[tile->color], shapeNames[tile->shape]);
-    logToStream(defaultStream, LOGLEVEL_DEBUG, NULL);
+    logToStream(
+        defaultStream, LOGLEVEL_DEBUG, 
+        "[enqueueTile] Queueing %s %s...",
+        colorNames[tile->color],
+        shapeNames[tile->shape]
+    );
 #endif
     
     queue->writeIndex++;
@@ -31,12 +35,11 @@ status_t dequeueTile(TileQueue* queue, Tile** toStore) {
     if(queue->readIndex >= tileQueuedAmount + 1) queue->readIndex = 0;
     *toStore = queue->tiles[queue->readIndex];
 #ifdef DEBUG
-    snprintf(
-        loggingBuffer, loggingBufferSize, "[dequeueTile] Dequeued %s %s...", 
+    logToStream(
+        defaultStream, LOGLEVEL_DEBUG, "[dequeueTile] Dequeued %s %s...",
         colorNames[queue->tiles[queue->readIndex]->color],
         shapeNames[queue->tiles[queue->readIndex]->shape]
     );
-    logToStream(defaultStream, LOGLEVEL_DEBUG, NULL);
 #endif
     return SUCCESS;
 }
@@ -59,11 +62,10 @@ void printTileQueue(TileQueue* queue, FILE* stream) {
             if(index >= tileQueuedAmount + 1) index = 0;
             size++;
         };
-        snprintf(
-            loggingBuffer, loggingBufferSize, 
+        logToStream(
+            stream, LOGLEVEL_DEBUG,
             "[printTileQueue] Queue size: %llu", size
         );
-        logToStream(stream, LOGLEVEL_DEBUG, NULL);
         index = queue->readIndex;
         while(index != queue->writeIndex) {
             index++;

@@ -26,7 +26,6 @@
 #define soundtracksAmount 3
 #define soundEffectAmount 9 //left, right and down movement, drop, rotations, line clears
 #define tileQueuedAmount 4
-#define loggingBufferSize 1024
 
 #define defaultFallSpeed 1000
 #define defaultSpeedMultiplier 5
@@ -91,7 +90,9 @@ typedef enum LogLevel {
     LOGLEVEL_WARNING,
     LOGLEVEL_ERROR,
     LOGLEVEL_DEBUG,
-    LOGLEVEL_FATAL
+    LOGLEVEL_FATAL,
+    LOGLEVEL_TRACE,
+    LOGLEVEL_AMOUNT
 } LogLevel;
 
 /**

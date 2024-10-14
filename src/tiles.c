@@ -148,25 +148,34 @@ void freeTile(Tile* tile) {
     free(tile);
 }
 
-Tile* loadTileRandom(Point* coordinates, const int gridWidth, FILE* debug) {
+Tile* loadTileRandom(Point* coordinates, const int gridWidth) {
     TileColor color = rand() % (tileColorAmount - 1) + (BACKGROUND + 1); //Actual colors start at BACKGROUND + 1
     TileShape shape = rand() % (tileColorAmount - 1);
 #ifdef DEBUG
-    snprintf(loggingBuffer, loggingBufferSize, "[loadTileRandom] Color: %s, Shape: %s", colorNames[color], shapeNames[shape]);
-    logToStream(debug, LOGLEVEL_DEBUG, NULL);
+    logToStream(
+        defaultStream, LOGLEVEL_DEBUG,
+        "[loadTileRandom] Color: %s, Shape: %s",
+        colorNames[color], shapeNames[shape]
+    );
 #endif
     return loadTile(color, shape, coordinates, gridWidth);
 }
 
-void printTile(Tile* tile, FILE* stream) {
+void printTile(Tile* tile) {
     if(tile == NULL) {
-        logToStream(stream, LOGLEVEL_DEBUG, "[printTile] Nothing to print");
+        logToStream(
+            defaultStream, LOGLEVEL_DEBUG,
+            "[printTile] Nothing to print"
+        );
         return;
     }
-    snprintf(loggingBuffer, loggingBufferSize, 
-        "Tile color: %s\nTile shape: %s\nTile state: %s\nPosition: (%d, %d)\n", 
-        colorNames[tile->color], shapeNames[tile->shape], stateNames[tile->state],
+
+    logToStream(
+        defaultStream, LOGLEVEL_DEBUG,
+        "Tile color: %s\nTile shape: %s\nTile state: %s\nPosition: (%d, %d)\n",
+        colorNames[tile->color],
+        shapeNames[tile->shape], 
+        stateNames[tile->state],
         tile->position.x, tile->position.y
     );
-    logToStream(stream, LOGLEVEL_DEBUG, NULL);
 }

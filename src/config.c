@@ -324,8 +324,7 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
     while(fgets(buf, sizeof(buf), configFile)) {
         buf[strcspn(buf, "\n")] = '\0';
 #ifdef DEBUG
-        snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Read line: %s", buf);
-        logToStream(debugFile, LOGLEVEL_DEBUG, NULL);
+        logToStream(debugFile, LOGLEVEL_DEBUG, "[loadConfig] Read line: %s", buf);
 #endif
         if(buf[0] == '#') continue; //comment line
 
@@ -357,8 +356,7 @@ status_t loadConfig(FILE* configFile, FILE* debugFile, ProgramParameters* parame
         else if(valueLength >= sizeof(value) - 1) continue;
         strncpy(value, value1, valueLength);
 #ifdef DEBUG
-        snprintf(loggingBuffer, loggingBufferSize, "[loadConfig] Key: %s, Value: %s", key, value);
-        logToStream(debugFile, LOGLEVEL_DEBUG, NULL);
+        logToStream(debugFile, LOGLEVEL_DEBUG, "[loadConfig] Key: %s, Value: %s", key, value);
 #endif
         //...so anyway, let's begin this mess
 
@@ -561,41 +559,24 @@ void printKeymap(Keymap* keymap, FILE* stream) {
         key.integer = keymap_array->keys[i];
         int index = getKeystringIndex(key.integer);
         if(index == -1) {
-            snprintf(loggingBuffer, loggingBufferSize, "[printKeymap] %s key: %c", bindings[i], key.bytes[0]);
-            logToStream(stream, LOGLEVEL_INFO, NULL);
+            logToStream(stream, LOGLEVEL_INFO, "[printKeymap] %s key: %c", bindings[i], key.bytes[0]);
         }
         else {
-            snprintf(loggingBuffer, loggingBufferSize, "[printKeymap] %s key: %s", bindings[i], keynames[index]);
-            logToStream(stream, LOGLEVEL_INFO, NULL);
+            logToStream(stream, LOGLEVEL_INFO, "[printKeymap] %s key: %s", bindings[i], keynames[index]);
         }
     }
 }
 
 void printConfig(ProgramParameters* params, FILE* stream) {
     if(stream == NULL) return;
-    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Screen width: %d px", params->screenSize.width);
-    logToStream(stream, LOGLEVEL_INFO, NULL);
-
-    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Screen height: %d px", params->screenSize.height);
-    logToStream(stream, LOGLEVEL_INFO, NULL);
-
-    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] FPS: %d", params->fps);
-    logToStream(stream, LOGLEVEL_INFO, NULL);
-
-    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Base fall speed: %d ms", params->baseFallSpeed);
-    logToStream(stream, LOGLEVEL_INFO, NULL);
-
-    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Speed multiplier: %d", params->speedMultiplier);
-    logToStream(stream, LOGLEVEL_INFO, NULL);
-
-    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Scaling factor: %g", params->scalingFactor);
-    logToStream(stream, LOGLEVEL_INFO, NULL);
-
-    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Grid height: %d", params->gridSize.height);
-    logToStream(stream, LOGLEVEL_INFO, NULL);
-
-    snprintf(loggingBuffer, loggingBufferSize, "[printConfig] Grid width: %d", params->gridSize.width);
-    logToStream(stream, LOGLEVEL_INFO, NULL);
+    logToStream(stream, LOGLEVEL_INFO, "[printConfig] Screen width: %d px", params->screenSize.width);
+    logToStream(stream, LOGLEVEL_INFO, "[printConfig] Screen height: %d px", params->screenSize.height);
+    logToStream(stream, LOGLEVEL_INFO, "[printConfig] FPS: %d", params->fps);
+    logToStream(stream, LOGLEVEL_INFO, "[printConfig] Base fall speed: %d ms", params->baseFallSpeed);
+    logToStream(stream, LOGLEVEL_INFO, "[printConfig] Speed multiplier: %d", params->speedMultiplier);
+    logToStream(stream, LOGLEVEL_INFO, "[printConfig] Scaling factor: %g", params->scalingFactor);
+    logToStream(stream, LOGLEVEL_INFO, "[printConfig] Grid height: %d", params->gridSize.height);
+    logToStream(stream, LOGLEVEL_INFO, "[printConfig] Grid width: %d", params->gridSize.width);
 
     printKeymap(&params->keymap, stream);
 }

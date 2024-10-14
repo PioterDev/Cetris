@@ -6,7 +6,7 @@ SUBSYSTEM = -Wl,-subsystem,windows
 SRCDIR = src
 INCDIR = include
 BUILDDIR = build
-LIBDIR = D:/Projects/CLibs
+LIBDIR = G:/Projects/CLibs
 
 SDLINCLUDE 		= $(LIBDIR)/SDL2/include/SDL2
 SDLIMAGEINCLUDE	= $(LIBDIR)/SDL2_image/include/SDL2

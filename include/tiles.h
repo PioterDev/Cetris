@@ -46,18 +46,17 @@ void freeTile(Tile* tile);
  * 
  * @param coordinates pointer to Point struct of the tile
  * @param gridWidth width of the game matrix
- * @param debug debug stream, optional
  * @return pointer to Tile struct, NULL on error
  */
-Tile* loadTileRandom(Point* coordinates, const int gridWidth, FILE* debug);
+Tile* loadTileRandom(Point* coordinates, const int gridWidth);
 
 /**
- * @brief Prints information about given tile to the given stream.
+ * @brief Prints information about given tile to the defualt stream.
  * 
  * @param tile tile
  * @param stream stream
  */
-void printTile(Tile* tile, FILE* stream);
+void printTile(Tile* tile);
 
 
 #endif

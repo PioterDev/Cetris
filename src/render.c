@@ -22,8 +22,11 @@ void calculateScalingFactor(ProgramParameters* parameters) {
     
     double tempH = H / hB, tempW = W / wB;
 #ifdef DEBUG
-    snprintf(loggingBuffer, loggingBufferSize, "[calculateScalingFactor] %g %g %g %g %g %g", tempH, tempW, hB, wB, H, W);
-    logToStream(parameters->log, LOGLEVEL_DEBUG, NULL);
+    logToStream(
+        parameters->log, LOGLEVEL_DEBUG, 
+        "[calculateScalingFactor] %g %g %g %g %g %g", 
+        tempH, tempW, hB, wB, H, W
+    );
 #endif
     if(hB > H || wB > W) { //scale down
 #ifdef DEBUG
@@ -106,12 +109,18 @@ DWORD WINAPI renderScreen(void* params) {
                     if(color == GHOST) {
                         color = programParameters->currentTile->color;
                         if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current)) {
-                            snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game running] Error rendering tile: %s", SDL_GetError());
-                            logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                            logToStream(
+                                programParameters->log, LOGLEVEL_ERROR, 
+                                "[Render thread/Game running] Error rendering tile: %s",
+                                SDL_GetError()
+                            );
                         }
                         if(SDL_RenderFillRect(renderer, &current)) {
-                            snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game running] Error rendering tile: %s", SDL_GetError());
-                            logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                            logToStream(
+                                programParameters->log, LOGLEVEL_ERROR, 
+                                "[Render thread/Game running] Error rendering tile: %s",
+                                SDL_GetError()
+                            );
                         }
                     }
                     else {
@@ -119,8 +128,11 @@ DWORD WINAPI renderScreen(void* params) {
                         current.y = P.y + i * current.h;
                         current.x = P.x + j * current.w;
                         if(SDL_RenderCopy(renderer, baseTextures[color], NULL, &current)) {
-                            snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game running] Error rendering tile: %s", SDL_GetError());
-                            logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                            logToStream(
+                                programParameters->log, LOGLEVEL_ERROR,
+                                "[Render thread/Game running] Error rendering tile: %s",
+                                SDL_GetError()
+                            );
                         }
                     }
                 }
@@ -132,8 +144,11 @@ DWORD WINAPI renderScreen(void* params) {
                 for(unsigned int j = 0; j < programParameters->gridSize.width; j++) {
                     current.x = P.x + j * current.w;
                     if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current)) {
-                        snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game not running] Error rendering tile: %s", SDL_GetError());
-                        logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                        logToStream(
+                            programParameters->log, LOGLEVEL_ERROR,
+                            "[Render thread/Game not running] Error rendering tile: %s",
+                            SDL_GetError()
+                        );
                     }
                 }
             }
@@ -146,8 +161,11 @@ DWORD WINAPI renderScreen(void* params) {
                 for(int j = 0; j < maxTileSize; j++) {
                     current.x = P.x + (j - maxTileSize - 1) * current.w;
                     if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current)) {
-                        snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game not running] Error rendering tile: %s", SDL_GetError());
-                        logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                        logToStream(
+                            programParameters->log, LOGLEVEL_ERROR,
+                            "[Render thread/Game not running] Error rendering tile: %s",
+                            SDL_GetError()
+                        );
                     }
                 }
             }
@@ -164,8 +182,11 @@ DWORD WINAPI renderScreen(void* params) {
                             j == holdPositions[programParameters->heldTile->shape][k][0]
                         ) {
                             if(SDL_RenderCopy(renderer, baseTextures[programParameters->heldTile->color], NULL, &current)) {
-                                snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game not running] Error rendering tile: %s", SDL_GetError());
-                                logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                                logToStream(
+                                    programParameters->log, LOGLEVEL_ERROR,
+                                    "[Render thread/Game not running] Error rendering tile: %s",
+                                    SDL_GetError()
+                                );
                             }
                             rendered = true;
                             break;
@@ -173,8 +194,11 @@ DWORD WINAPI renderScreen(void* params) {
                     }
                     if(!rendered) {
                         if(SDL_RenderCopy(renderer, baseTextures[0], NULL, &current)) {
-                            snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Game not running] Error rendering tile: %s", SDL_GetError());
-                            logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                            logToStream(
+                                programParameters->log, LOGLEVEL_ERROR,
+                                "[Render thread/Game not running] Error rendering tile: %s",
+                                SDL_GetError()
+                            );
                         }
                     }
                 }
@@ -194,8 +218,11 @@ DWORD WINAPI renderScreen(void* params) {
         current.y = (P.y - 2 * current.h) + (programParameters->gridSize.height * 3 / 4) * current.h;
         do {
             if(SDL_RenderCopy(renderer, digits[combo % 10], NULL, &current)) {
-                snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Combo] Error rendering digit: %s", SDL_GetError());
-                logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                logToStream(
+                    programParameters->log, LOGLEVEL_ERROR,
+                    "[Render thread/Combo] Error rendering digit: %s",
+                    SDL_GetError()
+                );
             }
             combo /= 10;
             current.x -= current.w;
@@ -215,8 +242,11 @@ DWORD WINAPI renderScreen(void* params) {
         current.y = P.y + (programParameters->gridSize.height * 3 / 4) * current.h;
         do {
             if(SDL_RenderCopy(renderer, digits[score % 10], NULL, &current)) {
-                snprintf(loggingBuffer, loggingBufferSize, "[Render thread/Score] Error rendering digit: %s", SDL_GetError());
-                logToStream(programParameters->log, LOGLEVEL_ERROR, NULL);
+                logToStream(
+                    programParameters->log, LOGLEVEL_ERROR,
+                    "[Render thread/Score] Error rendering digit: %s",
+                    SDL_GetError()
+                );
             }
             score /= 10;
             current.x -= current.w;

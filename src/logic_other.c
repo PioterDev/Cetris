@@ -13,12 +13,11 @@ status_t loadTileIntoGrid(ProgramParameters* parameters) {
     if(tile == NULL) return MEMORY_FAILURE;
     if(tile->state == STATE_UNKNOWN) return FAILURE;
 #ifdef DEBUG
-    snprintf(
-        loggingBuffer, loggingBufferSize, "[loadTileIntoGrid] Attempting to load a %s %s tile...", 
+    logToStream(parameters->log, LOGLEVEL_DEBUG, 
+        "[loadTileIntoGrid] Attempting to load a %s %s tile...", 
         colorNames[tile->color],
         shapeNames[tile->shape]
-    );
-    logToStream(defaultStream, LOGLEVEL_DEBUG, NULL);    
+    );    
 #endif
     int n = occupiedAmount[tile->state];
     if(n == 0) return BASEOUTOFRANGE;
@@ -41,7 +40,10 @@ status_t loadTileIntoGrid(ProgramParameters* parameters) {
     }
     parameters->flags.tileRecentlyLoaded = true;
 #ifdef DEBUG
-    logToStream(defaultStream, LOGLEVEL_DEBUG, "[loadTileIntoGrid] Successfully loaded tile into grid.");
+    logToStream(
+        parameters->log, LOGLEVEL_DEBUG, 
+        "[loadTileIntoGrid] Successfully loaded tile into grid."
+    );
 #endif
     return SUCCESS;
 }
